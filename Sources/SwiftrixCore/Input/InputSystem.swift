@@ -8,6 +8,12 @@ public protocol InputSystem {
     func isButtonUp(_ name: String) -> Bool
     func isButtonPressed(_ name: String) -> Bool
     func eventsStream() -> AsyncStream<ControlEvent>
+    /// Returns and clears pending events since the last call.
+    func pendingEvents() -> [ControlEvent]
+}
+
+public extension InputSystem {
+    func pendingEvents() -> [ControlEvent] { [] }
 }
 
 /// Simple in-memory input system suitable for tests.
@@ -21,6 +27,7 @@ public final class DefaultInputSystem: InputSystem {
     private var buttonsDown: Set<String> = []
     private var buttonsPressed: Set<String> = []
     private var continuations: [EventContinuation] = []
+    private var eventQueue: [ControlEvent] = []
 
     public init() {}
 
@@ -54,7 +61,18 @@ public final class DefaultInputSystem: InputSystem {
         }
     }
 
-    // MARK: - Test helpers
+    public func pendingEvents() -> [ControlEvent] {
+        let events = eventQueue
+        eventQueue.removeAll()
+        return events
+    }
+
+    /// Returns a copy of current axis values for debugging purposes.
+    public func snapshotAxes() -> [String: AxisValue] {
+        axisValues
+    }
+
+    // MARK: - Host/test helpers
     public func send(event: ControlEvent) {
         switch event {
         case .axisChanged(let name, let value):
@@ -65,6 +83,7 @@ public final class DefaultInputSystem: InputSystem {
         case .buttonUp(let name):
             buttonsDown.remove(name)
         }
+        eventQueue.append(event)
         continuations.forEach { $0.continuation.yield(event) }
     }
 }

@@ -28,4 +28,15 @@ public enum SceneGraphTraversal {
             depthFirstDraw(objects: object.children)
         }
     }
+
+    public static func dispatchControlEvents(_ events: [ControlEvent], to objects: [GameObject]) {
+        guard !events.isEmpty else { return }
+        for object in objects where object.isEnabled && !object.isDestroyed {
+            let controls = object.components.compactMap { $0 as? ControlComponent }
+            for control in controls where control.isEnabled {
+                events.forEach { control.handle(event: $0) }
+            }
+            dispatchControlEvents(events, to: object.children)
+        }
+    }
 }

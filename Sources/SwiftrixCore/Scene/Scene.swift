@@ -4,6 +4,7 @@ public protocol Scene: AnyObject, Updatable {
     var rootObjects: [GameObject] { get }
     var eventBus: EventBus { get }
     var inputSystem: InputSystem? { get set }
+    var physicsWorld: PhysicsWorld { get }
 
     func addRootObject(_ object: GameObject)
     func removeRootObject(_ object: GameObject)

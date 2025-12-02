@@ -1,10 +1,12 @@
 import XCTest
+import CoreGraphics
 @testable import SwiftrixCore
 
 private final class StubScene: Scene {
     var rootObjects: [GameObject] = []
     let eventBus: EventBus = DefaultEventBus()
     var inputSystem: InputSystem?
+    let physicsWorld: PhysicsWorld = NoopPhysicsWorld()
 
     var updateCount = 0
     var fixedCount = 0
@@ -16,6 +18,13 @@ private final class StubScene: Scene {
     func update(deltaTime: TimeInterval) { updateCount += 1 }
     func fixedUpdate(fixedDeltaTime: TimeInterval) { fixedCount += 1 }
     func draw() { drawCount += 1 }
+}
+
+private final class NoopPhysicsWorld: PhysicsWorld {
+    func addCollider(_ collider: Collider) {}
+    func removeCollider(_ collider: Collider) {}
+    func step(fixedDeltaTime: TimeInterval, eventBus: EventBus) {}
+    func query(overlap rect: CGRect, in group: CollisionGroup?) -> [Collider] { [] }
 }
 
 final class GameLoopTests: XCTestCase {

@@ -7,6 +7,9 @@ public enum DebugIntrospection {
         for object in scene.rootObjects {
             lines.append(contentsOf: describeObject(object, indent: 0))
         }
+        if let input = scene.inputSystem as? DefaultInputSystem {
+            lines.append("Input axes: \(inputAxesSummary(input))")
+        }
         return lines.joined(separator: "\n")
     }
 
@@ -17,5 +20,11 @@ public enum DebugIntrospection {
             lines.append(contentsOf: describeObject(child, indent: indent + 1))
         }
         return lines
+    }
+
+    private static func inputAxesSummary(_ input: DefaultInputSystem) -> String {
+        let axes = input.snapshotAxes()
+        guard !axes.isEmpty else { return "none" }
+        return axes.keys.sorted().joined(separator: ", ")
     }
 }
