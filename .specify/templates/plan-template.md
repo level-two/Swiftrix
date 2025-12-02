@@ -31,7 +31,18 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- Engine core changes MUST preserve core-only architecture: no new direct
+  dependencies on rendering, input, audio, or resource-loading frameworks from
+  core modules.
+- Planned public API changes MUST be explicitly listed, documented, and mapped
+  to a semantic version bump type (MAJOR/MINOR/PATCH) with rationale.
+- Every new behavior MUST have planned unit tests that will fail before
+  implementation and pass after; plans that omit tests are not acceptable.
+- The feature MUST keep the package consumable as a SwiftPM dependency with
+  clear target/module boundaries.
+ - Plans SHOULD consider observability and AI-assisted workflows: new systems
+   and features SHOULD expose state and behavior in ways that are inspectable
+   by tools and AI agents (e.g., via explicit structures, logs, or debug views).
 
 ## Project Structure
 

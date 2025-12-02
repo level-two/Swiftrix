@@ -8,7 +8,12 @@ description: "Task list template for feature implementation"
 **Input**: Design documents from `/specs/[###-feature-name]/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: The examples below include test tasks. Unit tests are MANDATORY for
+all new engine behavior. Additional test types (e.g., contract or integration
+tests) are OPTIONAL and only included if explicitly requested in the feature
+specification. Observability-related work (e.g., debug views, structured
+logging, introspection helpers) SHOULD be captured as tasks when it materially
+improves engine clarity or AI-assisted workflows.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
