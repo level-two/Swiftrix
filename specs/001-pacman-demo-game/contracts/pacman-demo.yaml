@@ -1,0 +1,96 @@
+openapi: 3.0.3
+info:
+  title: Pacman Demo Control API (Conceptual)
+  version: 1.0.0
+  description: >
+    Conceptual contracts for user actions in the Pacman demo game.
+    These describe logical interactions rather than a concrete network API.
+
+paths:
+  /pacman-demo/session:
+    post:
+      summary: Start a new Pacman demo session
+      description: Initialize a new PlayerSession with maze, Pacman, ghosts, score, and lives.
+      responses:
+        '201':
+          description: Session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlayerSession'
+
+  /pacman-demo/session/{sessionId}/input:
+    post:
+      summary: Submit a directional input
+      description: Apply a directional action (up, down, left, right) from the on-screen keyboard.
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                direction:
+                  type: string
+                  enum: [up, down, left, right]
+              required: [direction]
+      responses:
+        '200':
+          description: Updated session state after applying input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlayerSession'
+
+  /pacman-demo/session/{sessionId}/restart:
+    post:
+      summary: Restart the current Pacman demo session
+      description: Reset score, lives, maze, and entities to initial state.
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Restarted session state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlayerSession'
+
+components:
+  schemas:
+    PlayerSession:
+      type: object
+      properties:
+        id:
+          type: string
+        score:
+          type: integer
+          minimum: 0
+        livesRemaining:
+          type: integer
+          minimum: 0
+        isActive:
+          type: boolean
+        isGameOver:
+          type: boolean
+        pelletCountRemaining:
+          type: integer
+          minimum: 0
+      required:
+        - id
+        - score
+        - livesRemaining
+        - isActive
+        - isGameOver
+        - pelletCountRemaining
+
