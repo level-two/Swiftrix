@@ -1,125 +1,155 @@
 # Data Model: Pacman Demo Game Controlled by On-Screen Keyboard
 
-## Overview
+**Feature**: /Users/elychkouski/my-work/clanbomber-remake/Swiftrix/specs/001-pacman-demo-game/spec.md  
+**Branch**: 001-pacman-demo-game  
+**Date**: 2025-12-03
 
-The Pacman demo uses SwiftrixCore for game state and logic, with SpriteKit responsible for rendering. All persistent state is in-memory for the duration of a single play session; there is no long-term storage.
+This document describes the conceptual entities, fields, and relationships used by the Pacman demo game. It is implementation-agnostic and focuses on behavior implied by the spec and research.
+
+---
 
 ## Entities
 
-### PlayerSession
+### PacmanSession
 
-- **Description**: Represents a single run of the Pacman demo.
-- **Fields**:
-  - `id`: Unique identifier for the session (in-memory).
-  - `score`: Integer ≥ 0.
-  - `livesRemaining`: Integer ≥ 0 (e.g., initial value 3).
-  - `isActive`: Boolean flag indicating if the session is currently running.
-  - `isGameOver`: Boolean flag indicating if the session has ended.
-  - `maze`: Reference to the current `Maze` instance.
-  - `pacman`: Reference to the current `PacmanCharacter`.
-  - `ghosts`: Collection of `Ghost` entities.
-  - `createdAt`: Timestamp for session start (in-memory).
-  - `endedAt`: Optional timestamp when session ended.
-- **Validation Rules**:
-  - `livesRemaining` must not be negative.
-  - `isGameOver` implies `isActive == false`.
-  - `maze`, `pacman`, and `ghosts` must be non-null while `isActive == true`.
+Represents a single playable session of the Pacman demo.
+
+- **Fields**
+  - `score`: current integer score for the session.
+  - `livesRemaining`: number of lives still available to the player.
+  - `status`: enum or equivalent with values such as `running`, `gameOver`, `completed`.
+  - `maze`: reference to the current `Maze` layout.
+  - `pacman`: reference to the `Pacman` character.
+  - `ghosts`: collection of `Ghost` entities.
+  - `pelletsRemaining`: count of pellets still present in the maze.
+  - `tickCount`: optional counter for debugging and deterministic updates.
+  - `lastInputDirection`: most recent directional intent coming from input.
+
+- **Relationships**
+  - Owns exactly one `Maze` instance.
+  - Owns exactly one `Pacman` instance.
+  - Owns one or more `Ghost` instances.
+  - Depends on `InputState` for directional intent and restart signals.
+
+- **State Transitions**
+  - `running` → `gameOver` when `livesRemaining` reaches zero.
+  - `running` → `completed` when `pelletsRemaining` reaches zero.
+  - `gameOver` or `completed` → `running` on session restart (state reset).
+
+---
 
 ### Maze
 
-- **Description**: Static layout for a single Pacman-style level.
-- **Fields**:
-  - `width`: Integer > 0.
-  - `height`: Integer > 0.
-  - `cells`: 2D collection of `MazeCell`.
-  - `pelletCountTotal`: Integer ≥ 0.
-  - `pelletCountRemaining`: Integer ≥ 0.
-- **Validation Rules**:
-  - `pelletCountRemaining` ≤ `pelletCountTotal`.
-  - `width` and `height` must match the dimensions of `cells`.
+Represents the static layout and dynamic pellet state of the Pacman level.
+
+- **Fields**
+  - `gridWidth`, `gridHeight`: dimensions of the maze grid.
+  - `cells`: 2D structure of `MazeCell` values.
+  - `initialPacmanPosition`: starting coordinates for `Pacman`.
+  - `initialGhostPositions`: starting coordinates for each `Ghost`.
+
+- **Relationships**
+  - Composed of multiple `MazeCell` instances.
+  - Used by `PacmanSession` to determine valid movement and collision.
+
+- **Validation Rules**
+  - Exactly one valid starting position for `Pacman`.
+  - At least one pellet in the maze.
+  - Outer boundaries and internal walls must prevent escaping the playable area.
+
+---
 
 ### MazeCell
 
-- **Description**: A single position in the maze grid.
-- **Fields**:
-  - `x`: Integer coordinate within `[0, width)`.
-  - `y`: Integer coordinate within `[0, height)`.
-  - `isWall`: Boolean.
-  - `hasPellet`: Boolean.
-  - `isSpawnPointPacman`: Boolean (optional spawn location).
-  - `isSpawnPointGhost`: Boolean (optional spawn location).
-- **Validation Rules**:
-  - A cell cannot simultaneously be a wall and a spawn point.
-  - Spawn points must not be walls.
+Represents a single grid location in the maze.
 
-### PacmanCharacter
+- **Fields**
+  - `x`, `y`: coordinates in the maze grid.
+  - `isWall`: whether this cell blocks movement.
+  - `hasPellet`: whether this cell currently contains a collectible pellet.
+  - `isSpawnArea`: optional flag for ghost or Pacman spawn areas.
 
-- **Description**: Player-controlled character.
-- **Fields**:
-  - `position`: Coordinate or maze cell index.
-  - `direction`: Enumeration (up, down, left, right, none).
-  - `pendingDirection`: Optional direction requested by the on-screen keyboard (for cornering).
-  - `speed`: Movement speed in cells per second or equivalent unit.
-- **Validation Rules**:
-  - `position` must correspond to a non-wall cell.
-  - Movement updates must not move Pacman through wall cells.
+- **Relationships**
+  - Belongs to exactly one `Maze`.
+
+- **Validation Rules**
+  - A cell cannot be both a wall and contain a pellet.
+  - Spawn areas must not be walls.
+
+---
+
+### Pacman
+
+Represents the player-controlled character.
+
+- **Fields**
+  - `position`: current coordinate in the `Maze` grid.
+  - `direction`: current movement direction (e.g., up, down, left, right, none).
+  - `pendingDirection`: optional next direction requested by input when immediate turn is not possible.
+
+- **Relationships**
+  - Belongs to a `PacmanSession`.
+  - Moves within a `Maze`.
+
+- **Validation Rules**
+  - Movement attempts into walls are ignored; Pacman remains in place or keeps current direction when possible.
+
+---
 
 ### Ghost
 
-- **Description**: Autonomous enemy character.
-- **Fields**:
-  - `id`: Identifier for the ghost.
-  - `position`: Coordinate or maze cell index.
-  - `direction`: Enumeration (up, down, left, right, none).
-  - `speed`: Movement speed (may differ from Pacman).
-  - `behaviorMode`: Simple mode (e.g., “chase” / “scatter” or similar basic pattern).
-- **Validation Rules**:
-  - `position` must correspond to a non-wall cell.
-  - Movement updates must respect maze walls.
+Represents an autonomous opponent.
 
-### OnScreenKey
+- **Fields**
+  - `id`: identifier for the ghost (for debugging/visual differentiation).
+  - `position`: current coordinate in the `Maze`.
+  - `direction`: current movement direction.
+  - `behaviorMode`: simple mode flag (e.g., normal chase/patrol).
 
-- **Description**: Represents a single button in the on-screen keyboard overlay.
-- **Fields**:
-  - `id`: Identifier (e.g., "up", "down", "left", "right").
-  - `label`: Text or icon mapping to the displayed control.
-  - `action`: Logical input action (e.g., change Pacman direction).
-  - `isPressed`: Boolean visual state.
-- **Validation Rules**:
-  - `action` must map to a valid game input (e.g., one of the allowed directions).
+- **Relationships**
+  - Belongs to a `PacmanSession`.
+  - Moves within a `Maze`.
 
-## State Transitions
+- **Validation Rules**
+  - Ghosts must not occupy invalid wall cells.
+  - Movement rules must avoid undefined positions outside the maze.
 
-### Session Lifecycle
+---
 
-- **Start Session**:
-  - Initial state: no active session or previous session ended.
-  - Action: initialize `PlayerSession` with default `score`, `livesRemaining`, maze, Pacman, and ghosts.
-  - Result: `isActive = true`, `isGameOver = false`.
+### InputState
 
-- **Game Over**:
-  - Trigger: `livesRemaining` reaches 0.
-  - Action: mark session as ended.
-  - Result: `isActive = false`, `isGameOver = true`, `endedAt` set.
+Represents the most recent input intent from the on-screen keyboard (and optionally other inputs).
 
-- **Restart Session**:
-  - Trigger: user chooses restart (game over or mid-game).
-  - Action: create new `PlayerSession` or reset fields to initial values.
-  - Result: new active session with clean maze, score, and lives.
+- **Fields**
+  - `requestedDirection`: last direction requested by the user.
+  - `restartRequested`: boolean indicating whether the user has requested a session restart.
 
-### Movement and Input
+- **Relationships**
+  - Read by `PacmanSession` or `PacmanSystem` during each update to adjust Pacman’s movement and handle restarts.
 
-- **Directional Input**:
-  - Trigger: user presses an `OnScreenKey`.
-  - Action: set `pendingDirection` or `direction` on `PacmanCharacter` if movement is possible.
-  - Result: engine updates `position` on each tick, respecting walls.
+- **Validation Rules**
+  - `requestedDirection` must be one of the supported directions or a neutral value.
 
-- **Pellet Collection**:
-  - Trigger: Pacman moves into a cell with `hasPellet == true`.
-  - Action: clear pellet from cell, decrement `pelletCountRemaining`, increment `score`.
-  - Result: if `pelletCountRemaining` reaches 0, level is considered cleared (end-of-round behavior can be treated as “win/game over” for this demo).
+---
 
-- **Ghost Collision**:
-  - Trigger: Pacman and a ghost occupy the same cell.
-  - Action: decrement `livesRemaining`, reset Pacman and ghosts to spawn positions; if `livesRemaining` is now 0, transition to game over.
+### HUDState
+
+Represents the information shown in the Pacman demo interface.
+
+- **Fields**
+  - `displayScore`: value derived from `PacmanSession.score`.
+  - `displayLives`: value derived from `PacmanSession.livesRemaining`.
+  - `displayStatus`: textual or symbolic status (e.g., “Ready”, “Game Over”, “You Win!”).
+
+- **Relationships**
+  - Derived from `PacmanSession`; rendered by the host app.
+
+---
+
+## Summary of Relationships
+
+- A `PacmanSession` owns one `Maze`, one `Pacman`, multiple `Ghost` instances, and holds counters derived from `MazeCell` pellet state.
+- `Maze` is composed of many `MazeCell` entries defining walls, paths, and pellets.
+- `InputState` is produced by the on-screen keyboard and consumed by the session/system to update movement and restart behavior.
+- `HUDState` is a read-only projection of session data for display in the UI.
 

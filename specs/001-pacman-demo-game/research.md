@@ -1,59 +1,115 @@
-# Phase 0 Research: Pacman Demo Game Controlled by On-Screen Keyboard
+# Research & Decisions: Pacman Demo Game Controlled by On-Screen Keyboard
 
-## Unknowns and Decisions
+**Feature**: /Users/elychkouski/my-work/clanbomber-remake/Swiftrix/specs/001-pacman-demo-game/spec.md  
+**Branch**: 001-pacman-demo-game  
+**Date**: 2025-12-03
 
-### Rendering and Engine Integration
+This document captures design-time research and decisions for implementing the Pacman demo game on top of SwiftrixCore with SpriteKit rendering in the SwiftrixTest host app.
 
-- **Unknown**: How to combine SwiftrixCore’s game loop and entities with SpriteKit scenes in the SwiftrixTest app.
-- **Decision**: Use SwiftrixCore as the authoritative game engine (game loop, entities, physics, input mapping) and treat SpriteKit purely as the rendering layer inside the SwiftrixGame app.
-- **Rationale**: Keeps the Pacman demo aligned with the primary purpose of SwiftrixCore (engine abstraction) while leveraging SpriteKit’s strengths in 2D rendering, animations, and scene management.
-- **Alternatives considered**:
-  - Implementing Pacman directly with SpriteKit only (bypassing SwiftrixCore) — rejected because it would not showcase Swiftrix as a game engine, which is the main goal of the demo.
-  - Implementing a custom rendering backend inside SwiftrixCore without SpriteKit — rejected for this demo because it would significantly increase implementation effort without clear benefit compared to using the platform-native 2D engine.
+---
 
-### On-Screen Keyboard Input Model
+## Unknowns and Clarifications
 
-- **Unknown**: How to structure on-screen keyboard input so it works consistently across macOS and iOS inside SwiftrixTest.
-- **Decision**: Model the on-screen keyboard as a UI overlay (SpriteKit nodes) in the SwiftrixGame scene that translates tap/click events into Swiftrix input actions (e.g., directional commands) passed into the engine’s input system.
-- **Rationale**: Keeps UI concerns on the SpriteKit side while ensuring the game logic only depends on abstract input actions, allowing future reuse of the Pacman logic with different input mechanisms (e.g., physical keyboard, controller).
-- **Alternatives considered**:
-  - Wiring on-screen buttons directly to SpriteKit-specific movement logic — rejected because it would duplicate logic that should live inside SwiftrixCore and reduce portability.
-  - Implementing a separate UIKit/AppKit overlay for controls instead of SpriteKit nodes — rejected for this demo to keep everything inside a single SpriteKit scene.
+From the technical context and spec, the main questions were:
 
-### Game Scope and Features
+1. How strictly should Pacman logic be separated into the engine core versus the SpriteKit scene?
+2. What level of ghost AI and maze complexity is appropriate for an MVP demo?
+3. How should controls be structured so that on-screen input is the primary control method while still allowing optional keyboard input during development?
 
-- **Unknown**: How far to go beyond a minimal Pacman implementation (multiple levels, power-ups, advanced ghost AI, etc.).
-- **Decision**: Implement a single-level Pacman-style maze with basic pellet collecting, simple ghost movement, score, and lives, without power-ups or multi-level progression.
-- **Rationale**: The spec defines the feature as a demo to showcase the engine and on-screen controls; focusing on a single level keeps scope manageable and allows time to polish controls and stability.
-- **Alternatives considered**:
-  - Adding multiple levels and power-ups (e.g., energizers, frightened ghost mode) — rejected for this iteration due to additional complexity and testing surface area.
-  - Implementing a very minimal prototype without ghosts — rejected because ghosts are key to the Pacman experience and are explicitly mentioned in the spec.
+All of these have been resolved in the decisions below; no remaining NEEDS CLARIFICATION markers are carried forward into later phases.
 
-### Audio and Effects
+---
 
-- **Unknown**: Whether to include sounds or music in the first iteration.
-- **Decision**: Do not include any sounds or music in this demo, in line with the user input.
-- **Rationale**: The user explicitly requested “No sounds at the moment”; omitting audio reduces complexity and keeps the focus on engine integration and input responsiveness.
-- **Alternatives considered**:
-  - Adding simple sound effects for pellet collection and death — deferred to a potential future iteration once core gameplay and controls are validated.
+## Engine vs. Rendering Separation
 
-### Testing Strategy
+**Decision**: Pacman game rules and state live in SwiftrixCore as a reusable example system; SpriteKit is used only for rendering and input collection in SwiftrixTest.
 
-- **Unknown**: What level of automated testing is appropriate for a visual demo game.
-- **Decision**: Focus tests on engine-level logic and integration, including:
-  - Unit tests for Pacman movement, collision detection, scoring, and life management in SwiftrixCore.
-  - Integration tests that simulate directional input sequences and verify resulting game state (e.g., clearing pellets, triggering game over).
-  - Light sanity checks that the Pacman scene can be created and started in the SwiftrixGame target (where feasible).
-- **Rationale**: Many visual and UX aspects require manual validation, but game rules and state transitions are well-suited for automated tests.
-- **Alternatives considered**:
-  - Relying on manual testing only — rejected because it increases regression risk and contradicts typical test-first expectations for engine logic.
-  - Attempting full UI automation for SpriteKit scenes — deferred due to complexity and limited benefit for an internal demo.
+- Pacman entities (Pacman, ghosts, pellets, maze) and session state live under
+  `/Users/elychkouski/my-work/clanbomber-remake/Swiftrix/Sources/SwiftrixCore/Examples/Pacman/`.
+- A `PacmanSession` (or equivalent) coordinates the maze, score, lives, and game status and is advanced by an engine-style system (`PacmanSystem`) on each update tick.
+- The host app (`/Users/elychkouski/my-work/clanbomber-remake/SwiftrixTest/SwiftrixGame/`) uses SpriteKit to visualize the current engine state and to send input events (desired direction, restart) back into the Pacman session/system.
+- No SpriteKit, UIKit, or platform APIs are imported in engine modules; all such dependencies remain in the SwiftrixTest app.
 
-## Clarifications Resolved
+**Rationale**:
 
-- Use SwiftrixCore as the primary engine and SpriteKit as the rendering layer inside the SwiftrixGame app.
-- Target macOS 13+ and iOS 16+ using Swift 5.9, matching the existing Swiftrix setup.
-- Limit scope to a single-level Pacman demo with ghosts, pellets, score, and lives, without multi-level progression or power-ups.
-- Exclude audio for this iteration, as requested.
-- Provide on-screen controls as SpriteKit UI elements that translate into Swiftrix input actions, ensuring the demo is fully playable with the on-screen keyboard alone.
+- Keeps the engine core platform-agnostic per the Swiftrix constitution.
+- Allows Pacman behavior to be reused or tested without SpriteKit, making it a good reference example.
+- Simplifies manual reasoning and AI-assisted inspection because Pacman state is represented in plain Swift structures.
+
+**Alternatives considered**:
+
+- Implementing Pacman entirely inside a SpriteKit scene with ad-hoc state:
+  - Rejected: tightly couples game logic to rendering, making it harder to reuse or test.
+- Embedding Pacman logic in a separate non-engine module within SwiftrixTest:
+  - Rejected: would underuse SwiftrixCore and not demonstrate engine capabilities.
+
+---
+
+## Ghost Behavior and Maze Complexity
+
+**Decision**: Use a single fixed maze layout and simple, deterministic ghost movement suitable for a demo.
+
+- Maze: one pre-defined grid layout configured in `PacmanMaze` with walls, paths, and pellet positions.
+- Ghost AI: simple behavior (e.g., constant-speed movement along valid paths with basic direction choices) sufficient to make ghosts a real hazard but not requiring full Pacman-accurate AI.
+- Difficulty and pacing tuned for demonstration: ghosts move at a speed that keeps the game engaging but not frustrating during short test sessions.
+
+**Rationale**:
+
+- Keeps implementation focused on demonstrating Swiftrix integration rather than replicating every detail of the original Pacman.
+- Single maze and simple AI keep scope small and predictable for manual QA.
+- Deterministic movement makes debugging and automated testing easier.
+
+**Alternatives considered**:
+
+- Multiple levels with increasing difficulty:
+  - Rejected for MVP due to additional design and testing complexity.
+- Full Pacman-accurate AI:
+  - Rejected as overkill for a demo whose goal is to showcase the engine and on-screen controls.
+
+---
+
+## Input Model and On-Screen Controls
+
+**Decision**: Treat the on-screen control overlay as the primary input path; represent input as a simple directional intent consumed by the Pacman engine.
+
+- On-screen controls: rendered in `PacmanGameScene` with one button for each direction and a visible restart control.
+- Input abstraction: the scene translates taps into a directional intent (e.g., up, down, left, right) and passes this to the Pacman engine/session.
+- Keyboard input: may be optionally mapped during development (e.g., arrow keys) but is not required for feature success and is not part of the core spec.
+
+**Rationale**:
+
+- Aligns directly with the user stories, which emphasize on-screen keyboard control.
+- Keeps the engine’s view of input simple and decoupled from the specific UI implementation.
+- Supports future reuse of Pacman logic with different input schemes (gamepad, network, etc.).
+
+**Alternatives considered**:
+
+- Letting the Pacman engine read input directly from platform APIs:
+  - Rejected to maintain core-only architecture and testability.
+- Implementing a more complex input buffering system from the outset:
+  - Deferred: a simple directional intent is sufficient for this MVP; more complex schemes can be added later if needed.
+
+---
+
+## Testing & Observability Strategy
+
+**Decision**: Focus on engine-level unit tests for Pacman rules and rely on manual QA for the SpriteKit scene, while keeping engine state easily inspectable.
+
+- Engine tests: add XCTest cases under `/Users/elychkouski/my-work/clanbomber-remake/Swiftrix/Tests/SwiftrixCoreTests/` that:
+  - Verify pellet consumption and score updates.
+  - Verify life loss and game-over transitions on ghost collisions.
+  - Verify restart behavior resets all relevant state.
+- Rendering and UX: validated manually using `SwiftrixTest/SwiftrixGame`, following scenarios in the feature spec and Quickstart.
+- Observability: Pacman session exposes counts (remaining pellets, lives), positions, and status flags that can be logged or inspected from debug UIs.
+
+**Rationale**:
+
+- Matches the constitution’s emphasis on unit-tested core features.
+- Keeps the test suite independent from SpriteKit and Xcode projects.
+- Provides sufficient observability for debugging and AI tooling without overcomplicating the MVP.
+
+**Alternatives considered**:
+
+- UI automation tests for the SpriteKit scene:
+  - Deferred: would add tooling complexity for limited additional value at this stage.
 

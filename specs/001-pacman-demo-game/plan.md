@@ -1,13 +1,11 @@
 # Implementation Plan: Pacman Demo Game Controlled by On-Screen Keyboard
 
-**Branch**: `001-pacman-demo-game` | **Date**: 2025-12-03 | **Spec**: [/Users/elychkouski/my-work/clanbomber-remake/Swiftrix/specs/001-pacman-demo-game/spec.md]
+**Branch**: `001-pacman-demo-game` | **Date**: 2025-12-03 | **Spec**: /Users/elychkouski/my-work/clanbomber-remake/Swiftrix/specs/001-pacman-demo-game/spec.md  
 **Input**: Feature specification from `/specs/001-pacman-demo-game/spec.md`
-
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
 
 ## Summary
 
-Implement a Pacman-style demo game inside the Swiftrix test application (`/Users/elychkouski/my-work/SwiftrixTest`) that showcases Swiftrix as the game engine and uses SpriteKit for rendering, controlled entirely through an on-screen keyboard. The demo will provide a single-level Pacman experience (maze, pellets, ghosts, score, lives, restart) designed for quick usability testing and demonstrations, without audio.
+Implement a playable Pacman demo inside the Swiftrix test application where Pacman is controlled entirely via an on-screen keyboard. The demo should showcase Swiftrix as the engine powering Pacman’s game loop and state, while SpriteKit is used by the host app to render the maze, characters, HUD, and on-screen controls. The MVP focuses on a single maze layout, simple ghost behavior, no audio, and reliable restart so that internal users can easily evaluate on-screen touch controls and the engine integration.
 
 ## Technical Context
 
@@ -17,28 +15,38 @@ Implement a Pacman-style demo game inside the Swiftrix test application (`/Users
   the iteration process.
 -->
 
-**Language/Version**: Swift 5.9 (as defined in `Package.swift`)  
-**Primary Dependencies**: SwiftrixCore (game engine), SpriteKit (rendering), XCTest for tests  
-**Storage**: No persistent storage required; in-memory game state only  
-**Testing**: XCTest-based unit and integration tests targeting SwiftrixCore and the SwiftrixTest game target  
-**Target Platform**: macOS 13+ and iOS 16+ (per package platforms and SwiftrixTest Xcode project)
-**Project Type**: Game engine library (`SwiftrixCore`) plus demo app target (`SwiftrixGame` in `/Users/elychkouski/my-work/SwiftrixTest`)  
-**Performance Goals**: Consistent 60 fps gameplay on supported devices during typical Pacman demo sessions  
-**Constraints**: No audio/sound effects in this iteration; keep Pacman demo logic self-contained and reusable within Swiftrix examples  
-**Scale/Scope**: Single Pacman level demo focused on on-screen keyboard interaction and basic game loop; no multi-level progression or advanced AI required
+**Language/Version**: Swift (modern toolchain; align with existing Swiftrix package)  
+**Primary Dependencies**: SwiftrixCore engine (SwiftPM package), SpriteKit for rendering in the SwiftrixTest host app  
+**Storage**: N/A (all game state is in-memory per Pacman session)  
+**Testing**: XCTest for engine-level unit tests and any host-side integration tests  
+**Target Platform**: Apple platforms supporting SpriteKit (primary focus: iOS simulator/device via SwiftrixTest app)  
+**Project Type**: Engine core as Swift package + iOS-style host app (SwiftrixTest) embedding the engine  
+**Performance Goals**: Stable 60 fps gameplay for a single Pacman level on typical development hardware  
+**Constraints**: Core engine must remain independent from SpriteKit and other platform APIs; no audio required; demo must remain simple enough for quick manual QA  
+**Scale/Scope**: Single demo level, one Pacman instance, a small set of ghosts, and localized state within the test app; no persistence or multi-level progression
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- Core principles in `/Users/elychkouski/my-work/clanbomber-remake/Swiftrix/.specify/memory/constitution.md` are currently placeholders and do not define concrete technology, workflow, or testing mandates.
-- This implementation plan respects the spirit of a simple, testable design by:
-  - Keeping the Pacman demo as a focused, single-level feature on top of SwiftrixCore.
-  - Planning XCTest coverage around core game loop logic and input handling.
-  - Avoiding unnecessary subsystems (e.g., networking, persistence, audio).
-- No explicit constitutional rules are violated by using SwiftrixCore + SpriteKit for a local demo game.
-
-**Gate Evaluation (Pre-Research)**: PASS — proceed to Phase 0 research.
+- Engine core changes: Pacman systems, entities, and session management will
+  live inside `SwiftrixCore` examples or engine-compatible modules and will NOT
+  introduce any direct imports of SpriteKit, UIKit, or other platform APIs.
+  Rendering and input remain responsibilities of the SwiftrixTest host app.
+- Planned public API changes: Pacman support is intended as an example; any
+  new public types or entry points exposed from the engine will be documented
+  and treated as a MINOR version addition, with clear comments and usage notes.
+- Test coverage: For Pacman engine behavior (movement rules, collisions, score
+  and life tracking), we will plan XCTest unit tests that exercise success
+  paths and edge cases (e.g., wall collisions, ghost collisions, pellet
+  consumption) independent of SpriteKit.
+- SwiftPM boundaries: SwiftrixCore will remain a clean SwiftPM package with
+  Pacman logic organized under its sources/examples structure, and SwiftrixTest
+  will depend on it as a client app without circular dependencies.
+- Observability and AI workflows: Pacman engine types (session, maze, entities)
+  will expose explicit, inspectable state (e.g., positions, counts, status
+  flags) so that debug tools and AI agents can reason about game state without
+  needing to introspect SpriteKit nodes directly.
 
 ## Project Structure
 
@@ -55,34 +63,36 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
+<!--
+  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
+  for this feature. Delete unused options and expand the chosen structure with
+  real paths (e.g., apps/admin, packages/something). The delivered plan must
+  not include Option labels.
+-->
 
 ```text
-/Users/elychkouski/my-work/clanbomber-remake/Swiftrix
-├── Package.swift
+/Users/elychkouski/my-work/clanbomber-remake/Swiftrix/
+├── Package.swift                 # SwiftrixCore SwiftPM package manifest
 ├── Sources/
-│   ├── SwiftrixCore/          # Core engine library code
-│   ├── Components/            # Reusable components
-│   ├── Core/
-│   ├── Events/
-│   ├── Examples/
-│   ├── GameObject/
-│   ├── Input/
-│   ├── Introspection/
-│   ├── Loop/
-│   ├── Math/
-│   ├── Physics/
-│   └── Scene/
-├── Tests/
-│   └── SwiftrixCoreTests/     # Engine-level tests
-└── specs/
-    └── 001-pacman-demo-game/  # This feature’s planning and docs
+│   └── SwiftrixCore/
+│       ├── Engine/               # Core engine systems and types
+│       └── Examples/
+│           └── Pacman/           # Pacman-specific engine logic (session, maze, systems)
+└── Tests/
+    └── SwiftrixCoreTests/        # XCTest target for engine behavior (including Pacman)
 
-/Users/elychkouski/my-work/SwiftrixTest
-├── SwiftrixGame.xcodeproj
-└── SwiftrixGame/              # Demo game app target using SwiftrixCore + SpriteKit
+/Users/elychkouski/my-work/clanbomber-remake/SwiftrixTest/
+├── SwiftrixGame.xcodeproj        # Host app project embedding SwiftrixCore
+└── SwiftrixGame/
+    ├── GameViewController.swift  # Entry point that mounts the Pacman SpriteKit scene
+    └── PacmanGameScene.swift     # SpriteKit scene rendering Pacman and on-screen keyboard
 ```
 
-**Structure Decision**: Use `SwiftrixCore` as the reusable engine library in `/Users/elychkouski/my-work/clanbomber-remake/Swiftrix`, and implement the Pacman demo as a scene and supporting types inside the `SwiftrixGame` app in `/Users/elychkouski/my-work/SwiftrixTest`, reusing existing Swiftrix patterns under `Sources/Examples` where appropriate.
+**Structure Decision**: Use a SwiftPM-based engine core (`SwiftrixCore`) that
+contains all Pacman game state and rules, alongside an Xcode-based host app
+(`SwiftrixTest/SwiftrixGame`) responsible for rendering via SpriteKit and
+collecting on-screen input. All feature work will live within these existing
+directories and respect the engine/host separation.
 
 ## Complexity Tracking
 
