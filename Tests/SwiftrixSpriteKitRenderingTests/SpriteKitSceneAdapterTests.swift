@@ -79,4 +79,86 @@ final class SpriteKitSceneAdapterTests: XCTestCase {
 
         XCTAssertNil(harness.adapter.node(for: child.id))
     }
+
+    func testDisablingObjectHidesNode() {
+        let harness = SpriteKitTestHarness()
+
+        let root = DefaultGameObject(name: "root")
+        let child = DefaultGameObject(name: "child")
+        child.addComponent(SpriteView(color: .blue, size: CGSize(width: 4, height: 4)))
+        root.addChild(child)
+        harness.scene.addRootObject(root)
+
+        harness.adapter.start()
+        harness.step()
+        XCTAssertFalse((harness.adapter.node(for: child.id)?.isHidden) ?? true)
+
+        child.isEnabled = false
+        harness.step()
+        XCTAssertTrue(harness.adapter.node(for: child.id)?.isHidden ?? false)
+    }
+
+    func testReparentMovesNode() {
+        let harness = SpriteKitTestHarness()
+
+        let rootA = DefaultGameObject(name: "rootA")
+        rootA.addComponent(ContainerView())
+        let rootB = DefaultGameObject(name: "rootB")
+        rootB.addComponent(ContainerView())
+        let child = DefaultGameObject(name: "child")
+        child.addComponent(SpriteView(color: .green))
+
+        rootA.addChild(child)
+        harness.scene.addRootObject(rootA)
+        harness.scene.addRootObject(rootB)
+
+        harness.adapter.start()
+        harness.step()
+
+        guard let initialParent = harness.adapter.node(for: child.id)?.parent else {
+            return XCTFail("Child should be parented initially")
+        }
+        XCTAssertEqual(initialParent.name, rootA.name)
+
+        rootA.removeChild(child)
+        rootB.addChild(child)
+        harness.step()
+
+        let newParent = harness.adapter.node(for: child.id)?.parent
+        XCTAssertEqual(newParent?.name, rootB.name)
+    }
+
+    func testPerformanceBudgetLimitsSyncPerFrame() {
+        let harness = SpriteKitTestHarness(performanceBudget: PerformanceBudget(maxSyncOpsPerFrame: 1))
+
+        let root = DefaultGameObject(name: "root")
+        root.addComponent(ContainerView())
+        let childA = DefaultGameObject(name: "A")
+        childA.localTransform = Transform2D(position: Vector2(x: 0, y: 0))
+        childA.addComponent(SpriteView(color: .red))
+        let childB = DefaultGameObject(name: "B")
+        childB.localTransform = Transform2D(position: Vector2(x: 0, y: 0))
+        childB.addComponent(SpriteView(color: .yellow))
+
+        root.addChild(childA)
+        root.addChild(childB)
+        harness.scene.addRootObject(root)
+
+        harness.adapter.start()
+        harness.step()
+
+        childA.localTransform.position = Vector2(x: 5, y: 0)
+        childB.localTransform.position = Vector2(x: 9, y: 0)
+
+        harness.step()
+        let posA = harness.adapter.node(for: childA.id)?.position
+        let posB = harness.adapter.node(for: childB.id)?.position
+        let updatedAFirst = posA == CGPoint(x: 5, y: 0) && posB == CGPoint(x: 0, y: 0)
+        let updatedBFirst = posA == CGPoint(x: 0, y: 0) && posB == CGPoint(x: 9, y: 0)
+        XCTAssertTrue(updatedAFirst || updatedBFirst, "Only one child should be updated per frame under budget")
+
+        harness.step()
+        XCTAssertEqual(harness.adapter.node(for: childA.id)?.position, CGPoint(x: 5, y: 0))
+        XCTAssertEqual(harness.adapter.node(for: childB.id)?.position, CGPoint(x: 9, y: 0))
+    }
 }

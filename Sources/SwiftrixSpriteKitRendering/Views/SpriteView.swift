@@ -51,7 +51,7 @@ public final class SpriteView: SpriteKitRenderable {
         sprite.zPosition = zPosition
     }
 
-    private func resolvedTexture() -> SKTexture? {
+    func resolvedTexture() -> SKTexture? {
         guard let textureName, !textureName.isEmpty else { return nil }
         return SKTexture(imageNamed: textureName)
     }

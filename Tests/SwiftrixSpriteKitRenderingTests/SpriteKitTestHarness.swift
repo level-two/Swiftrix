@@ -8,13 +8,14 @@ final class SpriteKitTestHarness {
     let adapter: SpriteKitSceneAdapter
     let manualDriver: ManualDisplayLinkDriver
 
-    init(fixedDeltaTime: TimeInterval = 1.0 / 60.0) {
+    init(fixedDeltaTime: TimeInterval = 1.0 / 60.0, performanceBudget: PerformanceBudget = .default) {
         self.scene = DefaultScene()
         self.manualDriver = ManualDisplayLinkDriver()
         self.adapter = SpriteKitSceneAdapter(
             scene: scene,
             displayLinkDriver: manualDriver,
-            fixedDeltaTime: fixedDeltaTime
+            fixedDeltaTime: fixedDeltaTime,
+            performanceBudget: performanceBudget
         )
     }
 
