@@ -5,6 +5,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-03
 ## Active Technologies
 - Swift (modern toolchain; align with existing Swiftrix package) + SwiftrixCore engine (SwiftPM package), SpriteKit for rendering in the SwiftrixTest host app (001-pacman-demo-game)
 - N/A (all game state is in-memory per Pacman session) (001-pacman-demo-game)
+- Swift 5.9 (matches `Package.swift`) + SwiftrixCore engine APIs, SpriteKit (`SKScene`, `SKNode`, `CADisplayLink`), Foundation (001-spritekit-renderer)
+- N/A (all state in-memory per scene) (001-spritekit-renderer)
 
 - Swift 5.9 (as defined in `Package.swift`) + SwiftrixCore (game engine), SpriteKit (rendering), XCTest for tests (001-pacman-demo-game)
 
@@ -24,6 +26,7 @@ tests/
 Swift 5.9 (as defined in `Package.swift`): Follow standard conventions
 
 ## Recent Changes
+- 001-spritekit-renderer: Added Swift 5.9 (matches `Package.swift`) + SwiftrixCore engine APIs, SpriteKit (`SKScene`, `SKNode`, `CADisplayLink`), Foundation
 - 001-pacman-demo-game: Added Swift (modern toolchain; align with existing Swiftrix package) + SwiftrixCore engine (SwiftPM package), SpriteKit for rendering in the SwiftrixTest host app
 
 - 001-pacman-demo-game: Added Swift 5.9 (as defined in `Package.swift`) + SwiftrixCore (game engine), SpriteKit (rendering), XCTest for tests

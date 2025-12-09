@@ -1,0 +1,323 @@
+openapi: 3.1.0
+info:
+  title: Swiftrix SpriteKit Rendering Adapter Control API
+  version: 0.1.0
+  description: >
+    Conceptual contract describing how host tooling or automation can control the SpriteKit
+    rendering adapter, manage sessions, and inspect bidirectional mappings for debugging.
+servers:
+  - url: https://adapter.swiftrix.local
+paths:
+  /adapter/sessions:
+    post:
+      summary: Create a SpriteKit adapter session
+      operationId: createSession
+      description: >
+        Initializes a new binding between a Swiftrix Core scene and a SpriteKit host view.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSessionRequest'
+      responses:
+        '201':
+          description: Session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+  /adapter/sessions/{sessionId}/lifecycle:
+    post:
+      summary: Transition session lifecycle state
+      operationId: updateLifecycle
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LifecycleRequest'
+      responses:
+        '200':
+          description: Lifecycle updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+  /adapter/sessions/{sessionId}/game-objects:
+    patch:
+      summary: Apply batched game object/view operations
+      operationId: syncGameObjects
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameObjectBatch'
+      responses:
+        '202':
+          description: Operations accepted for next sync pass
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchReceipt'
+  /adapter/sessions/{sessionId}/mappings/{objectId}:
+    get:
+      summary: Inspect bidirectional mapping for a Core object
+      operationId: inspectMapping
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+        - name: objectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Mapping details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MappingDetails'
+        '404':
+          description: Mapping not found
+  /adapter/sessions/{sessionId}/performance:
+    get:
+      summary: Retrieve performance budget and live metrics
+      operationId: getPerformance
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: Performance metrics snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PerformanceSnapshot'
+
+components:
+  parameters:
+    SessionId:
+      name: sessionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    Session:
+      type: object
+      required: [sessionId, state, rootObjectId, performanceBudget]
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+        state:
+          type: string
+          enum: [stopped, running, paused]
+        rootObjectId:
+          type: string
+          format: uuid
+        performanceBudget:
+          $ref: '#/components/schemas/PerformanceBudget'
+        createdAt:
+          type: string
+          format: date-time
+        cameraMode:
+          $ref: '#/components/schemas/CameraConfig'
+    CreateSessionRequest:
+      type: object
+      required: [sceneId, rootObjectId, performanceBudget]
+      properties:
+        sceneId:
+          type: string
+        rootObjectId:
+          type: string
+          format: uuid
+        performanceBudget:
+          $ref: '#/components/schemas/PerformanceBudget'
+        debugOverlay:
+          $ref: '#/components/schemas/DebugOverlayConfig'
+    LifecycleRequest:
+      type: object
+      required: [action]
+      properties:
+        action:
+          type: string
+          enum: [start, pause, resume, stop]
+        reason:
+          type: string
+          description: Optional note for diagnostics.
+    GameObjectBatch:
+      type: object
+      required: [operations]
+      properties:
+        operations:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameObjectOperation'
+    GameObjectOperation:
+      type: object
+      required: [type, objectId]
+      properties:
+        type:
+          type: string
+          enum: [create, update, destroy, reparent]
+        objectId:
+          type: string
+          format: uuid
+        parentObjectId:
+          type: string
+          format: uuid
+          nullable: true
+        viewKind:
+          type: string
+          enum: [sprite, label, shape, container]
+        transform:
+          $ref: '#/components/schemas/Transform'
+        visibility:
+          $ref: '#/components/schemas/Visibility'
+        sprite:
+          $ref: '#/components/schemas/SpriteProps'
+    BatchReceipt:
+      type: object
+      required: [acceptedCount, deferredCount]
+      properties:
+        acceptedCount:
+          type: integer
+          minimum: 0
+        deferredCount:
+          type: integer
+          minimum: 0
+        estimatedFramesToFlush:
+          type: integer
+          minimum: 0
+    MappingDetails:
+      type: object
+      required: [objectId, nodePath, viewKind]
+      properties:
+        objectId:
+          type: string
+          format: uuid
+        nodePath:
+          type: string
+          description: Slash-delimited SpriteKit node hierarchy path.
+        viewKind:
+          type: string
+        skNodeIdentifier:
+          type: string
+        lastSynced:
+          type: string
+          format: date-time
+        dirtyFlags:
+          type: array
+          items:
+            type: string
+            enum: [transform, visibility, asset, hierarchy, debugOverlay]
+    PerformanceSnapshot:
+      type: object
+      required: [sessionId, fps, nodeCount, dirtyQueueDepth]
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+        fps:
+          type: number
+          format: float
+        nodeCount:
+          type: integer
+        dirtyQueueDepth:
+          type: integer
+        droppedFramesLastMinute:
+          type: integer
+        throttled:
+          type: boolean
+    PerformanceBudget:
+      type: object
+      required: [maxNodes, maxHierarchyDepth, maxSyncOpsPerFrame]
+      properties:
+        maxNodes:
+          type: integer
+          minimum: 1
+        maxHierarchyDepth:
+          type: integer
+          minimum: 1
+        maxSyncOpsPerFrame:
+          type: integer
+          minimum: 1
+    Transform:
+      type: object
+      properties:
+        position:
+          $ref: '#/components/schemas/Vector2'
+        rotation:
+          type: number
+          format: float
+        scale:
+          $ref: '#/components/schemas/Vector2'
+        zIndex:
+          type: integer
+    Vector2:
+      type: object
+      required: [x, y]
+      properties:
+        x:
+          type: number
+          format: float
+        y:
+          type: number
+          format: float
+    Visibility:
+      type: object
+      properties:
+        isEnabled:
+          type: boolean
+        alpha:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+    SpriteProps:
+      type: object
+      properties:
+        textureName:
+          type: string
+        tintColorHex:
+          type: string
+        size:
+          $ref: '#/components/schemas/Vector2'
+        anchorPoint:
+          $ref: '#/components/schemas/Vector2'
+    DebugOverlayConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        showBounds:
+          type: boolean
+        showAnchors:
+          type: boolean
+        showNames:
+          type: boolean
+        highlightObjectIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+    CameraConfig:
+      type: object
+      properties:
+        mode:
+          type: string
+          enum: [staticOffset, followObject]
+        targetObjectId:
+          type: string
+          format: uuid
+          nullable: true
+        offset:
+          $ref: '#/components/schemas/Vector2'
