@@ -17,79 +17,86 @@
 ## 2. Create the adapter + SpriteKit scene
 
 ```swift
+import SwiftrixCore
+import SwiftrixSpriteKitRendering
+
+let coreScene = DefaultScene()
 let adapter = SpriteKitSceneAdapter(
-  performanceBudget: .init(maxNodes: 500, maxHierarchyDepth: 6, maxSyncOpsPerFrame: 200),
-  debugOverlay: .disabled
+  scene: coreScene,
+  performanceBudget: .init(maxSyncOpsPerFrame: 200)
 )
+
 let skView = SKView(frame: UIScreen.main.bounds)
 skView.ignoresSiblingOrder = true
-skView.presentScene(adapter.skScene)
+skView.presentScene(adapter.session.skScene)
 ```
 
-## 3. Bind a Core scene
+## 3. Build your Core scene and start rendering
 
 ```swift
-let coreScene = DefaultScene()
-// populate GameObjects + Views as usual
-adapter.bind(coreScene: coreScene, rootObject: coreScene.root)
-adapter.start()
+// Build GameObjects + View components
+let player = DefaultGameObject(name: "Player")
+player.addComponent(SpriteView(textureName: "player", size: CGSize(width: 24, height: 24)))
+coreScene.addRootObject(player)
+
+adapter.start() // begins the display-linked loop and syncs nodes
 ```
 
-## 4. Drive the loop
+## 4. Drive the loop and handle lifecycle
 
-- The adapter installs a `CADisplayLink` automatically.
-- To pause/resume (e.g., app lifecycle):
+- The adapter installs a display-linked driver automatically.
+- To pause/resume (e.g., app background/foreground):
   ```swift
-  adapter.pause(reason: .backgrounded)
+  adapter.pause()
   adapter.resume()
   ```
-- Call `adapter.stop()` when unloading to release nodes.
+- Call `adapter.stop()` when unloading, or `adapter.reset()` to clear mappings and return to idle.
+- Optional: wire a `HostLifecycleBridge(adapter:)` and forward app lifecycle callbacks.
 
-## 5. Enable debug overlays & inspection
+## 5. Enable debug overlays
 
 ```swift
-adapter.debugOverlay = .init(
-  enabled: true,
+adapter.setDebugOverlayConfig(DebugOverlayConfig(
+  isEnabled: true,
   showBounds: true,
-  showAnchors: true,
-  highlightObjectIds: [player.id]
-)
-
-let inspector = adapter.makeInspector()
-let mapping = inspector.mapping(for: player.id)
-print(mapping.nodePath)
+  showAnchors: true
+))
 ```
 
-## 6. Run automated tests
-
-- Import `SwiftrixSpriteKitRenderingTestsSupport` helper (shipped with the module) to spin up a headless `SKView`.
-- Use `SpriteKitTestHarness` to tick the adapter deterministically:
-  ```swift
-  harness.tick(frames: 1) // runs fixed+variable update + sync
-  ```
-- Assert node mirrors:
-  ```swift
-  XCTAssertEqual(harness.node(for: player.id)?.position, CGPoint(x: 42, y: 0))
-  ```
-
-## 7. Handling camera follow
+## 6. Configure the camera
 
 ```swift
-adapter.camera.follow(objectID: player.id, damping: 0.15)
+// Follow a specific GameObject
+adapter.configureCamera(CameraConfig(mode: .followObject(player.id, offset: .zero), zoom: 1.0))
+
+// Or pin the camera
+adapter.configureCamera(CameraConfig(mode: .staticOffset(CGPoint(x: 0, y: 0))))
 ```
 
-Set `adapter.camera.mode = .static(offset: .zero)` to reset.
+## 7. Touch / hit testing (optional)
 
-## 8. Touch / hit testing (optional)
+Use the adapter’s hit-test helper to map a SpriteKit touch location to a Core `GameObject` ID:
 
-1. Enable mapping:
-   ```swift
-   adapter.enableHitTesting()
-   ```
-2. In your `SKView` delegate:
-   ```swift
-   override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-     touches.forEach { adapter.handleTouch($0, phase: .began) }
-   }
-   ```
-3. Adapter emits Core input events with the originating `GameObject` ID.
+```swift
+let location = touch.location(in: adapter.session.skScene)
+if let objectID = adapter.hitTestObjectID(at: location) {
+  // Dispatch to your Core input system with this objectID
+}
+```
+
+## 8. Deterministic tests with the harness
+
+`SpriteKitTestHarness` (in the test target) runs headless:
+
+```swift
+let harness = SpriteKitTestHarness()
+let root = DefaultGameObject(name: "root")
+root.addComponent(ContainerView())
+harness.scene.addRootObject(root)
+harness.adapter.start()
+harness.step(deltaTime: 1.0 / 60.0) // deterministic tick
+
+XCTAssertEqual(harness.adapter.node(for: root.id)?.position, .zero)
+```
+
+This mirrors the runtime adapter API so your tests exercise real mapping and sync behavior.
