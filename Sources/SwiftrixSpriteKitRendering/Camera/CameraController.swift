@@ -32,7 +32,7 @@ public final class CameraController {
             cameraNode.position = offset
         case .followObject(let objectID, let offset):
             guard let binding = registry.binding(forID: objectID) else { return }
-            let worldPoint = binding.node.convert(.zero, to: scene)
+            let worldPoint = binding.node.convert(CGPoint.zero, to: scene)
             cameraNode.position = CGPoint(x: worldPoint.x + offset.x, y: worldPoint.y + offset.y)
         }
         cameraNode.setScale(config.zoom)
