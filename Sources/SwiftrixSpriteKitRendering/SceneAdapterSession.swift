@@ -30,6 +30,8 @@ public final class SceneAdapterSession {
     public var performanceBudget: PerformanceBudget
     public let registry: NodeBindingRegistry
     public let dirtyQueue: DirtySyncQueue
+    public var cameraController: CameraController?
+    public var debugOverlayConfig: DebugOverlayConfig?
 
     init(coreScene: Scene, skScene: SKScene, performanceBudget: PerformanceBudget, registry: NodeBindingRegistry, dirtyQueue: DirtySyncQueue) {
         self.coreScene = coreScene

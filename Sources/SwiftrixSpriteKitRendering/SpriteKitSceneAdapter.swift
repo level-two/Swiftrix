@@ -9,6 +9,8 @@ public final class SpriteKitSceneAdapter {
     private let gameLoop: GameLoop
     private let displayLinkDriver: DisplayLinkDriving
     public var onDiagnostic: ((String) -> Void)?
+    private let overlayRenderer = DebugOverlayRenderer()
+    private let hitTestBridge = HitTestBridge()
 
     public init(
         scene: Scene,
@@ -64,6 +66,19 @@ public final class SpriteKitSceneAdapter {
         displayLinkDriver.stop()
         tearDownBindings()
         session.state = .stopped
+        session.skScene.isPaused = true
+    }
+
+    /// Fully clears node mappings and returns the adapter to the idle state.
+    public func reset() {
+        stop()
+        session.state = .idle
+    }
+
+    /// Stops and immediately restarts the adapter, rebuilding node mappings.
+    public func restart() {
+        stop()
+        start()
     }
 
     /// Manual stepping helper used by tests or tooling.
@@ -86,7 +101,10 @@ public final class SpriteKitSceneAdapter {
             attach(object: root, parentObject: nil, to: session.skScene, visited: &visited)
         }
         let removed = session.registry.removeUnvisited(excluding: visited)
-        removed.forEach { $0.node.removeFromParent() }
+        removed.forEach {
+            overlayRenderer.removeOverlay(for: $0.objectID)
+            $0.node.removeFromParent()
+        }
     }
 
     private func attach(object: GameObject, parentObject: GameObject?, to parentNode: SKNode, visited: inout Set<UUID>) {
@@ -170,7 +188,12 @@ public final class SpriteKitSceneAdapter {
             } else {
                 binding.viewComponent?.update(node: binding.node)
             }
+
+            if let config = session.debugOverlayConfig {
+                overlayRenderer.renderOverlay(for: binding, in: session.skScene, config: config)
+            }
         }
+        session.cameraController?.update(using: session.registry, in: session.skScene)
     }
 
     private func applyTransform(_ transform: Transform2D, to node: SKNode) {
@@ -198,6 +221,7 @@ public final class SpriteKitSceneAdapter {
         session.registry.allBindings().forEach { $0.node.removeFromParent() }
         session.registry.clear()
         session.dirtyQueue.clear()
+        overlayRenderer.clear()
     }
 
     private func firstRenderable(from object: GameObject) -> SpriteKitRenderable? {
@@ -208,5 +232,22 @@ public final class SpriteKitSceneAdapter {
 
     public func node(for objectID: UUID) -> SKNode? {
         session.registry.binding(forID: objectID)?.node
+    }
+
+    public func setDebugOverlayConfig(_ config: DebugOverlayConfig?) {
+        session.debugOverlayConfig = config
+        if config == nil || config?.isEnabled == false {
+            overlayRenderer.clear()
+        }
+    }
+
+    public func configureCamera(_ config: CameraConfig) {
+        let controller = session.cameraController ?? CameraController(config: config)
+        controller.config = config
+        session.cameraController = controller
+    }
+
+    public func hitTestObjectID(at point: CGPoint) -> UUID? {
+        hitTestBridge.objectID(at: point, in: session.skScene, registry: session.registry)
     }
 }
