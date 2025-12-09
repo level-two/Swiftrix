@@ -9,7 +9,7 @@
 2. Add `SwiftrixSpriteKitRendering` to the host target dependencies:
    ```swift
    .target(
-     name: "PacmanHost",
+     name: "GameHost",
      dependencies: ["SwiftrixCore", "SwiftrixSpriteKitRendering"]
    )
    ```

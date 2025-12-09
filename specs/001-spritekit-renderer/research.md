@@ -15,14 +15,14 @@
 ## Decision 3: Performance Budget = 60 FPS with 500 Nodes & 6 Levels Deep
 
 - **Decision**: Commit to sustaining 60 FPS while synchronizing up to 500 visible nodes with a maximum hierarchy depth of 6 levels. Beyond that, the adapter batches sync work over multiple frames using configurable node budgets.
-- **Rationale**: Pacman demo currently <100 nodes, but future demos (tile maps, bullet hell) need headroom. 500 nodes aligns with Apple guidance for SpriteKit on modern devices without custom Metal shaders.
+- **Rationale**: Typical 2D sample scenes currently sit well below 100 nodes, but future demos (tile maps, bullet hell) need headroom. 500 nodes aligns with Apple guidance for SpriteKit on modern devices without custom Metal shaders.
 - **Alternatives considered**: (a) Unlimited node support (unbounded; would require complex spatial partitioning we do not own yet); (b) keep budget at 200 nodes (insufficient for moderate scenes).
 
 ## Decision 4: Scale Expectation = 1,000 Core GameObjects per Scene (with Views optional)
 
 - **Decision**: Document an upper bound of ~1,000 concurrent `GameObject`s, assuming half carry visual `View` components. Non-visual objects remain Core-only and do not incur SpriteKit cost.
 - **Rationale**: Sets a concrete ceiling for host teams so they understand when to split scenes or rely on pooling. The hierarchy-mirror plus dirty-flag approach supports this scale without rewriting Core.
-- **Alternatives considered**: (a) Leave scale undefined (would block planning and QA load tests); (b) cap at Pacman-sized scenes (would render feature obsolete for more complex demos).
+- **Alternatives considered**: (a) Leave scale undefined (would block planning and QA load tests); (b) cap at very small scenes only (would render the feature obsolete for more complex demos).
 
 ## Decision 5: Public API Surface Resides Exclusively in New Host Module (MINOR bump)
 

@@ -13,7 +13,7 @@ Engine integrators need to drop the SwiftrixSpriteKitRendering module into a hos
 
 **Why this priority**: Without a seamless rendering surface, the engine cannot be demonstrated or validated on Apple platforms, so this foundational flow must land first.
 
-**Independent Test**: Wire the adapter into the Pacman demo host, start a Core scene, and verify the SpriteKit view displays all baseline game objects with matching transforms.
+**Independent Test**: Wire the adapter into a sample host app, start a Core scene, and verify the SpriteKit view displays all baseline game objects with matching transforms.
 
 **Acceptance Scenarios**:
 
@@ -89,7 +89,7 @@ Host applications need to suspend, resume, or swap scenes (e.g., backgrounding t
 
 ### Measurable Outcomes
 
-- **SC-001**: A Core scene can be rendered through the adapter inside the Pacman demo host in under 5 minutes of setup, demonstrating drop-in integration.
+- **SC-001**: A Core scene can be rendered through the adapter inside a new or existing SpriteKit-based host in under 5 minutes of setup, demonstrating drop-in integration.
 - **SC-002**: 95% of Core-driven transform or asset updates appear in the SpriteKit view within one display frame during sustained 60 FPS execution.
 - **SC-003**: The adapter sustains at least 200 simultaneously visible View components without dropping below the host’s target frame rate on reference hardware.
 - **SC-004**: No blocking defects related to desynchronized Core and SpriteKit state are reported during two consecutive demo playthroughs by QA or engine developers.

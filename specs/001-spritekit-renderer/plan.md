@@ -77,8 +77,6 @@ Tests/
 
 specs/
 ├── 000-swiftrix-engine-core/
-├── 001-pacman-demo-game/
-├── 001-pacman-swiftrix-migration/
 └── 001-spritekit-renderer/       # spec + plan + research + contracts (this feature)
 ```
 

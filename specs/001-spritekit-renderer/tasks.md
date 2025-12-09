@@ -38,7 +38,7 @@
 
 **Goal**: Allow a host app to bind an existing Swiftrix Core scene to a SpriteKit view and see the game object hierarchy rendered without changing gameplay code.
 
-**Independent Test**: Wire the adapter into the Pacman demo host, start a Core scene, and verify the SpriteKit view displays all baseline game objects with matching transforms and a controllable pause/resume lifecycle.
+**Independent Test**: Wire the adapter into a sample SpriteKit host, start a Core scene, and verify the SpriteKit view displays all baseline game objects with matching transforms and a controllable pause/resume lifecycle.
 
 ### Tests for User Story 1
 
@@ -54,7 +54,7 @@
 - [ ] T016 [US1] Implement pause/resume/stop controls on the adapter and propagate lifecycle changes to the display link (Sources/SwiftrixSpriteKitRendering/SpriteKitSceneAdapter.swift)
 - [ ] T017 [US1] Add quickstart validation snippet in `quickstart.md` showing binding code path compiles against adapter API (specs/001-spritekit-renderer/quickstart.md)
 
-**Checkpoint**: Pacman host can present `adapter.skScene`, run the CADisplayLink loop, and see a basic Core scene rendered and controllable.
+**Checkpoint**: A sample SpriteKit host can present `adapter.skScene`, run the CADisplayLink loop, and see a basic Core scene rendered and controllable.
 
 ---
 
@@ -147,4 +147,3 @@
 ### MVP Scope
 
 - The minimum viable product consists of completing Phases 1–3 (up through T017), enabling a host app to bind a Core scene, render it via SpriteKit, and control the adapter lifecycle with basic tests validating this behavior.
-
