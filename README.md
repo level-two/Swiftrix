@@ -18,7 +18,8 @@ AI-assisted workflows where clarity and testability matter more than features.
 
 ## Installation
 
-SwiftrixCore is a Swift Package Manager (SwiftPM) library.
+SwiftrixCore is a Swift Package Manager (SwiftPM) library. The repository also
+ships an optional SpriteKit adapter module for Apple-platform hosts.
 
 ### Requirements
 
@@ -198,6 +199,36 @@ In this setup:
 - Communication between the two flows through components (`View`,
   `ControlComponent`) and systems (`InputSystem`, `EventBus`).
 
+## SpriteKit Rendering Adapter (Optional Module)
+
+For hosts that want a more turnkey integration on Apple platforms, this
+repository includes a separate SwiftPM target:
+
+- `SwiftrixSpriteKitRendering` — a SpriteKit-based adapter that:
+  - mirrors SwiftrixCore scenes into an `SKScene`/`SKNode` hierarchy
+  - drives the core `GameLoop` from a display-linked clock
+  - exposes lifecycle controls (start/pause/resume/stop/reset)
+  - provides debug overlays, camera helpers, and basic hit-testing
+
+Minimal setup in a host app:
+
+```swift
+import SwiftrixCore
+import SwiftrixSpriteKitRendering
+import SpriteKit
+
+let coreScene = DefaultScene()
+let adapter = SpriteKitSceneAdapter(scene: coreScene)
+
+let skView = SKView(frame: UIScreen.main.bounds)
+skView.presentScene(adapter.session.skScene)
+
+adapter.start()
+```
+
+For more details (performance budgets, overlays, camera follow, hit-testing),
+see `specs/001-spritekit-renderer/quickstart.md`.
+
 ---
 
 ## Project Layout
@@ -205,14 +236,51 @@ In this setup:
 Relevant directories in this repository:
 
 - `Sources/SwiftrixCore` — engine core (scenes, game objects, components, events, physics, input, loop, introspection)
-- `Tests/SwiftrixCoreTests` — XCTest-based test suite for the engine
-- `specs/000-swiftrix-engine-core` — high-level specification and design docs
+- `Sources/SwiftrixSpriteKitRendering` — SpriteKit adapter module (host-side)
+- `Tests/SwiftrixCoreTests` — XCTest-based test suite for the engine core
+- `Tests/SwiftrixSpriteKitRenderingTests` — tests for the SpriteKit adapter
+- `specs/000-swiftrix-engine-core` — high-level specification and design docs for the core
+- `specs/001-spritekit-renderer` — spec/plan/quickstart for the SpriteKit adapter
+
+Additional documentation:
+
+- `docs/engine-concepts.md` — overview of core engine concepts and patterns.
+- `docs/host-integration-spritekit.md` — detailed host integration examples with SpriteKit.
+- `docs/debugging-and-introspection.md` — practical tips for debugging and inspecting Swiftrix scenes and adapter state.
 
 For more detailed architecture notes, see:
 
 - `specs/000-swiftrix-engine-core/spec.md`
 - `specs/000-swiftrix-engine-core/plan.md`
 - `specs/000-swiftrix-engine-core/tasks.md`
+
+---
+
+## Documentation Map
+
+### For game developers / engine users
+
+- Start here: this `README.md` (installation, concepts, quickstart).
+- Learn the model: `docs/engine-concepts.md`.
+- Integrate with SpriteKit: `docs/host-integration-spritekit.md`.
+- Debug and inspect scenes/adapter state: `docs/debugging-and-introspection.md`.
+- Use the adapter’s feature quickstart: `specs/001-spritekit-renderer/quickstart.md`.
+
+### For contributors / engine maintainers
+
+- Contribution workflow and constraints:
+  - `CONTRIBUTING.md` — overview of expectations and entry points.
+  - `AGENTS.md` — detailed guidelines for humans and AI agents.
+- Core engine design:
+  - `specs/000-swiftrix-engine-core/spec.md`
+  - `specs/000-swiftrix-engine-core/plan.md`
+  - `specs/000-swiftrix-engine-core/tasks.md`
+- SpriteKit adapter design:
+  - `specs/001-spritekit-renderer/spec.md`
+  - `specs/001-spritekit-renderer/plan.md`
+  - `specs/001-spritekit-renderer/tasks.md`
+
+These “maintainer” docs are authoritative for architecture and API changes; user docs should stay aligned with them.
 
 ---
 
