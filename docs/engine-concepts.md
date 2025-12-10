@@ -37,6 +37,11 @@ Components attach behavior and data to game objects:
 - `Collider` — collision shape used by `PhysicsWorld`
 - `ControlComponent` — translates input events into gameplay actions
 
+Scripts inherit convenience bridges to their owning `GameObject`: hierarchy
+(`parent`, `children`), transforms (`localTransform`, `globalTransform`,
+`position`, `rotation`, `scale`, and global variants), and
+component lookups (`getComponent`, `getComponents`).
+
 You can attach multiple components of different types to a single object.
 
 ### Game Loop

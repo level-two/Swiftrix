@@ -88,6 +88,12 @@ Components attach behaviour and data to game objects. Key component classes:
 - `Collider` — 2D collision shapes used by `PhysicsWorld`
 - `ControlComponent` — maps high-level input to gameplay responses
 
+`Script` subclasses can access their `gameObject`’s hierarchy and transforms via
+bridged properties: `parent`, `children`, `localTransform`/`globalTransform`,
+`position`, `rotation`, `scale`, `globalPosition`,
+`globalRotation`, `globalScale`, plus component helpers
+`getComponent(_:)` / `getComponents(_:)`.
+
 ### Game Loop
 
 `GameLoop` drives a `Scene` using a fixed timestep for deterministic systems

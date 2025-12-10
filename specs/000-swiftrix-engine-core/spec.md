@@ -111,6 +111,10 @@ We start with four essential ones:
 3. **Collider** — participates in physics and collisions
 4. **Control** — interprets input (axes, actions, buttons)
 
+Scripts expose convenience bridges to their owning `GameObject`, including
+hierarchy access (`parent`, `children`), transforms (`localTransform`,
+`globalTransform`, `position`, `rotation`, `scale` and global
+variants), and component lookups (`getComponent`, `getComponents`).
 Everything else is an extension of these basic blocks.
 
 ### 3.4 Update Lifecycle
