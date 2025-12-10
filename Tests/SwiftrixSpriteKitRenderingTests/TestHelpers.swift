@@ -3,7 +3,7 @@ import SwiftrixCore
 
 /// Simple script used to verify game loop ticking.
 final class CountingScript: Script {
-    var gameObject: GameObjectInterface?
+    var gameObject: GameObject?
     var isEnabled: Bool = true
     var updateCount = 0
 

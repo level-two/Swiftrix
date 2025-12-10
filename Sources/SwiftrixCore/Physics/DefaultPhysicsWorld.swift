@@ -65,11 +65,11 @@ public final class DefaultPhysicsWorld: PhysicsWorld {
         return rectA.intersects(rectB)
     }
 
-    private func overlaps(_ rect: CGRect, collider: Collider, object: GameObjectInterface) -> Bool {
+    private func overlaps(_ rect: CGRect, collider: Collider, object: GameObject) -> Bool {
         colliderRect(collider: collider, object: object).intersects(rect)
     }
 
-    private func colliderRect(collider: Collider, object: GameObjectInterface) -> CGRect {
+    private func colliderRect(collider: Collider, object: GameObject) -> CGRect {
         let position = object.globalTransform.position
         let origin = CGPoint(x: position.x + collider.localOffset.x, y: position.y + collider.localOffset.y)
         return CGRect(origin: origin, size: CGSize(width: collider.size.x, height: collider.size.y))

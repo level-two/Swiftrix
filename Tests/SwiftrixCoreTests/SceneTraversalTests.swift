@@ -2,7 +2,7 @@ import XCTest
 @testable import SwiftrixCore
 
 private final class LoggingComponent: Component {
-    weak var gameObject: GameObjectInterface?
+    weak var gameObject: GameObject?
     var isEnabled: Bool = true
     var log: [String]
 
@@ -27,7 +27,7 @@ final class SceneTraversalTests: XCTestCase {
         root.addChild(childB)
 
         class Recorder: Component {
-            weak var gameObject: GameObjectInterface?
+            weak var gameObject: GameObject?
             var isEnabled: Bool = true
             var output: () -> Void
             init(output: @escaping () -> Void) { self.output = output }

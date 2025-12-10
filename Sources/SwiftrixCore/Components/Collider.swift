@@ -18,7 +18,7 @@ public protocol Collider: Component {
 
 /// Simple AABB collider used by the default physics world.
 open class BoxCollider: Collider {
-    public weak var gameObject: GameObjectInterface?
+    public weak var gameObject: GameObject?
     public var isEnabled: Bool = true
     public var localOffset: Vector2
     public var collisionGroup: CollisionGroup

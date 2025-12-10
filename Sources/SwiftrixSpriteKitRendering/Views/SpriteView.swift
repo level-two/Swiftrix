@@ -4,7 +4,7 @@ import SwiftrixCore
 
 /// Sprite-based view that maps to `SKSpriteNode`.
 public final class SpriteView: SpriteKitRenderable {
-    public weak var gameObject: GameObjectInterface?
+    public weak var gameObject: GameObject?
     public var isEnabled: Bool = true
 
     public var textureName: String?

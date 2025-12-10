@@ -40,7 +40,7 @@ We want to recreate the *feel* of Unity’s component-based design, but with:
 - lower mental overhead,
 - and a more explicit and transparent architecture.
 
-A `GameObjectInterface` represents a node in a tree (default implementation: `GameObject`).  
+A `GameObject` represents a node in a tree (default implementation: `GameObject`).  
 Components (such as views, scripts, colliders, controls) attach behaviour or
 data.  
 Scenes hold trees of objects and orchestrate update, input, physics, and draw

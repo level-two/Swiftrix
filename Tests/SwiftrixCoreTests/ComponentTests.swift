@@ -2,7 +2,7 @@ import XCTest
 @testable import SwiftrixCore
 
 private final class CounterComponent: Component {
-    weak var gameObject: GameObjectInterface?
+    weak var gameObject: GameObject?
     var isEnabled: Bool = true
     var count = 0
     func update(deltaTime: TimeInterval) { count += 1 }

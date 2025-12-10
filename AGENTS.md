@@ -42,11 +42,11 @@ and `specs/000-swiftrix-engine-core`.
 
 ### Architectural boundaries
 
-- `Scene`, `GameObjectInterface`, components, physics, input, events, and loop are all
+- `Scene`, `GameObject`, components, physics, input, events, and loop are all
   defined in `Sources/SwiftrixCore`. Changes here must preserve:
   - deterministic game loop (`GameLoop`)
   - component-based model (`Component`, `Script`, `View`, `Collider`, `ControlComponent`)
-  - scene graph semantics (`Scene`, `DefaultScene`, `GameObjectInterface`/`GameObject`)
+  - scene graph semantics (`Scene`, `DefaultScene`, `GameObject`/`GameObject`)
   - protocol-based extension points (`PhysicsWorld`, `InputSystem`, `EventBus`)
 - Rendering, platform input, audio, asset loading, and UI belong in host apps
   (e.g. sample game or tooling hosts) and should not leak into the core.

@@ -8,7 +8,7 @@
 Swiftrix Engine Core is a lightweight, modular Swift game engine inspired by
 Unity’s component model, targeting rapid prototyping and small‑to‑medium games,
 with a clear path to an ECS backend. The core delivers a scene graph,
-`GameObjectInterface`/`GameObject` hierarchy, a small set of core components (`Script`, `View`,
+`GameObject`/`GameObject` hierarchy, a small set of core components (`Script`, `View`,
 `Collider`, `ControlComponent`), a predictable update lifecycle
 (fixed/update/draw), an event pipeline, and abstraction layers for input,
 physics, and rendering. This implementation focuses on a clear, deterministic,
@@ -65,7 +65,7 @@ specs/000-swiftrix-engine-core/
 ├── spec.md          # High-level engine specification (this document's input)
 ├── plan.md          # This implementation plan
 ├── research.md      # Design notes, trade-offs (OO vs ECS, backends)
-├── data-model.md    # Core data structures (Scene, GameObjectInterface/GameObject, components)
+├── data-model.md    # Core data structures (Scene, GameObject/GameObject, components)
 ├── quickstart.md    # Minimal examples for embedding Swiftrix in a host app
 ├── contracts/       # Protocol-level contracts (PhysicsWorld, InputSystem, EventBus)
 └── tasks.md         # Execution task list for implementing the core
@@ -81,7 +81,7 @@ Sources/
     │   ├── DefaultScene.swift
     │   └── SceneGraphTraversal.swift
     ├── GameObject/
-    │   ├── GameObjectInterface.swift
+    │   ├── GameObject.swift
     │   └── GameObject.swift
     ├── Components/
     │   ├── Component.swift
@@ -119,7 +119,7 @@ Tests/
 
 **Structure Decision**: Use a single SwiftPM package `SwiftrixCore` with one
 primary library target and one test target. Keep modules grouped by domain
-(Scene, GameObjectInterface/GameObject, Components, Events, Physics, Input, Loop, Introspection) to
+(Scene, GameObject/GameObject, Components, Events, Physics, Input, Loop, Introspection) to
 make the API surface discoverable and to support future ECS or backend swaps
 without disrupting public contracts.
 

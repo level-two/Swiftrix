@@ -2,7 +2,7 @@ import XCTest
 @testable import SwiftrixCore
 
 private final class TestScript: Script {
-    weak var gameObject: GameObjectInterface?
+    weak var gameObject: GameObject?
     var isEnabled: Bool = true
     var updates: Int = 0
     var collisions: Int = 0

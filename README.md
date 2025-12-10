@@ -67,9 +67,9 @@ The default implementation is `DefaultScene`, which wires together:
 - `InputSystem` (default: `DefaultInputSystem` or a host-provided implementation)
 - `PhysicsWorld` (default: `DefaultPhysicsWorld`)
 
-### GameObjectInterface
+### GameObject
 
-`GameObjectInterface` is a node in the scene graph:
+`GameObject` is a node in the scene graph:
 
 - has a name and unique identifier
 - holds a `Transform2D` for position/rotation/scale
@@ -120,7 +120,7 @@ import SwiftrixCore
 
 // 1. Define a simple script
 final class MoveRightScript: Script {
-    weak var gameObject: GameObjectInterface?
+    weak var gameObject: GameObject?
     var isEnabled: Bool = true
 
     func update(deltaTime: TimeInterval) {

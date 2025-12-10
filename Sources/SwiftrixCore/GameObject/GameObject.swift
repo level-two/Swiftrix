@@ -1,12 +1,12 @@
 import Foundation
 
-/// Default concrete implementation of `GameObjectInterface` used by the engine core.
-open class GameObject: GameObjectInterface {
+/// Core game object type used by the engine.
+open class GameObject: IdentifiableObject, Named, Updatable, Destroyable {
     public let id = UUID()
     public var name: String
 
-    public private(set) weak var parent: GameObjectInterface?
-    public private(set) var children: [GameObjectInterface] = []
+    public private(set) weak var parent: GameObject?
+    public private(set) var children: [GameObject] = []
 
     public var localTransform: Transform2D
     public var globalTransform: Transform2D {
@@ -27,17 +27,15 @@ open class GameObject: GameObjectInterface {
 
     // MARK: - Hierarchy
 
-    public func addChild(_ child: GameObjectInterface) {
+    public func addChild(_ child: GameObject) {
         children.append(child)
-        if let defaultChild = child as? GameObject {
-            defaultChild.parent = self
-        }
+        child.parent = self
     }
 
-    public func removeChild(_ child: GameObjectInterface) {
+    public func removeChild(_ child: GameObject) {
         children.removeAll { $0.id == child.id }
-        if let defaultChild = child as? GameObject, defaultChild.parent === self {
-            defaultChild.parent = nil
+        if child.parent === self {
+            child.parent = nil
         }
     }
 

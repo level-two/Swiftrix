@@ -2,7 +2,7 @@ import XCTest
 @testable import SwiftrixCore
 
 private final class RecordingComponent: Component {
-    weak var gameObject: GameObjectInterface?
+    weak var gameObject: GameObject?
     var isEnabled: Bool = true
     private let record: (String) -> Void
 

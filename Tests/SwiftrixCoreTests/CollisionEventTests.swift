@@ -3,7 +3,7 @@ import CoreGraphics
 @testable import SwiftrixCore
 
 private final class CollisionScript: Script {
-    weak var gameObject: GameObjectInterface?
+    weak var gameObject: GameObject?
     var isEnabled: Bool = true
     var collisions: Int = 0
     func update(deltaTime: TimeInterval) {}

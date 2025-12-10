@@ -107,7 +107,7 @@ public final class SpriteKitSceneAdapter {
         }
     }
 
-    private func attach(object: GameObjectInterface, parentObject: GameObjectInterface?, to parentNode: SKNode, visited: inout Set<UUID>) {
+    private func attach(object: GameObject, parentObject: GameObject?, to parentNode: SKNode, visited: inout Set<UUID>) {
         let renderable = firstRenderable(from: object)
         let binding = session.registry.binding(for: object, viewComponent: renderable)
         visited.insert(binding.objectID)
@@ -224,7 +224,7 @@ public final class SpriteKitSceneAdapter {
         overlayRenderer.clear()
     }
 
-    private func firstRenderable(from object: GameObjectInterface) -> SpriteKitRenderable? {
+    private func firstRenderable(from object: GameObject) -> SpriteKitRenderable? {
         object.components.compactMap { $0 as? SpriteKitRenderable }.first
     }
 

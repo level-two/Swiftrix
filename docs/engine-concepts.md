@@ -16,9 +16,9 @@ This document summarizes the main concepts in SwiftrixCore and shows how they fi
 
 Default implementation: `DefaultScene` (see `Sources/SwiftrixCore/Scene/DefaultScene.swift`).
 
-### GameObjectInterface
+### GameObject
 
-`GameObjectInterface` is a node in the scene graph:
+`GameObject` is a node in the scene graph:
 
 - has a `name` and `id: UUID`
 - has a `localTransform` and derived `globalTransform`
@@ -61,7 +61,7 @@ You call `tick(deltaTime:)` from your host once per frame.
 
 A common pattern for an interactive object:
 
-- a `GameObject` (default implementation of `GameObjectInterface`) with:
+- a `GameObject` (default implementation of `GameObject`) with:
   - one or more `Script` components for behavior
   - a `View` component for visuals
   - a `Collider` for physics
@@ -71,7 +71,7 @@ Example:
 
 ```swift
 final class PlayerScript: Script {
-    weak var gameObject: GameObjectInterface?
+    weak var gameObject: GameObject?
     var isEnabled: Bool = true
 
     func update(deltaTime: TimeInterval) {
@@ -167,7 +167,7 @@ High-level boundaries between SwiftrixCore and a SpriteKit host using the adapte
  |        agnostic)      |        |        (platform-aware)     |
  +-----------------------+        +------------------------------+
  | - Scene / DefaultScene |       | - SKView / SKScene          |
- | - GameObjectInterface / GameObject |       | - SpriteKitSceneAdapter     |
+ | - GameObject / GameObject |       | - SpriteKitSceneAdapter     |
  | - Components:          |       | - SpriteView / ContainerView|
  |   Script / View /      |       | - CameraController          |
  |   Collider / Control   |       | - DebugOverlayRenderer      |
