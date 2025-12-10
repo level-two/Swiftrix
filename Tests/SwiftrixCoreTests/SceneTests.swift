@@ -2,7 +2,7 @@ import XCTest
 @testable import SwiftrixCore
 
 private final class RecordingComponent: Component {
-    weak var gameObject: GameObject?
+    weak var gameObject: GameObjectInterface?
     var isEnabled: Bool = true
     private let record: (String) -> Void
 
@@ -18,7 +18,7 @@ private final class RecordingComponent: Component {
 final class SceneTests: XCTestCase {
     func testAddAndRemoveRoot() {
         let scene = DefaultScene()
-        let go = DefaultGameObject(name: "Root")
+        let go = GameObject(name: "Root")
         scene.addRootObject(go)
         XCTAssertEqual(scene.rootObjects.count, 1)
         scene.removeRootObject(go)
@@ -27,10 +27,10 @@ final class SceneTests: XCTestCase {
 
     func testDepthFirstTraversalRespectsHierarchy() {
         var log: [String] = []
-        let root = DefaultGameObject(name: "Root")
+        let root = GameObject(name: "Root")
         root.addComponent(RecordingComponent { log.append($0) })
 
-        let child = DefaultGameObject(name: "Child")
+        let child = GameObject(name: "Child")
         child.addComponent(RecordingComponent { log.append($0) })
         root.addChild(child)
 

@@ -1,13 +1,13 @@
 import Foundation
 
 public protocol Scene: AnyObject, Updatable {
-    var rootObjects: [GameObject] { get }
+    var rootObjects: [GameObjectInterface] { get }
     var eventBus: EventBus { get }
     var inputSystem: InputSystem? { get set }
     var physicsWorld: PhysicsWorld { get }
 
-    func addRootObject(_ object: GameObject)
-    func removeRootObject(_ object: GameObject)
+    func addRootObject(_ object: GameObjectInterface)
+    func removeRootObject(_ object: GameObjectInterface)
     func fixedUpdate(fixedDeltaTime: TimeInterval)
     func draw()
 }

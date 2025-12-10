@@ -5,7 +5,7 @@ import CoreGraphics
 final class PhysicsWorldRegistrationTests: XCTestCase {
     func testAddAndRemoveCollider() {
         let world = DefaultPhysicsWorld()
-        let go = DefaultGameObject(name: "Box")
+        let go = GameObject(name: "Box")
         let collider = BoxCollider(size: Vector2(x: 1, y: 1))
         go.addComponent(collider)
 

@@ -13,7 +13,7 @@ public enum DebugIntrospection {
         return lines.joined(separator: "\n")
     }
 
-    public static func describeObject(_ object: GameObject, indent: Int) -> [String] {
+    public static func describeObject(_ object: GameObjectInterface, indent: Int) -> [String] {
         let prefix = String(repeating: "  ", count: indent)
         var lines = ["\(prefix)- \(object.name) [\(object.components.count) components]"]
         for child in object.children {

@@ -67,16 +67,16 @@ The default implementation is `DefaultScene`, which wires together:
 - `InputSystem` (default: `DefaultInputSystem` or a host-provided implementation)
 - `PhysicsWorld` (default: `DefaultPhysicsWorld`)
 
-### GameObject
+### GameObjectInterface
 
-`GameObject` is a node in the scene graph:
+`GameObjectInterface` is a node in the scene graph:
 
 - has a name and unique identifier
 - holds a `Transform2D` for position/rotation/scale
 - can have children
 - can own multiple components
 
-The standard concrete implementation is `DefaultGameObject`.
+The standard concrete implementation is `GameObject`.
 
 ### Components
 
@@ -120,7 +120,7 @@ import SwiftrixCore
 
 // 1. Define a simple script
 final class MoveRightScript: Script {
-    weak var gameObject: GameObject?
+    weak var gameObject: GameObjectInterface?
     var isEnabled: Bool = true
 
     func update(deltaTime: TimeInterval) {
@@ -133,7 +133,7 @@ final class MoveRightScript: Script {
 
 // 2. Bootstrap scene and loop
 let scene = DefaultScene()
-let root = DefaultGameObject(name: "Player")
+let root = GameObject(name: "Player")
 root.addComponent(MoveRightScript())
 scene.addRootObject(root)
 
@@ -172,7 +172,7 @@ final class GameScene: SKScene {
         swiftrixScene = DefaultScene(inputSystem: input)
         loop = GameLoop(scene: swiftrixScene)
 
-        let player = DefaultGameObject(name: "Player")
+        let player = GameObject(name: "Player")
         // Attach components (Script, View, Collider, etc.)
         swiftrixScene.addRootObject(player)
     }

@@ -4,8 +4,8 @@ import XCTest
 final class IntrospectionTests: XCTestCase {
     func testDescribeSceneListsHierarchy() {
         let scene = DefaultScene()
-        let root = DefaultGameObject(name: "Root")
-        let child = DefaultGameObject(name: "Child")
+        let root = GameObject(name: "Root")
+        let child = GameObject(name: "Child")
         root.addChild(child)
         scene.addRootObject(root)
 

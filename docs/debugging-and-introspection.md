@@ -121,7 +121,7 @@ You can mirror these patterns in your own tests:
 
 ```swift
 let harness = SpriteKitTestHarness()
-let root = DefaultGameObject(name: "root")
+let root = GameObject(name: "root")
 root.addComponent(ContainerView())
 harness.scene.addRootObject(root)
 

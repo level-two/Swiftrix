@@ -35,7 +35,7 @@ skView.presentScene(adapter.session.skScene)
 
 ```swift
 // Build GameObjects + View components
-let player = DefaultGameObject(name: "Player")
+let player = GameObject(name: "Player")
 player.addComponent(SpriteView(textureName: "player", size: CGSize(width: 24, height: 24)))
 coreScene.addRootObject(player)
 
@@ -90,7 +90,7 @@ if let objectID = adapter.hitTestObjectID(at: location) {
 
 ```swift
 let harness = SpriteKitTestHarness()
-let root = DefaultGameObject(name: "root")
+let root = GameObject(name: "root")
 root.addComponent(ContainerView())
 harness.scene.addRootObject(root)
 harness.adapter.start()

@@ -16,16 +16,16 @@ This document summarizes the main concepts in SwiftrixCore and shows how they fi
 
 Default implementation: `DefaultScene` (see `Sources/SwiftrixCore/Scene/DefaultScene.swift`).
 
-### GameObject
+### GameObjectInterface
 
-`GameObject` is a node in the scene graph:
+`GameObjectInterface` is a node in the scene graph:
 
 - has a `name` and `id: UUID`
 - has a `localTransform` and derived `globalTransform`
 - can have **children** (forming a tree)
 - owns a collection of **components**
 
-Default implementation: `DefaultGameObject`.
+Default implementation: `GameObject`.
 
 ### Components
 
@@ -61,7 +61,7 @@ You call `tick(deltaTime:)` from your host once per frame.
 
 A common pattern for an interactive object:
 
-- a `GameObject` with:
+- a `GameObject` (default implementation of `GameObjectInterface`) with:
   - one or more `Script` components for behavior
   - a `View` component for visuals
   - a `Collider` for physics
@@ -71,7 +71,7 @@ Example:
 
 ```swift
 final class PlayerScript: Script {
-    weak var gameObject: GameObject?
+    weak var gameObject: GameObjectInterface?
     var isEnabled: Bool = true
 
     func update(deltaTime: TimeInterval) {
@@ -86,7 +86,7 @@ final class PlayerScript: Script {
 ```swift
 let scene = DefaultScene()
 
-let player = DefaultGameObject(name: "Player")
+let player = GameObject(name: "Player")
 player.addComponent(PlayerScript())
 // add View / Collider / ControlComponent here as needed
 
@@ -109,9 +109,9 @@ For small-to-medium games, a practical structure is:
 Example:
 
 ```swift
-let worldRoot = DefaultGameObject(name: "World")
-let player = DefaultGameObject(name: "Player")
-let enemy = DefaultGameObject(name: "Enemy")
+let worldRoot = GameObject(name: "World")
+let player = GameObject(name: "Player")
+let enemy = GameObject(name: "Enemy")
 
 worldRoot.addChild(player)
 worldRoot.addChild(enemy)
@@ -167,7 +167,7 @@ High-level boundaries between SwiftrixCore and a SpriteKit host using the adapte
  |        agnostic)      |        |        (platform-aware)     |
  +-----------------------+        +------------------------------+
  | - Scene / DefaultScene |       | - SKView / SKScene          |
- | - GameObject           |       | - SpriteKitSceneAdapter     |
+ | - GameObjectInterface / GameObject |       | - SpriteKitSceneAdapter     |
  | - Components:          |       | - SpriteView / ContainerView|
  |   Script / View /      |       | - CameraController          |
  |   Collider / Control   |       | - DebugOverlayRenderer      |

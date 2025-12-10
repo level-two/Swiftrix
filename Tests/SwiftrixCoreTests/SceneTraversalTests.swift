@@ -2,7 +2,7 @@ import XCTest
 @testable import SwiftrixCore
 
 private final class LoggingComponent: Component {
-    weak var gameObject: GameObject?
+    weak var gameObject: GameObjectInterface?
     var isEnabled: Bool = true
     var log: [String]
 
@@ -20,14 +20,14 @@ private final class LoggingComponent: Component {
 final class SceneTraversalTests: XCTestCase {
     func testDepthFirstUpdateOrder() {
         var updates: [String] = []
-        let root = DefaultGameObject(name: "Root")
-        let childA = DefaultGameObject(name: "ChildA")
-        let childB = DefaultGameObject(name: "ChildB")
+        let root = GameObject(name: "Root")
+        let childA = GameObject(name: "ChildA")
+        let childB = GameObject(name: "ChildB")
         root.addChild(childA)
         root.addChild(childB)
 
         class Recorder: Component {
-            weak var gameObject: GameObject?
+            weak var gameObject: GameObjectInterface?
             var isEnabled: Bool = true
             var output: () -> Void
             init(output: @escaping () -> Void) { self.output = output }

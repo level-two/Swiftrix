@@ -5,7 +5,7 @@ import CoreGraphics
 final class PhysicsWorldQueryTests: XCTestCase {
     func testOverlapQueryFindsColliders() {
         let world = DefaultPhysicsWorld()
-        let go = DefaultGameObject(name: "Box", transform: Transform2D(position: Vector2(x: 1, y: 1)))
+        let go = GameObject(name: "Box", transform: Transform2D(position: Vector2(x: 1, y: 1)))
         let collider = BoxCollider(size: Vector2(x: 1, y: 1))
         go.addComponent(collider)
         world.addCollider(collider)

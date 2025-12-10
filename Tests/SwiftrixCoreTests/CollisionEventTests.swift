@@ -3,7 +3,7 @@ import CoreGraphics
 @testable import SwiftrixCore
 
 private final class CollisionScript: Script {
-    weak var gameObject: GameObject?
+    weak var gameObject: GameObjectInterface?
     var isEnabled: Bool = true
     var collisions: Int = 0
     func update(deltaTime: TimeInterval) {}
@@ -15,13 +15,13 @@ final class CollisionEventTests: XCTestCase {
         let bus = DefaultEventBus()
         let world = DefaultPhysicsWorld()
 
-        let goA = DefaultGameObject(name: "A")
+        let goA = GameObject(name: "A")
         let colliderA = BoxCollider(size: Vector2(x: 1, y: 1))
         let scriptA = CollisionScript()
         goA.addComponent(colliderA)
         goA.addComponent(scriptA)
 
-        let goB = DefaultGameObject(name: "B", transform: Transform2D(position: Vector2(x: 0.5, y: 0)))
+        let goB = GameObject(name: "B", transform: Transform2D(position: Vector2(x: 0.5, y: 0)))
         let colliderB = BoxCollider(size: Vector2(x: 1, y: 1))
         let scriptB = CollisionScript()
         goB.addComponent(colliderB)

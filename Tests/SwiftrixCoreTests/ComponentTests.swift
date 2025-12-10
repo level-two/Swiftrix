@@ -2,7 +2,7 @@ import XCTest
 @testable import SwiftrixCore
 
 private final class CounterComponent: Component {
-    weak var gameObject: GameObject?
+    weak var gameObject: GameObjectInterface?
     var isEnabled: Bool = true
     var count = 0
     func update(deltaTime: TimeInterval) { count += 1 }
@@ -10,7 +10,7 @@ private final class CounterComponent: Component {
 
 final class ComponentTests: XCTestCase {
     func testEnabledComponentReceivesUpdate() {
-        let go = DefaultGameObject(name: "GO")
+        let go = GameObject(name: "GO")
         let component = CounterComponent()
         go.addComponent(component)
         go.update(deltaTime: 1)
@@ -18,7 +18,7 @@ final class ComponentTests: XCTestCase {
     }
 
     func testDisabledComponentDoesNotReceiveUpdate() {
-        let go = DefaultGameObject(name: "GO")
+        let go = GameObject(name: "GO")
         let component = CounterComponent()
         component.isEnabled = false
         go.addComponent(component)

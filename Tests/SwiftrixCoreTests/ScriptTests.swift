@@ -2,7 +2,7 @@ import XCTest
 @testable import SwiftrixCore
 
 private final class TestScript: Script {
-    weak var gameObject: GameObject?
+    weak var gameObject: GameObjectInterface?
     var isEnabled: Bool = true
     var updates: Int = 0
     var collisions: Int = 0
@@ -15,7 +15,7 @@ private final class TestScript: Script {
 
 final class ScriptTests: XCTestCase {
     func testScriptUpdateCalled() {
-        let go = DefaultGameObject(name: "GO")
+        let go = GameObject(name: "GO")
         let script = TestScript()
         go.addComponent(script)
         go.update(deltaTime: 0.5)
@@ -23,7 +23,7 @@ final class ScriptTests: XCTestCase {
     }
 
     func testDisabledScriptNotCalled() {
-        let go = DefaultGameObject(name: "GO")
+        let go = GameObject(name: "GO")
         let script = TestScript()
         script.isEnabled = false
         go.addComponent(script)

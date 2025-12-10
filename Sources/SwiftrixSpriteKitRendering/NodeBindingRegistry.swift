@@ -30,7 +30,7 @@ public struct SpriteViewSignature: Equatable {
 /// Mapping between a Core game object and its SpriteKit node.
 public final class NodeBinding {
     public let objectID: UUID
-    public weak var gameObject: GameObject?
+    public weak var gameObject: GameObjectInterface?
     public var viewComponent: SpriteKitRenderable?
     public let node: SKNode
     public var parentObjectID: UUID?
@@ -39,7 +39,7 @@ public final class NodeBinding {
     public var spriteSignature: SpriteViewSignature?
     public var isNew: Bool = true
 
-    init(objectID: UUID, gameObject: GameObject?, viewComponent: SpriteKitRenderable?, node: SKNode) {
+    init(objectID: UUID, gameObject: GameObjectInterface?, viewComponent: SpriteKitRenderable?, node: SKNode) {
         self.objectID = objectID
         self.gameObject = gameObject
         self.viewComponent = viewComponent
@@ -54,7 +54,7 @@ public final class NodeBindingRegistry {
     public init() {}
 
     @discardableResult
-    public func binding(for object: GameObject, viewComponent: SpriteKitRenderable?) -> NodeBinding {
+    public func binding(for object: GameObjectInterface, viewComponent: SpriteKitRenderable?) -> NodeBinding {
         if let existing = bindings[object.id] {
             let viewChanged = existing.viewComponent !== viewComponent
             existing.gameObject = object

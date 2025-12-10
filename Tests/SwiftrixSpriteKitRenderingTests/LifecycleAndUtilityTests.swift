@@ -6,7 +6,7 @@ import SwiftrixCore
 final class LifecycleAndUtilityTests: XCTestCase {
     func testResetClearsBindingsAndAllowsRestart() {
         let harness = SpriteKitTestHarness()
-        let root = DefaultGameObject(name: "root")
+        let root = GameObject(name: "root")
         root.addComponent(SpriteView(color: .red, size: CGSize(width: 8, height: 8)))
         harness.scene.addRootObject(root)
 
@@ -27,7 +27,7 @@ final class LifecycleAndUtilityTests: XCTestCase {
         let harness = SpriteKitTestHarness()
         harness.adapter.session.skScene.size = CGSize(width: 100, height: 100)
 
-        let root = DefaultGameObject(name: "root")
+        let root = GameObject(name: "root")
         let sprite = SpriteView(color: .cyan, size: CGSize(width: 20, height: 20))
         root.addComponent(sprite)
         harness.scene.addRootObject(root)
@@ -43,7 +43,7 @@ final class LifecycleAndUtilityTests: XCTestCase {
         let harness = SpriteKitTestHarness()
         harness.adapter.session.skScene.size = CGSize(width: 200, height: 200)
 
-        let root = DefaultGameObject(name: "root", transform: Transform2D(position: Vector2(x: 50, y: 20)))
+        let root = GameObject(name: "root", transform: Transform2D(position: Vector2(x: 50, y: 20)))
         root.addComponent(ContainerView())
         harness.scene.addRootObject(root)
 

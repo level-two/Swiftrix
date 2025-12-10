@@ -4,7 +4,7 @@ import SwiftrixCore
 
 /// Transform-only view that renders as a plain `SKNode`.
 public final class ContainerView: SpriteKitRenderable {
-    public weak var gameObject: GameObject?
+    public weak var gameObject: GameObjectInterface?
     public var isEnabled: Bool = true
 
     public init() {}

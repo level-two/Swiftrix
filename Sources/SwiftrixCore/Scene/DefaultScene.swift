@@ -3,7 +3,7 @@ import CoreGraphics
 
 /// Default scene implementation orchestrating game objects and update loops.
 public final class DefaultScene: Scene {
-    public private(set) var rootObjects: [GameObject] = []
+    public private(set) var rootObjects: [GameObjectInterface] = []
     public let eventBus: EventBus
     public var inputSystem: InputSystem?
     public let physicsWorld: PhysicsWorld
@@ -18,12 +18,12 @@ public final class DefaultScene: Scene {
         self.physicsWorld = physicsWorld
     }
 
-    public func addRootObject(_ object: GameObject) {
+    public func addRootObject(_ object: GameObjectInterface) {
         rootObjects.append(object)
         registerColliders(in: object)
     }
 
-    public func removeRootObject(_ object: GameObject) {
+    public func removeRootObject(_ object: GameObjectInterface) {
         rootObjects.removeAll { $0.id == object.id }
         unregisterColliders(in: object)
     }
@@ -46,12 +46,12 @@ public final class DefaultScene: Scene {
     }
 
     // MARK: - Collider registration
-    private func registerColliders(in object: GameObject) {
+    private func registerColliders(in object: GameObjectInterface) {
         object.components.compactMap { $0 as? Collider }.forEach { physicsWorld.addCollider($0) }
         object.children.forEach { registerColliders(in: $0) }
     }
 
-    private func unregisterColliders(in object: GameObject) {
+    private func unregisterColliders(in object: GameObjectInterface) {
         object.components.compactMap { $0 as? Collider }.forEach { physicsWorld.removeCollider($0) }
         object.children.forEach { unregisterColliders(in: $0) }
     }

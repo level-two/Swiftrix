@@ -3,7 +3,7 @@ import XCTest
 
 final class CoreProtocolsTests: XCTestCase {
     func testDestroyableMarksObject() {
-        let go = DefaultGameObject(name: "Temp")
+        let go = GameObject(name: "Temp")
         XCTAssertFalse(go.isDestroyed)
         go.destroy()
         XCTAssertTrue(go.isDestroyed)

@@ -45,7 +45,7 @@ workflows.
 - [ ] T007 [P] Add unit tests for Vector2 and Transform2D behavior in Tests/SwiftrixCoreTests/MathTests.swift
 - [ ] T008 Define core protocols IdentifiableObject, Named, Updatable, FixedUpdatable, Destroyable in Sources/SwiftrixCore/Core/
 - [ ] T009 [P] Add unit tests for lifecycle and destroy semantics in Tests/SwiftrixCoreTests/CoreProtocolsTests.swift
-- [ ] T010 Define GameObject protocol and DefaultGameObject implementation in Sources/SwiftrixCore/GameObject/
+- [ ] T010 Define GameObjectInterface protocol and GameObject implementation in Sources/SwiftrixCore/GameObject/
 - [ ] T011 Add unit tests for GameObject hierarchy, transforms, and component attachment in Tests/SwiftrixCoreTests/GameObjectTests.swift
 - [ ] T012 Define Component base protocol and Script, View, Collider, ControlComponent protocols in Sources/SwiftrixCore/Components/
 - [ ] T013 [P] Add unit tests for component enabling, disabling, and update dispatch in Tests/SwiftrixCoreTests/ComponentTests.swift
@@ -201,4 +201,3 @@ workflows.
 3. Add User Story 2 → test independently → publish updated version with input/Control mapping.
 4. Add User Story 3 → test independently → publish updated version with physics and collision events.
 5. Each story adds value without breaking previous capabilities, respecting semantic versioning and constitution rules.
-

@@ -2,7 +2,7 @@ import XCTest
 @testable import SwiftrixCore
 
 private final class RecordingControl: ControlComponent {
-    weak var gameObject: GameObject?
+    weak var gameObject: GameObjectInterface?
     var isEnabled: Bool = true
     var received: [ControlEvent] = []
     func handle(event: ControlEvent) { received.append(event) }
@@ -14,7 +14,7 @@ final class ControlComponentTests: XCTestCase {
         let input = DefaultInputSystem()
         let scene = DefaultScene(inputSystem: input)
 
-        let go = DefaultGameObject(name: "Player")
+        let go = GameObject(name: "Player")
         let control = RecordingControl()
         go.addComponent(control)
         scene.addRootObject(go)

@@ -7,10 +7,10 @@ final class SpriteKitSceneAdapterTests: XCTestCase {
     func testBindsHierarchyAndSyncsTransform() {
         let harness = SpriteKitTestHarness()
 
-        let root = DefaultGameObject(name: "root", transform: Transform2D(position: Vector2(x: 3, y: 4)))
+        let root = GameObject(name: "root", transform: Transform2D(position: Vector2(x: 3, y: 4)))
         root.addComponent(ContainerView())
 
-        let child = DefaultGameObject(name: "child")
+        let child = GameObject(name: "child")
         child.localTransform = Transform2D(position: Vector2(x: 10, y: -2), rotation: 0.25, scale: Vector2(x: 2, y: 1.5))
         child.addComponent(SpriteView(color: .red, size: CGSize(width: 8, height: 8)))
         root.addChild(child)
@@ -43,7 +43,7 @@ final class SpriteKitSceneAdapterTests: XCTestCase {
     func testPauseAndResumeControlGameLoop() {
         let harness = SpriteKitTestHarness()
 
-        let root = DefaultGameObject(name: "root")
+        let root = GameObject(name: "root")
         let script = CountingScript()
         root.addComponent(script)
         harness.scene.addRootObject(root)
@@ -64,8 +64,8 @@ final class SpriteKitSceneAdapterTests: XCTestCase {
     func testDestroyedObjectsAreRemovedFromScene() {
         let harness = SpriteKitTestHarness()
 
-        let root = DefaultGameObject(name: "root")
-        let child = DefaultGameObject(name: "child")
+        let root = GameObject(name: "root")
+        let child = GameObject(name: "child")
         child.addComponent(ContainerView())
         root.addChild(child)
         harness.scene.addRootObject(root)
@@ -83,8 +83,8 @@ final class SpriteKitSceneAdapterTests: XCTestCase {
     func testDisablingObjectHidesNode() {
         let harness = SpriteKitTestHarness()
 
-        let root = DefaultGameObject(name: "root")
-        let child = DefaultGameObject(name: "child")
+        let root = GameObject(name: "root")
+        let child = GameObject(name: "child")
         child.addComponent(SpriteView(color: .blue, size: CGSize(width: 4, height: 4)))
         root.addChild(child)
         harness.scene.addRootObject(root)
@@ -101,11 +101,11 @@ final class SpriteKitSceneAdapterTests: XCTestCase {
     func testReparentMovesNode() {
         let harness = SpriteKitTestHarness()
 
-        let rootA = DefaultGameObject(name: "rootA")
+        let rootA = GameObject(name: "rootA")
         rootA.addComponent(ContainerView())
-        let rootB = DefaultGameObject(name: "rootB")
+        let rootB = GameObject(name: "rootB")
         rootB.addComponent(ContainerView())
-        let child = DefaultGameObject(name: "child")
+        let child = GameObject(name: "child")
         child.addComponent(SpriteView(color: .green))
 
         rootA.addChild(child)
@@ -131,12 +131,12 @@ final class SpriteKitSceneAdapterTests: XCTestCase {
     func testPerformanceBudgetLimitsSyncPerFrame() {
         let harness = SpriteKitTestHarness(performanceBudget: PerformanceBudget(maxSyncOpsPerFrame: 1))
 
-        let root = DefaultGameObject(name: "root")
+        let root = GameObject(name: "root")
         root.addComponent(ContainerView())
-        let childA = DefaultGameObject(name: "A")
+        let childA = GameObject(name: "A")
         childA.localTransform = Transform2D(position: Vector2(x: 0, y: 0))
         childA.addComponent(SpriteView(color: .red))
-        let childB = DefaultGameObject(name: "B")
+        let childB = GameObject(name: "B")
         childB.localTransform = Transform2D(position: Vector2(x: 0, y: 0))
         childB.addComponent(SpriteView(color: .yellow))
 

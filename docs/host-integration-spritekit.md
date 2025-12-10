@@ -48,7 +48,7 @@ final class GameScene: SKScene {
         swiftrixScene = DefaultScene(inputSystem: input)
         loop = GameLoop(scene: swiftrixScene)
 
-        let player = DefaultGameObject(name: "Player")
+        let player = GameObject(name: "Player")
         // Attach components (Script, View, Collider, etc.)
         swiftrixScene.addRootObject(player)
     }
@@ -100,7 +100,7 @@ final class GameViewController: UIViewController {
         view.addSubview(skView)
 
         // Build your Core scene
-        let player = DefaultGameObject(name: "Player")
+        let player = GameObject(name: "Player")
         player.addComponent(SpriteView(textureName: "player", size: CGSize(width: 24, height: 24)))
         coreScene.addRootObject(player)
 
