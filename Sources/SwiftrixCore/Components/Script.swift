@@ -2,20 +2,26 @@ import Foundation
 
 /// A script provides custom behavior for a game object.
 open class Script: Component {
-    // MARK: - GameObject bridges
+    open func onCollision(with other: Collider) {}
+    open func onControl(_ event: ControlEvent) {}
 
+    // MARK: - GameObject bridges
     public var parent: GameObject? { gameObject?.parent }
     public var children: [GameObject] { gameObject?.children ?? [] }
 
-    public var localTransform: Transform2D {
-        get { gameObject?.localTransform ?? .identity }
-        set { gameObject?.localTransform = newValue }
+    public func addChild(_ child: GameObject) {
+        gameObject?.addChild(child)
     }
 
-    public var globalTransform: Transform2D {
-        gameObject?.globalTransform ?? .identity
+    public func removeChild(_ child: GameObject) {
+        gameObject?.removeChild(child)
     }
 
+    public func removeFromParent() {
+        gameObject?.removeFromParent()
+    }
+
+    // MARK: - Components
     public var components: [Component] {
         gameObject?.components ?? []
     }
@@ -26,6 +32,14 @@ open class Script: Component {
 
     public func getComponents<T: Component>(_ type: T.Type) -> [T] {
         gameObject?.getComponents(type) ?? []
+    }
+
+    public func addComponent(_ component: Component) {
+        gameObject?.addComponent(component)
+    }
+
+    public func removeComponent(_ component: Component) {
+        gameObject?.removeComponent(component)
     }
 
     // MARK: - Transform helpers
@@ -61,6 +75,12 @@ open class Script: Component {
     public var globalRotation: Double { globalTransform.rotation }
     public var globalScale: Vector2 { globalTransform.scale }
 
-    open func onCollision(with other: Collider) {}
-    open func onControl(_ event: ControlEvent) {}
+    public var localTransform: Transform2D {
+        get { gameObject?.localTransform ?? .identity }
+        set { gameObject?.localTransform = newValue }
+    }
+
+    public var globalTransform: Transform2D {
+        gameObject?.globalTransform ?? .identity
+    }
 }
