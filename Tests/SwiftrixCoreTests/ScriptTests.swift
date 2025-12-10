@@ -2,15 +2,13 @@ import XCTest
 @testable import SwiftrixCore
 
 private final class TestScript: Script {
-    weak var gameObject: GameObject?
-    var isEnabled: Bool = true
     var updates: Int = 0
     var collisions: Int = 0
     var controls: Int = 0
 
-    func update(deltaTime: TimeInterval) { updates += 1 }
-    func onCollision(with other: Collider) { collisions += 1 }
-    func onControl(_ event: ControlEvent) { controls += 1 }
+    override func update(deltaTime: TimeInterval) { updates += 1 }
+    override func onCollision(with other: Collider) { collisions += 1 }
+    override func onControl(_ event: ControlEvent) { controls += 1 }
 }
 
 final class ScriptTests: XCTestCase {

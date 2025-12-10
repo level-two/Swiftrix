@@ -3,7 +3,8 @@ import SpriteKit
 import SwiftrixCore
 
 /// Contract for view components that can produce and update SpriteKit nodes.
-public protocol SpriteKitRenderable: View {
+public protocol SpriteKitRenderable: AnyObject {
+    var isEnabled: Bool { get }
     func makeNode() -> SKNode
     func update(node: SKNode)
 }

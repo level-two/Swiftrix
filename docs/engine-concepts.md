@@ -31,7 +31,7 @@ Default implementation: `GameObject`.
 
 Components attach behavior and data to game objects:
 
-- `Component` — base protocol; has `gameObject` and `isEnabled`
+- `Component` — base class; has `gameObject` and `isEnabled`
 - `Script` — custom gameplay logic (movement, AI, reactions)
 - `View` — rendering-related state; hosts interpret it (e.g., SpriteKit adapter)
 - `Collider` — collision shape used by `PhysicsWorld`
@@ -71,10 +71,7 @@ Example:
 
 ```swift
 final class PlayerScript: Script {
-    weak var gameObject: GameObject?
-    var isEnabled: Bool = true
-
-    func update(deltaTime: TimeInterval) {
+    override func update(deltaTime: TimeInterval) {
         guard let gameObject else { return }
         var t = gameObject.localTransform
         t.position.x += 4.0 * deltaTime

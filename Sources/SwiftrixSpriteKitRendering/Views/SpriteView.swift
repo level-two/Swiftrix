@@ -3,9 +3,7 @@ import SpriteKit
 import SwiftrixCore
 
 /// Sprite-based view that maps to `SKSpriteNode`.
-public final class SpriteView: SpriteKitRenderable {
-    public weak var gameObject: GameObject?
-    public var isEnabled: Bool = true
+public final class SpriteView: View, SpriteKitRenderable {
 
     public var textureName: String?
     public var color: SKColor
@@ -18,16 +16,18 @@ public final class SpriteView: SpriteKitRenderable {
         color: SKColor = .white,
         size: CGSize? = nil,
         anchorPoint: CGPoint = CGPoint(x: 0.5, y: 0.5),
-        zPosition: CGFloat = 0
+        zPosition: CGFloat = 0,
+        isEnabled: Bool = true
     ) {
         self.textureName = textureName
         self.color = color
         self.size = size
         self.anchorPoint = anchorPoint
         self.zPosition = zPosition
+        super.init(isEnabled: isEnabled)
     }
 
-    public func update(deltaTime: TimeInterval) {}
+    public override func update(deltaTime: TimeInterval) {}
 
     public func makeNode() -> SKNode {
         let sprite = SKSpriteNode(texture: resolvedTexture())

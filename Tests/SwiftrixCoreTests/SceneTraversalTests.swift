@@ -2,15 +2,13 @@ import XCTest
 @testable import SwiftrixCore
 
 private final class LoggingComponent: Component {
-    weak var gameObject: GameObject?
-    var isEnabled: Bool = true
     var log: [String]
 
     init(log: [String]) {
         self.log = log
     }
 
-    func update(deltaTime: TimeInterval) {
+    override func update(deltaTime: TimeInterval) {
         if let name = gameObject?.name {
             log.append(name)
         }
@@ -27,11 +25,9 @@ final class SceneTraversalTests: XCTestCase {
         root.addChild(childB)
 
         class Recorder: Component {
-            weak var gameObject: GameObject?
-            var isEnabled: Bool = true
             var output: () -> Void
             init(output: @escaping () -> Void) { self.output = output }
-            func update(deltaTime: TimeInterval) { output() }
+            override func update(deltaTime: TimeInterval) { output() }
         }
 
         root.addComponent(Recorder { updates.append("Root") })

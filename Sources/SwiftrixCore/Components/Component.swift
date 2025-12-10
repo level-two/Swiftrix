@@ -1,11 +1,13 @@
 import Foundation
 
-/// Base protocol for attachable behaviors on game objects.
-public protocol Component: AnyObject, Updatable {
-    var gameObject: GameObject? { get set }
-    var isEnabled: Bool { get set }
-}
+/// Base class for attachable behaviors on game objects.
+open class Component: Updatable {
+    public weak var gameObject: GameObject!
+    public var isEnabled: Bool
 
-public extension Component {
-    func update(deltaTime: TimeInterval) {}
+    public init(isEnabled: Bool = true) {
+        self.isEnabled = isEnabled
+    }
+
+    open func update(deltaTime: TimeInterval) {}
 }

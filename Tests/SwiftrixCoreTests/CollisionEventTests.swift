@@ -3,11 +3,9 @@ import CoreGraphics
 @testable import SwiftrixCore
 
 private final class CollisionScript: Script {
-    weak var gameObject: GameObject?
-    var isEnabled: Bool = true
     var collisions: Int = 0
-    func update(deltaTime: TimeInterval) {}
-    func onCollision(with other: Collider) { collisions += 1 }
+    override func update(deltaTime: TimeInterval) {}
+    override func onCollision(with other: Collider) { collisions += 1 }
 }
 
 final class CollisionEventTests: XCTestCase {

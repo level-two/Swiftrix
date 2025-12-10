@@ -3,13 +3,13 @@ import SpriteKit
 import SwiftrixCore
 
 /// Transform-only view that renders as a plain `SKNode`.
-public final class ContainerView: SpriteKitRenderable {
-    public weak var gameObject: GameObject?
-    public var isEnabled: Bool = true
+public final class ContainerView: View, SpriteKitRenderable {
 
-    public init() {}
+    public override init(isEnabled: Bool = true) {
+        super.init(isEnabled: isEnabled)
+    }
 
-    public func update(deltaTime: TimeInterval) {}
+    public override func update(deltaTime: TimeInterval) {}
 
     public func makeNode() -> SKNode {
         SKNode()

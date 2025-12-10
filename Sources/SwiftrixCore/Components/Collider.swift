@@ -9,28 +9,26 @@ public enum CollisionGroup: Hashable {
 }
 
 /// Collision component for the physics world.
-public protocol Collider: Component {
-    var localOffset: Vector2 { get set }
-    var collisionGroup: CollisionGroup { get set }
-    var isTrigger: Bool { get set }
-    var size: Vector2 { get set }
-}
-
-/// Simple AABB collider used by the default physics world.
-open class BoxCollider: Collider {
-    public weak var gameObject: GameObject?
-    public var isEnabled: Bool = true
+open class Collider: Component {
     public var localOffset: Vector2
     public var collisionGroup: CollisionGroup
     public var isTrigger: Bool
     public var size: Vector2
 
-    public init(size: Vector2, localOffset: Vector2 = .zero, collisionGroup: CollisionGroup = .environment, isTrigger: Bool = false) {
+    public init(
+        size: Vector2,
+        localOffset: Vector2 = .zero,
+        collisionGroup: CollisionGroup = .environment,
+        isTrigger: Bool = false,
+        isEnabled: Bool = true
+    ) {
         self.size = size
         self.localOffset = localOffset
         self.collisionGroup = collisionGroup
         self.isTrigger = isTrigger
+        super.init(isEnabled: isEnabled)
     }
-
-    open func update(deltaTime: TimeInterval) {}
 }
+
+/// Simple AABB collider used by the default physics world.
+open class BoxCollider: Collider {}

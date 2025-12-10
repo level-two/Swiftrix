@@ -80,9 +80,9 @@ The standard concrete implementation is `GameObject`.
 
 ### Components
 
-Components attach behaviour and data to game objects. Key component protocols:
+Components attach behaviour and data to game objects. Key component classes:
 
-- `Component` — base protocol for attachable behaviors
+- `Component` — base class for attachable behaviors
 - `Script` — custom gameplay logic (movement, AI, reactions)
 - `View` — rendering-related state (to be interpreted by your host)
 - `Collider` — 2D collision shapes used by `PhysicsWorld`
@@ -120,10 +120,7 @@ import SwiftrixCore
 
 // 1. Define a simple script
 final class MoveRightScript: Script {
-    weak var gameObject: GameObject?
-    var isEnabled: Bool = true
-
-    func update(deltaTime: TimeInterval) {
+    override func update(deltaTime: TimeInterval) {
         guard let gameObject else { return }
         var transform = gameObject.localTransform
         transform.position.x += 1.0 * deltaTime

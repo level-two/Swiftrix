@@ -2,15 +2,13 @@ import XCTest
 @testable import SwiftrixCore
 
 private final class RecordingComponent: Component {
-    weak var gameObject: GameObject?
-    var isEnabled: Bool = true
     private let record: (String) -> Void
 
     init(record: @escaping (String) -> Void) {
         self.record = record
     }
 
-    func update(deltaTime: TimeInterval) {
+    override func update(deltaTime: TimeInterval) {
         if let name = gameObject?.name { record(name) }
     }
 }

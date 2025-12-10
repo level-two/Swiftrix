@@ -47,7 +47,7 @@ workflows.
 - [ ] T009 [P] Add unit tests for lifecycle and destroy semantics in Tests/SwiftrixCoreTests/CoreProtocolsTests.swift
 - [ ] T010 Define GameObject protocol and GameObject implementation in Sources/SwiftrixCore/GameObject/
 - [ ] T011 Add unit tests for GameObject hierarchy, transforms, and component attachment in Tests/SwiftrixCoreTests/GameObjectTests.swift
-- [ ] T012 Define Component base protocol and Script, View, Collider, ControlComponent protocols in Sources/SwiftrixCore/Components/
+- [ ] T012 Define Component base class and Script, View, Collider, ControlComponent classes in Sources/SwiftrixCore/Components/
 - [ ] T013 [P] Add unit tests for component enabling, disabling, and update dispatch in Tests/SwiftrixCoreTests/ComponentTests.swift
 - [ ] T014 Define Scene protocol and DefaultScene skeleton with update/fixedUpdate/draw hooks in Sources/SwiftrixCore/Scene/
 - [ ] T015 Add unit tests for Scene root object management and traversal ordering in Tests/SwiftrixCoreTests/SceneTests.swift

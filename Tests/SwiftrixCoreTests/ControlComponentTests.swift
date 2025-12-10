@@ -2,11 +2,9 @@ import XCTest
 @testable import SwiftrixCore
 
 private final class RecordingControl: ControlComponent {
-    weak var gameObject: GameObject?
-    var isEnabled: Bool = true
     var received: [ControlEvent] = []
-    func handle(event: ControlEvent) { received.append(event) }
-    func update(deltaTime: TimeInterval) {}
+    override func handle(event: ControlEvent) { received.append(event) }
+    override func update(deltaTime: TimeInterval) {}
 }
 
 final class ControlComponentTests: XCTestCase {
