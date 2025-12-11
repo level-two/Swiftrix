@@ -84,23 +84,26 @@ import SpriteKit
 import SwiftrixCore
 import SwiftrixSpriteKitRendering
 
+final class GameScene: SpriteKitScene {
+    override func bootstrapScene() {
+        let player = GameObject(name: "Player")
+        player.addComponent(SpriteView(textureName: "player", size: CGSize(width: 24, height: 24)))
+        coreScene.addRootObject(player)
+    }
+}
+
 final class GameViewController: UIViewController {
-    private var spriteKitScene: SpriteKitScene!
+    private var spriteKitScene: GameScene!
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        spriteKitScene = SpriteKitScene()
+        spriteKitScene = GameScene()
 
         let skView = SKView(frame: view.bounds)
         skView.ignoresSiblingOrder = true
         skView.presentScene(spriteKitScene)
         view.addSubview(skView)
-
-        // Build your Core scene through the wrapped `Scene`
-        let player = GameObject(name: "Player")
-        player.addComponent(SpriteView(textureName: "player", size: CGSize(width: 24, height: 24)))
-        spriteKitScene.coreScene.addRootObject(player)
 
         spriteKitScene.start()
     }

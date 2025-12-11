@@ -53,7 +53,7 @@ When something doesn’t render as expected, check:
 
 ## 3. Debugging with the SpriteKit Bridge
 
-When using `SwiftrixSpriteKitRendering` and `SpriteKitScene`:
+When using `SwiftrixSpriteKitRendering` and `SpriteKitScene` subclasses:
 
 ### Debug overlays
 

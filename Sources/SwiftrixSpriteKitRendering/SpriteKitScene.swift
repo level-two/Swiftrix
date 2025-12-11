@@ -23,7 +23,10 @@ public struct PerformanceBudget {
 
 /// SpriteKit-backed `SKScene` that owns a core `Scene` instance and mirrors
 /// its game object graph into the SpriteKit node tree.
-public final class SpriteKitScene: SKScene {
+///
+/// Subclass this type to create a concrete “scene asset” that wires up your
+/// prefabs and controllers inside `bootstrapScene()`.
+open class SpriteKitScene: SKScene {
     public let coreScene: Scene
     public private(set) var state: SceneAdapterState = .idle
     public var performanceBudget: PerformanceBudget
@@ -39,6 +42,7 @@ public final class SpriteKitScene: SKScene {
     private let displayLinkDriver: DisplayLinkDriving?
     private var gameLoop: GameLoop?
     private var lastUpdateTime: TimeInterval?
+    private var didBootstrapScene = false
 
     public init(
         coreScene: Scene,
@@ -80,7 +84,7 @@ public final class SpriteKitScene: SKScene {
         )
     }
 
-    required init?(coder: NSCoder) {
+    required public init?(coder: NSCoder) {
         self.coreScene = Scene()
         self.performanceBudget = .default
         self.fixedDeltaTime = 1.0 / 60.0
@@ -93,8 +97,12 @@ public final class SpriteKitScene: SKScene {
 
     // MARK: - Lifecycle
 
-    public func start() {
+    open func start() {
         guard state == .idle || state == .stopped else { return }
+        if !didBootstrapScene {
+            didBootstrapScene = true
+            bootstrapScene()
+        }
         state = .running
         rebuildSceneGraph()
         processDirtyQueue()
@@ -103,21 +111,21 @@ public final class SpriteKitScene: SKScene {
         lastUpdateTime = nil
     }
 
-    public func pause() {
+    open func pause() {
         guard state == .running else { return }
         state = .paused
         displayLinkDriver?.pause()
         isPaused = true
     }
 
-    public func resume() {
+    open func resume() {
         guard state == .paused else { return }
         state = .running
         isPaused = false
         displayLinkDriver?.resume()
     }
 
-    public func stop() {
+    open func stop() {
         guard state != .stopped else { return }
         displayLinkDriver?.stop()
         tearDownBindings()
@@ -127,25 +135,28 @@ public final class SpriteKitScene: SKScene {
     }
 
     /// Fully clears node mappings and returns the scene to the idle state.
-    public func reset() {
+    open func reset() {
         stop()
         state = .idle
     }
 
     /// Stops and immediately restarts, rebuilding node mappings.
-    public func restart() {
+    open func restart() {
         stop()
         start()
     }
 
     /// Manual stepping helper used by tests or tooling.
-    public func step(deltaTime: TimeInterval) {
+    open func step(deltaTime: TimeInterval) {
         tick(deltaTime: deltaTime)
     }
 
+    /// Override to populate the Core scene with prefabs and controllers.
+    open func bootstrapScene() {}
+
     // MARK: - SKScene hooks
 
-    public override func update(_ currentTime: TimeInterval) {
+    open override func update(_ currentTime: TimeInterval) {
         guard displayLinkDriver == nil else { return }
         guard state == .running else { return }
         defer { lastUpdateTime = currentTime }
