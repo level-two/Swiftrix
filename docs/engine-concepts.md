@@ -151,16 +151,16 @@ For a simple game or prototype:
 3. Add `Collider`s where collisions matter; respond via Scripts or events.
 4. Use `Scene` + `GameLoop` and embed in your host (SpriteKit, Metal, etc.).
 
-If you use the SpriteKit adapter:
+If you use the SpriteKit bridge (`SpriteKitScene`):
 
 - focus your game code entirely on SwiftrixCore objects and components.
-- let the adapter map Views to `SKNode`s and handle the render loop and camera.
+- let the bridge map Views to `SKNode`s and handle the render loop and camera.
 
 ---
 
 ## 6. Core vs Adapter Responsibilities (Diagram)
 
-High-level boundaries between SwiftrixCore and a SpriteKit host using the adapter:
+High-level boundaries between SwiftrixCore and a SpriteKit host using the SpriteKitScene bridge:
 
 ```text
  +-----------------------+        +------------------------------+
@@ -169,7 +169,7 @@ High-level boundaries between SwiftrixCore and a SpriteKit host using the adapte
  |        agnostic)      |        |        (platform-aware)     |
  +-----------------------+        +------------------------------+
  | - Scene                |       | - SKView / SKScene          |
- | - GameObject / GameObject |       | - SpriteKitScene            |
+ | - GameObject / GameObject |       | - SpriteKitScene (SKScene subclass) |
  | - Components:          |       | - SpriteView / ContainerView|
  |   Script / View /      |       | - CameraController          |
  |   Collider / Control   |       | - DebugOverlayRenderer      |
@@ -185,7 +185,7 @@ High-level boundaries between SwiftrixCore and a SpriteKit host using the adapte
 ```
 
 - **Core (left)**: owns gameplay state, rules, and deterministic simulation; has no idea about SpriteKit or the platform UI.
-- **Adapter + Host (right)**: own rendering, platform input, lifecycle, and presentation; translate Core state into `SKNode`s and user-visible behavior.
+- **Bridge + Host (right)**: own rendering, platform input, lifecycle, and presentation; translate Core state into `SKNode`s and user-visible behavior.
 
 When in doubt:
 

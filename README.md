@@ -220,12 +220,17 @@ import SwiftrixCore
 import SwiftrixSpriteKitRendering
 import SpriteKit
 
-let coreScene = SpriteKitScene()
+let spriteKitScene = SpriteKitScene()
 
 let skView = SKView(frame: UIScreen.main.bounds)
-skView.presentScene(coreScene.skScene)
+skView.presentScene(spriteKitScene)
 
-coreScene.start()
+// Build your core scene via the wrapped `Scene`
+let player = GameObject(name: "Player")
+player.addComponent(SpriteView(textureName: "player", size: CGSize(width: 24, height: 24)))
+spriteKitScene.coreScene.addRootObject(player)
+
+spriteKitScene.start()
 ```
 
 For more details (performance budgets, overlays, camera follow, hit-testing),

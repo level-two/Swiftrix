@@ -5,7 +5,7 @@ This guide shows how to run SwiftrixCore inside a SpriteKit-based app. There are
 - **Manual integration** using `GameLoop` inside your own `SKScene`.
 - **Adapter integration** using `SwiftrixSpriteKitRendering` and `SpriteKitScene`.
 
-Use manual integration if you want full control over nodes and rendering. Use the adapter if you want a higher-level bridge that keeps SpriteKit concerns out of your game logic.
+Use manual integration if you want full control over nodes and rendering. Use the SpriteKitScene bridge if you want a higher-level integration that keeps SpriteKit concerns out of your game logic.
 
 ---
 
@@ -22,7 +22,7 @@ targets: [
         name: "YourGame",
         dependencies: [
             .product(name: "SwiftrixCore", package: "Swiftrix"),
-            .product(name: "SwiftrixSpriteKitRendering", package: "Swiftrix"), // optional adapter
+            .product(name: "SwiftrixSpriteKitRendering", package: "Swiftrix"), // optional SpriteKit bridge
         ]
     )
 ]
@@ -85,24 +85,24 @@ import SwiftrixCore
 import SwiftrixSpriteKitRendering
 
 final class GameViewController: UIViewController {
-    private var coreScene: SpriteKitScene!
+    private var spriteKitScene: SpriteKitScene!
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        coreScene = SpriteKitScene()
+        spriteKitScene = SpriteKitScene()
 
         let skView = SKView(frame: view.bounds)
         skView.ignoresSiblingOrder = true
-        skView.presentScene(coreScene.skScene)
+        skView.presentScene(spriteKitScene)
         view.addSubview(skView)
 
-        // Build your Core scene
+        // Build your Core scene through the wrapped `Scene`
         let player = GameObject(name: "Player")
         player.addComponent(SpriteView(textureName: "player", size: CGSize(width: 24, height: 24)))
-        coreScene.addRootObject(player)
+        spriteKitScene.coreScene.addRootObject(player)
 
-        coreScene.start()
+        spriteKitScene.start()
     }
 }
 ```
@@ -111,20 +111,20 @@ final class GameViewController: UIViewController {
 
 ```swift
 // Pause/resume (e.g. app background/foreground)
-coreScene.pause()
-coreScene.resume()
+spriteKitScene.pause()
+spriteKitScene.resume()
 
 // Stop when you tear down the view
-coreScene.stop()
+spriteKitScene.stop()
 
-// Reset clears mappings and returns the adapter to idle
-adapter.reset()
+// Reset clears mappings and returns the bridge to idle
+spriteKitScene.reset()
 ```
 
 You can also use `HostLifecycleBridge` to wire app lifecycle events:
 
 ```swift
-let lifecycle = HostLifecycleBridge(adapter: adapter)
+let lifecycle = HostLifecycleBridge(scene: spriteKitScene)
 
 func applicationDidEnterBackground(_ application: UIApplication) {
     lifecycle.applicationDidEnterBackground()
@@ -139,12 +139,12 @@ func applicationWillEnterForeground(_ application: UIApplication) {
 
 ```swift
 // Camera follow
-adapter.configureCamera(
+spriteKitScene.configureCamera(
     CameraConfig(mode: .followObject(player.id, offset: .zero), zoom: 1.0)
 )
 
 // Debug overlays
-adapter.setDebugOverlayConfig(DebugOverlayConfig(
+spriteKitScene.setDebugOverlayConfig(DebugOverlayConfig(
     isEnabled: true,
     showBounds: true,
     showAnchors: true
@@ -156,8 +156,8 @@ adapter.setDebugOverlayConfig(DebugOverlayConfig(
 ```swift
 override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
     guard let touch = touches.first else { return }
-    let location = touch.location(in: adapter.session.skScene)
-    if let objectID = adapter.hitTestObjectID(at: location) {
+    let location = touch.location(in: spriteKitScene)
+    if let objectID = spriteKitScene.hitTestObjectID(at: location) {
         // Map to your Core input system using the objectID.
     }
 }
@@ -174,5 +174,5 @@ override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 
 - Start with **SpriteKitScene** for most demos and games; it keeps your gameplay code focused on SwiftrixCore.
 - Drop down to the **manual GameLoop pattern** if:
-  - you need custom rendering that doesn’t map well to the adapter, or
+  - you need custom rendering that doesn’t map well to the bridge, or
   - you’re targeting a non-SpriteKit renderer and want a very similar pattern.

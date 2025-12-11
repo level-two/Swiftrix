@@ -1,6 +1,6 @@
 # Debugging & Introspection
 
-This guide covers practical techniques for understanding what SwiftrixCore is doing at runtime and how to debug rendering when using the SpriteKit adapter.
+This guide covers practical techniques for understanding what SwiftrixCore is doing at runtime and how to debug rendering when using the SpriteKit bridge.
 
 ---
 
@@ -45,22 +45,22 @@ When something doesn’t render as expected, check:
 3. **Are you updating transforms?**
    - Ensure you write back to `gameObject.localTransform` from Scripts.
 4. **Are View components present?**
-   - At least one `View` (or adapter-specific `SpriteView` / `ContainerView`) should be attached.
+   - At least one `View` (or SpriteKit bridge `SpriteView` / `ContainerView`) should be attached.
 5. **Is the host calling the loop?**
-   - Verify `GameLoop.tick(deltaTime:)` or the SpriteKit adapter’s display-linked driver is running.
+   - Verify `GameLoop.tick(deltaTime:)` or the SpriteKit bridge’s driver/`update(_:)` is running.
 
 ---
 
-## 3. Debugging with the SpriteKit Adapter
+## 3. Debugging with the SpriteKit Bridge
 
-When using `SwiftrixSpriteKitRendering`:
+When using `SwiftrixSpriteKitRendering` and `SpriteKitScene`:
 
 ### Debug overlays
 
-Enable lightweight overlays to see where the adapter thinks objects are:
+Enable lightweight overlays to see where the bridge thinks objects are:
 
 ```swift
-adapter.setDebugOverlayConfig(DebugOverlayConfig(
+spriteKitScene.setDebugOverlayConfig(DebugOverlayConfig(
     isEnabled: true,
     showBounds: true,
     showAnchors: true
@@ -76,10 +76,10 @@ If you see overlays but no textures, you likely have an asset or view configurat
 
 ### Diagnostics
 
-Attach a diagnostic callback to log adapter issues (e.g., missing textures):
+Attach a diagnostic callback to log bridge issues (e.g., missing textures):
 
 ```swift
-adapter.onDiagnostic = { message in
+spriteKitScene.onDiagnostic = { message in
     print("[SwiftrixSpriteKitRendering] \(message)")
 }
 ```
@@ -94,8 +94,8 @@ Use this to quickly spot:
 To verify that touches map to the expected game object:
 
 ```swift
-let location = touch.location(in: adapter.session.skScene)
-if let objectID = adapter.hitTestObjectID(at: location) {
+let location = touch.location(in: spriteKitScene)
+if let objectID = spriteKitScene.hitTestObjectID(at: location) {
     print("Touched object \(objectID)")
 } else {
     print("No object under touch")
@@ -115,7 +115,7 @@ If hit-testing doesn’t find your object, check:
 The repo includes tests that are good reference points:
 
 - `Tests/SwiftrixCoreTests` — core behavior (scene traversal, game loop, physics, input).
-- `Tests/SwiftrixSpriteKitRenderingTests` — adapter behavior (binding, sync, lifecycle, camera, hit-testing).
+- `Tests/SwiftrixSpriteKitRenderingTests` — SpriteKit bridge behavior (binding, sync, lifecycle, camera, hit-testing).
 
 You can mirror these patterns in your own tests:
 
@@ -123,15 +123,15 @@ You can mirror these patterns in your own tests:
 let harness = SpriteKitTestHarness()
 let root = GameObject(name: "root")
 root.addComponent(ContainerView())
-harness.scene.addRootObject(root)
+harness.scene.coreScene.addRootObject(root)
 
-harness.adapter.start()
+harness.scene.start()
 harness.step(deltaTime: 1.0 / 60.0)
 
-XCTAssertEqual(harness.adapter.node(for: root.id)?.position, .zero)
+XCTAssertEqual(harness.scene.node(for: root.id)?.position, .zero)
 ```
 
-Running `swift test` regularly helps catch regressions in both engine logic and adapter integration.
+Running `swift test` regularly helps catch regressions in both engine logic and SpriteKit integration.
 
 ---
 
@@ -146,4 +146,3 @@ Keep new debugging helpers:
 
 - simple and side-effect free
 - focused on **observing** state, not changing it.
-

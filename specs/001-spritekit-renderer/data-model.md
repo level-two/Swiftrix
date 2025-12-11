@@ -2,11 +2,11 @@
 
 ## Entity: SpriteKitScene
 
-- **Purpose**: A `Scene` subclass that mirrors the Core game object graph into a host `SKScene` and drives the loop via a display-linked clock.
+- **Purpose**: An `SKScene` subclass that owns a Core `Scene`, drives its `GameLoop`, and mirrors the game object graph into the SpriteKit node tree.
 - **Key Fields**:
+  - `coreScene` — the wrapped Core scene instance.
   - `state` — enum { idle, running, paused, stopped } plus timestamps.
   - `performanceBudget` — struct { maxSyncOpsPerFrame }.
-  - `skScene` — handle to the SpriteKit scene being mirrored.
   - `registry` — manages `NodeBinding` instances.
   - `dirtyQueue` — controls incremental sync.
   - `cameraController` — optional active camera mapping.
@@ -16,7 +16,7 @@
   - Owns exactly one `DirtySyncQueue`.
   - References optional `DebugOverlayConfig`.
 - **State Transitions**:
-  - `idle → running` (start display link, prime node mirror).
+  - `idle → running` (start display link or allow `update(_:)`, prime node mirror).
   - `running → paused` (host background, throttles Core updates).
   - `paused → running` (resume, flush dirty queue).
   - `running → stopped` (teardown, all bindings invalidated).

@@ -1,6 +1,6 @@
 import Foundation
 
-/// Lightweight bridge that maps host lifecycle events into adapter pause/resume.
+/// Lightweight bridge that maps host lifecycle events into SpriteKitScene pause/resume.
 public final class HostLifecycleBridge {
     private weak var scene: SpriteKitScene?
 

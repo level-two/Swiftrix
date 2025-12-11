@@ -8,7 +8,7 @@ final class LifecycleAndUtilityTests: XCTestCase {
         let harness = SpriteKitTestHarness()
         let root = GameObject(name: "root")
         root.addComponent(SpriteView(color: .red, size: CGSize(width: 8, height: 8)))
-        harness.scene.addRootObject(root)
+        harness.scene.coreScene.addRootObject(root)
 
         harness.scene.start()
         harness.step()
@@ -25,12 +25,12 @@ final class LifecycleAndUtilityTests: XCTestCase {
 
     func testHitTestReturnsObjectID() {
         let harness = SpriteKitTestHarness()
-        harness.scene.skScene.size = CGSize(width: 100, height: 100)
+        harness.scene.size = CGSize(width: 100, height: 100)
 
         let root = GameObject(name: "root")
         let sprite = SpriteView(color: .cyan, size: CGSize(width: 20, height: 20))
         root.addComponent(sprite)
-        harness.scene.addRootObject(root)
+        harness.scene.coreScene.addRootObject(root)
 
         harness.scene.start()
         harness.step()
@@ -41,17 +41,17 @@ final class LifecycleAndUtilityTests: XCTestCase {
 
     func testCameraFollowsObject() {
         let harness = SpriteKitTestHarness()
-        harness.scene.skScene.size = CGSize(width: 200, height: 200)
+        harness.scene.size = CGSize(width: 200, height: 200)
 
         let root = GameObject(name: "root", transform: Transform2D(position: Vector2(x: 50, y: 20)))
         root.addComponent(ContainerView())
-        harness.scene.addRootObject(root)
+        harness.scene.coreScene.addRootObject(root)
 
         harness.scene.configureCamera(CameraConfig(mode: .followObject(root.id, offset: CGPoint(x: 10, y: 0))))
         harness.scene.start()
         harness.step()
 
-        let cameraPosition = harness.scene.skScene.camera?.position
+        let cameraPosition = harness.scene.camera?.position
         XCTAssertEqual(cameraPosition, CGPoint(x: 60, y: 20))
     }
 }

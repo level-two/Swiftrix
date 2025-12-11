@@ -21,11 +21,11 @@ public struct PerformanceBudget {
     public static let `default` = PerformanceBudget(maxSyncOpsPerFrame: nil)
 }
 
-/// SpriteKit-backed scene that subclasses the core `Scene` and mirrors the
-/// game object graph into an `SKScene`, driven by a display-linked clock.
-public final class SpriteKitScene: Scene {
+/// SpriteKit-backed `SKScene` that owns a core `Scene` instance and mirrors
+/// its game object graph into the SpriteKit node tree.
+public final class SpriteKitScene: SKScene {
+    public let coreScene: Scene
     public private(set) var state: SceneAdapterState = .idle
-    public let skScene: SKScene
     public var performanceBudget: PerformanceBudget
     public var onDiagnostic: ((String) -> Void)?
     public var debugOverlayConfig: DebugOverlayConfig?
@@ -36,11 +36,33 @@ public final class SpriteKitScene: Scene {
     private let dirtyQueue: DirtySyncQueue
     private let overlayRenderer = DebugOverlayRenderer()
     private let hitTestBridge = HitTestBridge()
-    private let displayLinkDriver: DisplayLinkDriving
+    private let displayLinkDriver: DisplayLinkDriving?
     private var gameLoop: GameLoop?
+    private var lastUpdateTime: TimeInterval?
 
     public init(
-        skScene: SKScene = SKScene(),
+        coreScene: Scene,
+        size: CGSize = CGSize(width: 640, height: 480),
+        displayLinkDriver: DisplayLinkDriving? = nil,
+        fixedDeltaTime: TimeInterval = 1.0 / 60.0,
+        performanceBudget: PerformanceBudget = .default
+    ) {
+        self.coreScene = coreScene
+        self.performanceBudget = performanceBudget
+        self.fixedDeltaTime = fixedDeltaTime
+        self.registry = NodeBindingRegistry()
+        self.dirtyQueue = DirtySyncQueue()
+        self.displayLinkDriver = displayLinkDriver
+        super.init(size: size)
+        self.gameLoop = GameLoop(scene: coreScene, fixedDeltaTime: fixedDeltaTime)
+        self.displayLinkDriver?.onTick = { [weak self] delta in
+            self?.tick(deltaTime: delta)
+        }
+        self.scaleMode = .resizeFill
+    }
+
+    public convenience init(
+        size: CGSize = CGSize(width: 640, height: 480),
         displayLinkDriver: DisplayLinkDriving? = nil,
         fixedDeltaTime: TimeInterval = 1.0 / 60.0,
         performanceBudget: PerformanceBudget = .default,
@@ -48,18 +70,25 @@ public final class SpriteKitScene: Scene {
         inputSystem: InputSystem? = nil,
         physicsWorld: PhysicsWorld = DefaultPhysicsWorld()
     ) {
-        self.skScene = skScene
-        self.performanceBudget = performanceBudget
-        self.fixedDeltaTime = fixedDeltaTime
+        let coreScene = Scene(eventBus: eventBus, inputSystem: inputSystem, physicsWorld: physicsWorld)
+        self.init(
+            coreScene: coreScene,
+            size: size,
+            displayLinkDriver: displayLinkDriver,
+            fixedDeltaTime: fixedDeltaTime,
+            performanceBudget: performanceBudget
+        )
+    }
+
+    required init?(coder: NSCoder) {
+        self.coreScene = Scene()
+        self.performanceBudget = .default
+        self.fixedDeltaTime = 1.0 / 60.0
         self.registry = NodeBindingRegistry()
         self.dirtyQueue = DirtySyncQueue()
-        self.displayLinkDriver = displayLinkDriver ?? CADisplayLinkDriver()
-        super.init(eventBus: eventBus, inputSystem: inputSystem, physicsWorld: physicsWorld)
-        self.gameLoop = GameLoop(scene: self, fixedDeltaTime: fixedDeltaTime)
-        self.displayLinkDriver.onTick = { [weak self] delta in
-            self?.tick(deltaTime: delta)
-        }
-        self.skScene.scaleMode = .resizeFill
+        self.displayLinkDriver = nil
+        super.init(coder: coder)
+        self.gameLoop = GameLoop(scene: coreScene, fixedDeltaTime: fixedDeltaTime)
     }
 
     // MARK: - Lifecycle
@@ -69,30 +98,32 @@ public final class SpriteKitScene: Scene {
         state = .running
         rebuildSceneGraph()
         processDirtyQueue()
-        displayLinkDriver.start()
-        skScene.isPaused = false
+        displayLinkDriver?.start()
+        isPaused = false
+        lastUpdateTime = nil
     }
 
     public func pause() {
         guard state == .running else { return }
         state = .paused
-        displayLinkDriver.pause()
-        skScene.isPaused = true
+        displayLinkDriver?.pause()
+        isPaused = true
     }
 
     public func resume() {
         guard state == .paused else { return }
         state = .running
-        skScene.isPaused = false
-        displayLinkDriver.resume()
+        isPaused = false
+        displayLinkDriver?.resume()
     }
 
     public func stop() {
         guard state != .stopped else { return }
-        displayLinkDriver.stop()
+        displayLinkDriver?.stop()
         tearDownBindings()
         state = .stopped
-        skScene.isPaused = true
+        isPaused = true
+        lastUpdateTime = nil
     }
 
     /// Fully clears node mappings and returns the scene to the idle state.
@@ -112,6 +143,17 @@ public final class SpriteKitScene: Scene {
         tick(deltaTime: deltaTime)
     }
 
+    // MARK: - SKScene hooks
+
+    public override func update(_ currentTime: TimeInterval) {
+        guard displayLinkDriver == nil else { return }
+        guard state == .running else { return }
+        defer { lastUpdateTime = currentTime }
+        guard let lastTime = lastUpdateTime else { return }
+        let delta = currentTime - lastTime
+        tick(deltaTime: delta)
+    }
+
     // MARK: - Sync pipeline
 
     private func tick(deltaTime: TimeInterval) {
@@ -123,8 +165,8 @@ public final class SpriteKitScene: Scene {
 
     private func rebuildSceneGraph() {
         var visited: Set<UUID> = []
-        for root in rootObjects where !root.isDestroyed {
-            attach(object: root, parentObject: nil, to: skScene, visited: &visited)
+        for root in coreScene.rootObjects where !root.isDestroyed {
+            attach(object: root, parentObject: nil, to: self, visited: &visited)
         }
         let removed = registry.removeUnvisited(excluding: visited)
         removed.forEach {
@@ -216,10 +258,10 @@ public final class SpriteKitScene: Scene {
             }
 
             if let config = debugOverlayConfig {
-                overlayRenderer.renderOverlay(for: binding, in: skScene, config: config)
+                overlayRenderer.renderOverlay(for: binding, in: self, config: config)
             }
         }
-        cameraController?.update(using: registry, in: skScene)
+        cameraController?.update(using: registry, in: self)
     }
 
     private func applyTransform(_ transform: Transform2D, to node: SKNode) {
@@ -274,6 +316,6 @@ public final class SpriteKitScene: Scene {
     }
 
     public func hitTestObjectID(at point: CGPoint) -> UUID? {
-        hitTestBridge.objectID(at: point, in: skScene, registry: registry)
+        hitTestBridge.objectID(at: point, in: self, registry: registry)
     }
 }

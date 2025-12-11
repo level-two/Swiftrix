@@ -19,7 +19,7 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core adapter scaffolding, clocking, and mapping infrastructure required by all user stories.
+**Purpose**: Core SpriteKit bridge scaffolding, clocking, and mapping infrastructure required by all user stories.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
@@ -30,7 +30,7 @@
 - [ ] T008 Add XCTest harness types for headless `SKView` and fake `CADisplayLink` driver (Tests/SwiftrixSpriteKitRenderingTests/SpriteKitTestHarness.swift)
 - [ ] T009 Add baseline unit tests for `SpriteKitScene` lifecycle and mapping registry creation (Tests/SwiftrixSpriteKitRenderingTests/SpriteKitSceneLifecycleTests.swift)
 
-**Checkpoint**: Adapter target builds, basic session + mapping structures exist, and tests can run headless.
+**Checkpoint**: SpriteKit bridge target builds, basic mapping structures exist, and tests can run headless.
 
 ---
 
@@ -47,14 +47,14 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `SpriteKitScene` subclass conforming to Core `Scene` behavior and exposing `skScene: SKScene` (Sources/SwiftrixSpriteKitRendering/SpriteKitScene.swift)
+- [ ] T012 [P] [US1] Implement `SpriteKitScene` as an `SKScene` subclass that wraps a Core `Scene` and manages binding/sync (Sources/SwiftrixSpriteKitRendering/SpriteKitScene.swift)
 - [ ] T013 [P] [US1] Implement creation and configuration of the root `SKScene` and root node hierarchy (Sources/SwiftrixSpriteKitRendering/SpriteKitScene.swift)
 - [ ] T014 [US1] Implement binding API to attach game objects into the mirrored SpriteKit hierarchy (Sources/SwiftrixSpriteKitRendering/SpriteKitScene.swift)
 - [ ] T015 [US1] Implement `CADisplayLink`-driven loop that triggers Core fixed/variable updates then syncs to SpriteKit (Sources/SwiftrixSpriteKitRendering/DisplayLinkDriver.swift)
 - [ ] T016 [US1] Implement pause/resume/stop controls on the SpriteKitScene and propagate lifecycle changes to the display link (Sources/SwiftrixSpriteKitRendering/SpriteKitScene.swift)
 - [ ] T017 [US1] Add quickstart validation snippet in `quickstart.md` showing binding code path compiles against adapter API (specs/001-spritekit-renderer/quickstart.md)
 
-**Checkpoint**: A sample SpriteKit host can present `adapter.skScene`, run the CADisplayLink loop, and see a basic Core scene rendered and controllable.
+**Checkpoint**: A sample SpriteKit host can present `SpriteKitScene` directly, run the CADisplayLink loop (or SKScene update), and see a basic Core scene rendered and controllable.
 
 ---
 
@@ -115,7 +115,7 @@
 - [ ] T036 [P] Implement debug overlay rendering (bounds, anchors, names, selection highlight) using `SKShapeNode` (Sources/SwiftrixSpriteKitRendering/Debug/DebugOverlayRenderer.swift)
 - [ ] T037 Implement node inspector utility that can dump Core object ↔ SKNode mappings for tooling (Sources/SwiftrixSpriteKitRendering/Debug/NodeInspector.swift)
 - [ ] T038 [P] Implement optional hit-testing bridge from SpriteKit touches back to Core `GameObject` IDs (Sources/SwiftrixSpriteKitRendering/Input/HitTestBridge.swift)
-- [ ] T039 [P] Add documentation comments for all public adapter types and methods (Sources/SwiftrixSpriteKitRendering/)
+- [ ] T039 [P] Add documentation comments for all public SpriteKit bridge types and methods (Sources/SwiftrixSpriteKitRendering/)
 - [ ] T040 Update `quickstart.md` and any host sample docs to reflect final APIs and recommended setup (specs/001-spritekit-renderer/quickstart.md)
 - [ ] T041 Run performance profiling on reference scenes and tune sync batch sizes to maintain 60 FPS targets (Sources/SwiftrixSpriteKitRendering/Sync/)
 - [ ] T042 Add any missing unit tests to reach acceptable coverage for adapter behavior (Tests/SwiftrixSpriteKitRenderingTests/)

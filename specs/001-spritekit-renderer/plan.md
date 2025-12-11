@@ -7,7 +7,7 @@
 
 ## Summary
 
-Deliver a host-side SpriteKit module that adapts Swiftrix Core `Scene`, `GameObject`, and `View` abstractions into live `SKScene` / `SKNode` hierarchies. The adapter owns a `CADisplayLink`-driven loop, synchronizes dirty Core data into SpriteKit nodes, and exposes inspection hooks so renderers remain replaceable without touching gameplay code.
+Deliver a host-side SpriteKit module that provides `SpriteKitScene` (an `SKScene` subclass) wrapping a Core `Scene`, drives the loop, and mirrors Core `GameObject` + `View` abstractions into live `SKNode` hierarchies. The bridge owns a `CADisplayLink`-driven loop (or relies on `update(_:)`), synchronizes dirty Core data into SpriteKit nodes, and exposes inspection hooks so renderers remain replaceable without touching gameplay code.
 
 ## Technical Context
 

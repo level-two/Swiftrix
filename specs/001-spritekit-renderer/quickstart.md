@@ -14,19 +14,19 @@
    )
    ```
 
-## 2. Create the adapter + SpriteKit scene
+## 2. Create the SpriteKit scene
 
 ```swift
 import SwiftrixCore
 import SwiftrixSpriteKitRendering
 
-let coreScene = SpriteKitScene(
+let spriteKitScene = SpriteKitScene(
   performanceBudget: .init(maxSyncOpsPerFrame: 200)
 )
 
 let skView = SKView(frame: UIScreen.main.bounds)
 skView.ignoresSiblingOrder = true
-skView.presentScene(coreScene.skScene)
+skView.presentScene(spriteKitScene)
 ```
 
 ## 3. Build your Core scene and start rendering
@@ -35,26 +35,26 @@ skView.presentScene(coreScene.skScene)
 // Build GameObjects + View components
 let player = GameObject(name: "Player")
 player.addComponent(SpriteView(textureName: "player", size: CGSize(width: 24, height: 24)))
-coreScene.addRootObject(player)
+spriteKitScene.coreScene.addRootObject(player)
 
-coreScene.start() // begins the display-linked loop and syncs nodes
+spriteKitScene.start() // begins the display-linked loop and syncs nodes
 ```
 
 ## 4. Drive the loop and handle lifecycle
 
-- The adapter installs a display-linked driver automatically.
+- The bridge runs via SpriteKit’s `update(_:)` or an injected driver.
 - To pause/resume (e.g., app background/foreground):
   ```swift
-  adapter.pause()
-  adapter.resume()
+  spriteKitScene.pause()
+  spriteKitScene.resume()
   ```
-- Call `adapter.stop()` when unloading, or `adapter.reset()` to clear mappings and return to idle.
-- Optional: wire a `HostLifecycleBridge(adapter:)` and forward app lifecycle callbacks.
+- Call `spriteKitScene.stop()` when unloading, or `spriteKitScene.reset()` to clear mappings and return to idle.
+- Optional: wire a `HostLifecycleBridge(scene:)` and forward app lifecycle callbacks.
 
 ## 5. Enable debug overlays
 
 ```swift
-adapter.setDebugOverlayConfig(DebugOverlayConfig(
+spriteKitScene.setDebugOverlayConfig(DebugOverlayConfig(
   isEnabled: true,
   showBounds: true,
   showAnchors: true
@@ -65,19 +65,19 @@ adapter.setDebugOverlayConfig(DebugOverlayConfig(
 
 ```swift
 // Follow a specific GameObject
-adapter.configureCamera(CameraConfig(mode: .followObject(player.id, offset: .zero), zoom: 1.0))
+spriteKitScene.configureCamera(CameraConfig(mode: .followObject(player.id, offset: .zero), zoom: 1.0))
 
 // Or pin the camera
-adapter.configureCamera(CameraConfig(mode: .staticOffset(CGPoint(x: 0, y: 0))))
+spriteKitScene.configureCamera(CameraConfig(mode: .staticOffset(CGPoint(x: 0, y: 0))))
 ```
 
 ## 7. Touch / hit testing (optional)
 
-Use the adapter’s hit-test helper to map a SpriteKit touch location to a Core `GameObject` ID:
+Use the bridge’s hit-test helper to map a SpriteKit touch location to a Core `GameObject` ID:
 
 ```swift
-let location = touch.location(in: adapter.session.skScene)
-if let objectID = adapter.hitTestObjectID(at: location) {
+let location = touch.location(in: spriteKitScene)
+if let objectID = spriteKitScene.hitTestObjectID(at: location) {
   // Dispatch to your Core input system with this objectID
 }
 ```
@@ -90,11 +90,11 @@ if let objectID = adapter.hitTestObjectID(at: location) {
 let harness = SpriteKitTestHarness()
 let root = GameObject(name: "root")
 root.addComponent(ContainerView())
-harness.scene.addRootObject(root)
-harness.adapter.start()
+harness.scene.coreScene.addRootObject(root)
+harness.scene.start()
 harness.step(deltaTime: 1.0 / 60.0) // deterministic tick
 
-XCTAssertEqual(harness.adapter.node(for: root.id)?.position, .zero)
+XCTAssertEqual(harness.scene.node(for: root.id)?.position, .zero)
 ```
 
-This mirrors the runtime adapter API so your tests exercise real mapping and sync behavior.
+This mirrors the runtime bridge API so your tests exercise real mapping and sync behavior.
