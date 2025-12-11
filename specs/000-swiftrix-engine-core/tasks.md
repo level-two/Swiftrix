@@ -49,7 +49,7 @@ workflows.
 - [ ] T011 Add unit tests for GameObject hierarchy, transforms, and component attachment in Tests/SwiftrixCoreTests/GameObjectTests.swift
 - [ ] T012 Define Component base class and Script, View, Collider, ControlComponent classes in Sources/SwiftrixCore/Components/
 - [ ] T013 [P] Add unit tests for component enabling, disabling, and update dispatch in Tests/SwiftrixCoreTests/ComponentTests.swift
-- [ ] T014 Define Scene protocol and DefaultScene skeleton with update/fixedUpdate/draw hooks in Sources/SwiftrixCore/Scene/
+- [ ] T014 Define Scene base class with update/fixedUpdate/draw hooks in Sources/SwiftrixCore/Scene/Scene.swift
 - [ ] T015 Add unit tests for Scene root object management and traversal ordering in Tests/SwiftrixCoreTests/SceneTests.swift
 - [ ] T016 Define GameEvent protocol and EventBus interface in Sources/SwiftrixCore/Events/
 - [ ] T017 [P] Implement DefaultEventBus with AsyncStream-based subscriptions in Sources/SwiftrixCore/Events/DefaultEventBus.swift
@@ -103,7 +103,7 @@ workflows.
 - [ ] T033 [P] [US2] Implement ControlEvent enum and related helpers in Sources/SwiftrixCore/Input/ControlEvent.swift
 - [ ] T034 [US2] Implement InputSystem protocol and default implementation using logical axes and actions in Sources/SwiftrixCore/Input/InputSystem.swift
 - [ ] T035 [P] [US2] Implement ControlComponent protocol and base utilities in Sources/SwiftrixCore/Components/ControlComponent.swift
-- [ ] T036 [US2] Implement input dispatch from InputSystem to ControlComponent instances in Scene update flow in Sources/SwiftrixCore/Scene/DefaultScene.swift
+-- [ ] T036 [US2] Implement input dispatch from InputSystem to ControlComponent instances in Scene update flow in Sources/SwiftrixCore/Scene/Scene.swift
 - [ ] T037 [US2] Update DebugIntrospection to expose current input axis values and recent ControlEvents for tools in Sources/SwiftrixCore/Introspection/DebugIntrospection.swift
 
 **Checkpoint**: At this point, GameObjects can react to logical input axes/actions through ControlComponent and Script APIs, with full test coverage for input mapping and dispatch.
@@ -128,7 +128,7 @@ workflows.
 - [ ] T042 [US3] Define CollisionGroup enum and Collider protocol in Sources/SwiftrixCore/Components/Collider.swift
 - [ ] T043 [P] [US3] Define PhysicsWorld protocol with step and query APIs in Sources/SwiftrixCore/Physics/PhysicsWorld.swift
 - [ ] T044 [US3] Implement a minimal default PhysicsWorld with simple 2D collider overlap detection in Sources/SwiftrixCore/Physics/DefaultPhysicsWorld.swift
-- [ ] T045 [P] [US3] Wire PhysicsWorld.step into Scene.fixedUpdate so colliders are updated and collisions computed in Sources/SwiftrixCore/Scene/DefaultScene.swift
+- [ ] T045 [P] [US3] Wire PhysicsWorld.step into Scene.fixedUpdate so colliders are updated and collisions computed in Sources/SwiftrixCore/Scene/Scene.swift
 - [ ] T046 [US3] Implement collision handling that posts CollisionEvent to EventBus and calls Script.onCollision on affected GameObjects in Sources/SwiftrixCore/Physics/DefaultPhysicsWorld.swift
 - [ ] T047 [US3] Update DebugIntrospection to expose active colliders and recent CollisionEvents in Sources/SwiftrixCore/Introspection/DebugIntrospection.swift
 

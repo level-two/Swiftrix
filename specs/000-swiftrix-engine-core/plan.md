@@ -78,7 +78,6 @@ Sources/
 └── SwiftrixCore/
     ├── Scene/
     │   ├── Scene.swift
-    │   ├── DefaultScene.swift
     │   └── SceneGraphTraversal.swift
     ├── GameObject/
     │   ├── GameObject.swift

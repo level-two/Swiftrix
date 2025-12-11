@@ -61,7 +61,7 @@ Adjust the package name, URL, and path to match how you host this repository.
 `Scene` represents a world containing a tree of game objects and coordinating
 systems such as input, physics, and events.
 
-The default implementation is `DefaultScene`, which wires together:
+The engine provides an open `Scene` class, which wires together:
 
 - `EventBus` (default: `DefaultEventBus`)
 - `InputSystem` (default: `DefaultInputSystem` or a host-provided implementation)
@@ -135,7 +135,7 @@ final class MoveRightScript: Script {
 }
 
 // 2. Bootstrap scene and loop
-let scene = DefaultScene()
+let scene = Scene()
 let root = GameObject(name: "Player")
 root.addComponent(MoveRightScript())
 scene.addRootObject(root)
@@ -166,13 +166,13 @@ import SpriteKit
 import SwiftrixCore
 
 final class GameScene: SKScene {
-    private var swiftrixScene: DefaultScene!
+    private var swiftrixScene: Scene!
     private var loop: GameLoop!
     private var lastUpdateTime: TimeInterval = 0
 
     override func didMove(to view: SKView) {
         let input = DefaultInputSystem()
-        swiftrixScene = DefaultScene(inputSystem: input)
+        swiftrixScene = Scene(inputSystem: input)
         loop = GameLoop(scene: swiftrixScene)
 
         let player = GameObject(name: "Player")
@@ -220,7 +220,7 @@ import SwiftrixCore
 import SwiftrixSpriteKitRendering
 import SpriteKit
 
-let coreScene = DefaultScene()
+let coreScene = Scene()
 let adapter = SpriteKitSceneAdapter(scene: coreScene)
 
 let skView = SKView(frame: UIScreen.main.bounds)

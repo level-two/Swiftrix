@@ -15,7 +15,7 @@ private final class RecordingComponent: Component {
 
 final class SceneTests: XCTestCase {
     func testAddAndRemoveRoot() {
-        let scene = DefaultScene()
+        let scene = Scene()
         let go = GameObject(name: "Root")
         scene.addRootObject(go)
         XCTAssertEqual(scene.rootObjects.count, 1)
@@ -32,7 +32,7 @@ final class SceneTests: XCTestCase {
         child.addComponent(RecordingComponent { log.append($0) })
         root.addChild(child)
 
-        let scene = DefaultScene()
+        let scene = Scene()
         scene.addRootObject(root)
         scene.update(deltaTime: 1)
 

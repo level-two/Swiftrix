@@ -4,12 +4,12 @@ import SwiftrixCore
 
 /// Lightweight harness used to construct scenes and adapters for tests.
 final class SpriteKitTestHarness {
-    let scene: DefaultScene
+    let scene: Scene
     let adapter: SpriteKitSceneAdapter
     let manualDriver: ManualDisplayLinkDriver
 
     init(fixedDeltaTime: TimeInterval = 1.0 / 60.0, performanceBudget: PerformanceBudget = .default) {
-        self.scene = DefaultScene()
+        self.scene = Scene()
         self.manualDriver = ManualDisplayLinkDriver()
         self.adapter = SpriteKitSceneAdapter(
             scene: scene,

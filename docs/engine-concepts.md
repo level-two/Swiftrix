@@ -14,7 +14,7 @@ This document summarizes the main concepts in SwiftrixCore and shows how they fi
 - coordinates **input**, **physics**, and **events**
 - receives **update**, **fixedUpdate**, and **draw** calls
 
-Default implementation: `DefaultScene` (see `Sources/SwiftrixCore/Scene/DefaultScene.swift`).
+Default implementation: `Scene` (see `Sources/SwiftrixCore/Scene/Scene.swift`).
 
 ### GameObject
 
@@ -86,7 +86,7 @@ final class PlayerScript: Script {
 ```
 
 ```swift
-let scene = DefaultScene()
+let scene = Scene()
 
 let player = GameObject(name: "Player")
 player.addComponent(PlayerScript())
@@ -149,7 +149,7 @@ For a simple game or prototype:
 1. Define a few `Script` types for movement, AI, and game rules.
 2. Create lightweight `View` components that describe visuals (sprite name, color, size).
 3. Add `Collider`s where collisions matter; respond via Scripts or events.
-4. Use `DefaultScene` + `GameLoop` and embed in your host (SpriteKit, Metal, etc.).
+4. Use `Scene` + `GameLoop` and embed in your host (SpriteKit, Metal, etc.).
 
 If you use the SpriteKit adapter:
 
@@ -168,7 +168,7 @@ High-level boundaries between SwiftrixCore and a SpriteKit host using the adapte
  |  (engine, platform-   |        |  SwiftrixSpriteKitRendering |
  |        agnostic)      |        |        (platform-aware)     |
  +-----------------------+        +------------------------------+
- | - Scene / DefaultScene |       | - SKView / SKScene          |
+ | - Scene                |       | - SKView / SKScene          |
  | - GameObject / GameObject |       | - SpriteKitSceneAdapter     |
  | - Components:          |       | - SpriteView / ContainerView|
  |   Script / View /      |       | - CameraController          |

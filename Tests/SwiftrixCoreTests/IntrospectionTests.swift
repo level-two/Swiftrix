@@ -3,7 +3,7 @@ import XCTest
 
 final class IntrospectionTests: XCTestCase {
     func testDescribeSceneListsHierarchy() {
-        let scene = DefaultScene()
+        let scene = Scene()
         let root = GameObject(name: "Root")
         let child = GameObject(name: "Child")
         root.addChild(child)

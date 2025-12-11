@@ -3,21 +3,17 @@ import CoreGraphics
 @testable import SwiftrixCore
 
 private final class StubScene: Scene {
-    var rootObjects: [GameObject] = []
-    let eventBus: EventBus = DefaultEventBus()
-    var inputSystem: InputSystem?
-    let physicsWorld: PhysicsWorld = NoopPhysicsWorld()
-
     var updateCount = 0
     var fixedCount = 0
     var drawCount = 0
 
-    func addRootObject(_ object: GameObject) { rootObjects.append(object) }
-    func removeRootObject(_ object: GameObject) { rootObjects.removeAll { $0.id == object.id } }
+    init() {
+        super.init(eventBus: DefaultEventBus(), inputSystem: nil, physicsWorld: NoopPhysicsWorld())
+    }
 
-    func update(deltaTime: TimeInterval) { updateCount += 1 }
-    func fixedUpdate(fixedDeltaTime: TimeInterval) { fixedCount += 1 }
-    func draw() { drawCount += 1 }
+    override func update(deltaTime: TimeInterval) { updateCount += 1 }
+    override func fixedUpdate(fixedDeltaTime: TimeInterval) { fixedCount += 1 }
+    override func draw() { drawCount += 1 }
 }
 
 private final class NoopPhysicsWorld: PhysicsWorld {

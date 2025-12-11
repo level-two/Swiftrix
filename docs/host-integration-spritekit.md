@@ -39,13 +39,13 @@ import SpriteKit
 import SwiftrixCore
 
 final class GameScene: SKScene {
-    private var swiftrixScene: DefaultScene!
+    private var swiftrixScene: Scene!
     private var loop: GameLoop!
     private var lastUpdateTime: TimeInterval = 0
 
     override func didMove(to view: SKView) {
         let input = DefaultInputSystem()
-        swiftrixScene = DefaultScene(inputSystem: input)
+        swiftrixScene = Scene(inputSystem: input)
         loop = GameLoop(scene: swiftrixScene)
 
         let player = GameObject(name: "Player")
@@ -86,12 +86,12 @@ import SwiftrixSpriteKitRendering
 
 final class GameViewController: UIViewController {
     private var adapter: SpriteKitSceneAdapter!
-    private var coreScene: DefaultScene!
+    private var coreScene: Scene!
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        coreScene = DefaultScene()
+        coreScene = Scene()
         adapter = SpriteKitSceneAdapter(scene: coreScene)
 
         let skView = SKView(frame: view.bounds)
@@ -178,4 +178,3 @@ override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 - Drop down to the **manual GameLoop pattern** if:
   - you need custom rendering that doesn’t map well to the adapter, or
   - you’re targeting a non-SpriteKit renderer and want a very similar pattern.
-

@@ -10,7 +10,7 @@ private final class RecordingControl: ControlComponent {
 final class ControlComponentTests: XCTestCase {
     func testEventsDispatchedToControlComponents() {
         let input = DefaultInputSystem()
-        let scene = DefaultScene(inputSystem: input)
+        let scene = Scene(inputSystem: input)
 
         let go = GameObject(name: "Player")
         let control = RecordingControl()

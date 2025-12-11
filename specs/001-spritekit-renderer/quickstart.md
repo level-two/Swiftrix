@@ -20,7 +20,7 @@
 import SwiftrixCore
 import SwiftrixSpriteKitRendering
 
-let coreScene = DefaultScene()
+let coreScene = Scene()
 let adapter = SpriteKitSceneAdapter(
   scene: coreScene,
   performanceBudget: .init(maxSyncOpsPerFrame: 200)
