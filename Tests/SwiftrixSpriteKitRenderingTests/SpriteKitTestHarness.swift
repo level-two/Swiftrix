@@ -2,17 +2,14 @@ import SpriteKit
 import SwiftrixCore
 @testable import SwiftrixSpriteKitRendering
 
-/// Lightweight harness used to construct scenes and adapters for tests.
+/// Lightweight harness used to construct SpriteKit-backed scenes for tests.
 final class SpriteKitTestHarness {
-    let scene: Scene
-    let adapter: SpriteKitSceneAdapter
+    let scene: SpriteKitScene
     let manualDriver: ManualDisplayLinkDriver
 
     init(fixedDeltaTime: TimeInterval = 1.0 / 60.0, performanceBudget: PerformanceBudget = .default) {
-        self.scene = Scene()
         self.manualDriver = ManualDisplayLinkDriver()
-        self.adapter = SpriteKitSceneAdapter(
-            scene: scene,
+        self.scene = SpriteKitScene(
             displayLinkDriver: manualDriver,
             fixedDeltaTime: fixedDeltaTime,
             performanceBudget: performanceBudget

@@ -2,17 +2,17 @@ import Foundation
 
 /// Lightweight bridge that maps host lifecycle events into adapter pause/resume.
 public final class HostLifecycleBridge {
-    private weak var adapter: SpriteKitSceneAdapter?
+    private weak var scene: SpriteKitScene?
 
-    public init(adapter: SpriteKitSceneAdapter) {
-        self.adapter = adapter
+    public init(scene: SpriteKitScene) {
+        self.scene = scene
     }
 
     public func applicationDidEnterBackground() {
-        adapter?.pause()
+        scene?.pause()
     }
 
     public func applicationWillEnterForeground() {
-        adapter?.resume()
+        scene?.resume()
     }
 }

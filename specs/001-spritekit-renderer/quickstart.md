@@ -20,15 +20,13 @@
 import SwiftrixCore
 import SwiftrixSpriteKitRendering
 
-let coreScene = Scene()
-let adapter = SpriteKitSceneAdapter(
-  scene: coreScene,
+let coreScene = SpriteKitScene(
   performanceBudget: .init(maxSyncOpsPerFrame: 200)
 )
 
 let skView = SKView(frame: UIScreen.main.bounds)
 skView.ignoresSiblingOrder = true
-skView.presentScene(adapter.session.skScene)
+skView.presentScene(coreScene.skScene)
 ```
 
 ## 3. Build your Core scene and start rendering
@@ -39,7 +37,7 @@ let player = GameObject(name: "Player")
 player.addComponent(SpriteView(textureName: "player", size: CGSize(width: 24, height: 24)))
 coreScene.addRootObject(player)
 
-adapter.start() // begins the display-linked loop and syncs nodes
+coreScene.start() // begins the display-linked loop and syncs nodes
 ```
 
 ## 4. Drive the loop and handle lifecycle

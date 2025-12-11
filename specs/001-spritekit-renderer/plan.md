@@ -98,7 +98,7 @@ specs/
 
 ## Phase 1 — Design & Contracts
 
-- **Data Model**: [data-model.md](data-model.md) defines `SceneAdapterSession`, `NodeBinding`, `DirtySyncQueue`, `CameraController`, `DebugOverlayConfig`, and optional `TouchHitTestMap`.
+- **Data Model**: [data-model.md](data-model.md) defines `SpriteKitScene`, `NodeBinding`, `DirtySyncQueue`, `CameraController`, `DebugOverlayConfig`, and optional `TouchHitTestMap`.
 - **API Contracts**: [contracts/spritekit-rendering.yaml](contracts/spritekit-rendering.yaml) models conceptual host controls (session lifecycle, batched object sync, mapping inspection, performance metrics).
 - **Quickstart**: [quickstart.md](quickstart.md) documents dependency wiring, adapter binding, lifecycle control, debug overlays, camera usage, hit-testing, and deterministic tests.
 

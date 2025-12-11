@@ -1,22 +1,22 @@
-# Data Model — Swiftrix SpriteKit Rendering Adapter
+# Data Model — Swiftrix SpriteKit Rendering Scene
 
-## Entity: SceneAdapterSession
+## Entity: SpriteKitScene
 
-- **Purpose**: Represents an active binding between one Swiftrix Core `Scene` and one host-side SpriteKit scene/view pair.
+- **Purpose**: A `Scene` subclass that mirrors the Core game object graph into a host `SKScene` and drives the loop via a display-linked clock.
 - **Key Fields**:
-  - `sessionID` (UUID) — unique per attachment, used for diagnostics.
-  - `coreSceneRef` — reference/pointer to the running Core scene instance.
-  - `skSceneRef` — handle to the SpriteKit scene mirrors.
-  - `displayLinkState` — enum { stopped, running, paused } plus timestamps.
-  - `rootObjectID` — Core identifier that maps to the SpriteKit root node.
-  - `cameraConfigID` — optional link to the active CameraController config.
-  - `performanceBudget` — struct { maxNodes, maxHierarchyDepth, maxSyncOpsPerFrame }.
+  - `state` — enum { idle, running, paused, stopped } plus timestamps.
+  - `performanceBudget` — struct { maxSyncOpsPerFrame }.
+  - `skScene` — handle to the SpriteKit scene being mirrored.
+  - `registry` — manages `NodeBinding` instances.
+  - `dirtyQueue` — controls incremental sync.
+  - `cameraController` — optional active camera mapping.
+  - `debugOverlayConfig` — optional overlay toggles.
 - **Relationships**:
   - Owns a collection of `NodeBinding` entities (one per visual GameObject).
   - Owns exactly one `DirtySyncQueue`.
   - References optional `DebugOverlayConfig`.
 - **State Transitions**:
-  - `stopped → running` (start display link, prime node mirror).
+  - `idle → running` (start display link, prime node mirror).
   - `running → paused` (host background, throttles Core updates).
   - `paused → running` (resume, flush dirty queue).
   - `running → stopped` (teardown, all bindings invalidated).
@@ -33,7 +33,7 @@
   - `zOrder` — numeric layering value.
   - `viewState` — struct containing last-synced transform, alpha, texture token, size, anchor, isEnabled.
 - **Relationships**:
-  - Belongs to one `SceneAdapterSession`.
+  - Belongs to one `SpriteKitScene`.
   - Linked to zero or one `DirtySyncQueueItem` when flagged for update.
   - Optionally references a `DebugOverlayInstance` (if overlays enabled).
 - **State Transitions**:
@@ -49,7 +49,7 @@
   - `items` — ordered set of `DirtySyncQueueItem`.
   - `budget` — { maxItemsPerFrame } derived from `performanceBudget`.
 - **Relationships**:
-  - Owned by `SceneAdapterSession`.
+  - Owned by `SpriteKitScene`.
   - Each `DirtySyncQueueItem` references a `NodeBinding`.
 - **State Transitions**:
   - Items are enqueued whenever a binding sets any dirty flag.
@@ -66,7 +66,7 @@
   - `cameraNodeRef` — reference to `SKCameraNode`.
   - `constraints` — optional bounds, damping factors.
 - **Relationships**:
-  - Associated with a single `SceneAdapterSession`.
+  - Associated with a single `SpriteKitScene`.
   - Reads transforms from `NodeBinding` when following an object.
 - **State Transitions**:
   - `inactive → active` when host sets camera mode.
@@ -82,7 +82,7 @@
   - `selectedObjectIDs` — set for highlight.
   - `overlayStyle` — colors, line widths, z-position.
 - **Relationships**:
-  - Attached to `SceneAdapterSession`.
+  - Attached to `SpriteKitScene`.
   - Spawns `DebugOverlayInstance` per NodeBinding when active.
 - **State Transitions**:
   - Toggles can be updated at runtime; overlay instances update accordingly.

@@ -202,13 +202,13 @@ In this setup:
 - Communication between the two flows through components (`View`,
   `ControlComponent`) and systems (`InputSystem`, `EventBus`).
 
-## SpriteKit Rendering Adapter (Optional Module)
+## SpriteKit Rendering Scene (Optional Module)
 
 For hosts that want a more turnkey integration on Apple platforms, this
 repository includes a separate SwiftPM target:
 
-- `SwiftrixSpriteKitRendering` — a SpriteKit-based adapter that:
-  - mirrors SwiftrixCore scenes into an `SKScene`/`SKNode` hierarchy
+- `SwiftrixSpriteKitRendering` — a SpriteKit-backed `SpriteKitScene` that:
+  - mirrors the core game object hierarchy into an `SKScene`
   - drives the core `GameLoop` from a display-linked clock
   - exposes lifecycle controls (start/pause/resume/stop/reset)
   - provides debug overlays, camera helpers, and basic hit-testing
@@ -220,13 +220,12 @@ import SwiftrixCore
 import SwiftrixSpriteKitRendering
 import SpriteKit
 
-let coreScene = Scene()
-let adapter = SpriteKitSceneAdapter(scene: coreScene)
+let coreScene = SpriteKitScene()
 
 let skView = SKView(frame: UIScreen.main.bounds)
-skView.presentScene(adapter.session.skScene)
+skView.presentScene(coreScene.skScene)
 
-adapter.start()
+coreScene.start()
 ```
 
 For more details (performance budgets, overlays, camera follow, hit-testing),

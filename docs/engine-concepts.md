@@ -169,7 +169,7 @@ High-level boundaries between SwiftrixCore and a SpriteKit host using the adapte
  |        agnostic)      |        |        (platform-aware)     |
  +-----------------------+        +------------------------------+
  | - Scene                |       | - SKView / SKScene          |
- | - GameObject / GameObject |       | - SpriteKitSceneAdapter     |
+ | - GameObject / GameObject |       | - SpriteKitScene            |
  | - Components:          |       | - SpriteView / ContainerView|
  |   Script / View /      |       | - CameraController          |
  |   Collider / Control   |       | - DebugOverlayRenderer      |

@@ -3,7 +3,7 @@ import SpriteKit
 import SwiftrixCore
 @testable import SwiftrixSpriteKitRendering
 
-final class SpriteKitSceneAdapterTests: XCTestCase {
+final class SpriteKitSceneTests: XCTestCase {
     func testBindsHierarchyAndSyncsTransform() {
         let harness = SpriteKitTestHarness()
 
@@ -16,17 +16,17 @@ final class SpriteKitSceneAdapterTests: XCTestCase {
         root.addChild(child)
 
         harness.scene.addRootObject(root)
-        harness.adapter.start()
+        harness.scene.start()
         harness.step()
 
-        guard let rootNode = harness.adapter.node(for: root.id) else {
+        guard let rootNode = harness.scene.node(for: root.id) else {
             return XCTFail("Expected a root node binding")
         }
-        guard let childNode = harness.adapter.node(for: child.id) as? SKSpriteNode else {
+        guard let childNode = harness.scene.node(for: child.id) as? SKSpriteNode else {
             return XCTFail("Expected a child sprite node binding")
         }
 
-        XCTAssertIdentical(rootNode.parent, harness.adapter.session.skScene)
+        XCTAssertIdentical(rootNode.parent, harness.scene.skScene)
         XCTAssertIdentical(childNode.parent, rootNode)
         XCTAssertEqual(rootNode.position, CGPoint(x: 3, y: 4))
         XCTAssertEqual(childNode.position, CGPoint(x: 10, y: -2))
@@ -48,15 +48,15 @@ final class SpriteKitSceneAdapterTests: XCTestCase {
         root.addComponent(script)
         harness.scene.addRootObject(root)
 
-        harness.adapter.start()
+        harness.scene.start()
         harness.step(deltaTime: 0.016)
         XCTAssertEqual(script.updateCount, 1)
 
-        harness.adapter.pause()
+        harness.scene.pause()
         harness.step(deltaTime: 0.016)
         XCTAssertEqual(script.updateCount, 1, "Paused adapter should not tick the game loop")
 
-        harness.adapter.resume()
+        harness.scene.resume()
         harness.step(deltaTime: 0.016)
         XCTAssertEqual(script.updateCount, 2)
     }
@@ -70,14 +70,14 @@ final class SpriteKitSceneAdapterTests: XCTestCase {
         root.addChild(child)
         harness.scene.addRootObject(root)
 
-        harness.adapter.start()
+        harness.scene.start()
         harness.step()
-        XCTAssertNotNil(harness.adapter.node(for: child.id))
+        XCTAssertNotNil(harness.scene.node(for: child.id))
 
         child.destroy()
         harness.step()
 
-        XCTAssertNil(harness.adapter.node(for: child.id))
+        XCTAssertNil(harness.scene.node(for: child.id))
     }
 
     func testDisablingObjectHidesNode() {
@@ -89,13 +89,13 @@ final class SpriteKitSceneAdapterTests: XCTestCase {
         root.addChild(child)
         harness.scene.addRootObject(root)
 
-        harness.adapter.start()
+        harness.scene.start()
         harness.step()
-        XCTAssertFalse((harness.adapter.node(for: child.id)?.isHidden) ?? true)
+        XCTAssertFalse((harness.scene.node(for: child.id)?.isHidden) ?? true)
 
         child.isEnabled = false
         harness.step()
-        XCTAssertTrue(harness.adapter.node(for: child.id)?.isHidden ?? false)
+        XCTAssertTrue(harness.scene.node(for: child.id)?.isHidden ?? false)
     }
 
     func testReparentMovesNode() {
@@ -112,10 +112,10 @@ final class SpriteKitSceneAdapterTests: XCTestCase {
         harness.scene.addRootObject(rootA)
         harness.scene.addRootObject(rootB)
 
-        harness.adapter.start()
+        harness.scene.start()
         harness.step()
 
-        guard let initialParent = harness.adapter.node(for: child.id)?.parent else {
+        guard let initialParent = harness.scene.node(for: child.id)?.parent else {
             return XCTFail("Child should be parented initially")
         }
         XCTAssertEqual(initialParent.name, rootA.name)
@@ -124,7 +124,7 @@ final class SpriteKitSceneAdapterTests: XCTestCase {
         rootB.addChild(child)
         harness.step()
 
-        let newParent = harness.adapter.node(for: child.id)?.parent
+        let newParent = harness.scene.node(for: child.id)?.parent
         XCTAssertEqual(newParent?.name, rootB.name)
     }
 
@@ -144,21 +144,21 @@ final class SpriteKitSceneAdapterTests: XCTestCase {
         root.addChild(childB)
         harness.scene.addRootObject(root)
 
-        harness.adapter.start()
+        harness.scene.start()
         harness.step()
 
         childA.localTransform.position = Vector2(x: 5, y: 0)
         childB.localTransform.position = Vector2(x: 9, y: 0)
 
         harness.step()
-        let posA = harness.adapter.node(for: childA.id)?.position
-        let posB = harness.adapter.node(for: childB.id)?.position
+        let posA = harness.scene.node(for: childA.id)?.position
+        let posB = harness.scene.node(for: childB.id)?.position
         let updatedAFirst = posA == CGPoint(x: 5, y: 0) && posB == CGPoint(x: 0, y: 0)
         let updatedBFirst = posA == CGPoint(x: 0, y: 0) && posB == CGPoint(x: 9, y: 0)
         XCTAssertTrue(updatedAFirst || updatedBFirst, "Only one child should be updated per frame under budget")
 
         harness.step()
-        XCTAssertEqual(harness.adapter.node(for: childA.id)?.position, CGPoint(x: 5, y: 0))
-        XCTAssertEqual(harness.adapter.node(for: childB.id)?.position, CGPoint(x: 9, y: 0))
+        XCTAssertEqual(harness.scene.node(for: childA.id)?.position, CGPoint(x: 5, y: 0))
+        XCTAssertEqual(harness.scene.node(for: childB.id)?.position, CGPoint(x: 9, y: 0))
     }
 }

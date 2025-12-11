@@ -3,7 +3,7 @@
 This guide shows how to run SwiftrixCore inside a SpriteKit-based app. There are two main patterns:
 
 - **Manual integration** using `GameLoop` inside your own `SKScene`.
-- **Adapter integration** using `SwiftrixSpriteKitRendering` and `SpriteKitSceneAdapter`.
+- **Adapter integration** using `SwiftrixSpriteKitRendering` and `SpriteKitScene`.
 
 Use manual integration if you want full control over nodes and rendering. Use the adapter if you want a higher-level bridge that keeps SpriteKit concerns out of your game logic.
 
@@ -75,9 +75,9 @@ final class GameScene: SKScene {
 
 ---
 
-## 3. Pattern B — SpriteKitSceneAdapter Integration
+## 3. Pattern B — SpriteKitScene Integration
 
-In this pattern, you use the `SwiftrixSpriteKitRendering` module to mirror the scene into SpriteKit and drive the loop for you.
+In this pattern, you use the `SwiftrixSpriteKitRendering` module to mirror the scene into SpriteKit and drive the loop for you via `SpriteKitScene`.
 
 ```swift
 import SpriteKit
@@ -85,18 +85,16 @@ import SwiftrixCore
 import SwiftrixSpriteKitRendering
 
 final class GameViewController: UIViewController {
-    private var adapter: SpriteKitSceneAdapter!
-    private var coreScene: Scene!
+    private var coreScene: SpriteKitScene!
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        coreScene = Scene()
-        adapter = SpriteKitSceneAdapter(scene: coreScene)
+        coreScene = SpriteKitScene()
 
         let skView = SKView(frame: view.bounds)
         skView.ignoresSiblingOrder = true
-        skView.presentScene(adapter.session.skScene)
+        skView.presentScene(coreScene.skScene)
         view.addSubview(skView)
 
         // Build your Core scene
@@ -104,7 +102,7 @@ final class GameViewController: UIViewController {
         player.addComponent(SpriteView(textureName: "player", size: CGSize(width: 24, height: 24)))
         coreScene.addRootObject(player)
 
-        adapter.start()
+        coreScene.start()
     }
 }
 ```
@@ -113,11 +111,11 @@ final class GameViewController: UIViewController {
 
 ```swift
 // Pause/resume (e.g. app background/foreground)
-adapter.pause()
-adapter.resume()
+coreScene.pause()
+coreScene.resume()
 
 // Stop when you tear down the view
-adapter.stop()
+coreScene.stop()
 
 // Reset clears mappings and returns the adapter to idle
 adapter.reset()
@@ -174,7 +172,7 @@ override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 
 ## 4. Choosing Between A and B
 
-- Start with **SpriteKitSceneAdapter** for most demos and games; it keeps your gameplay code focused on SwiftrixCore.
+- Start with **SpriteKitScene** for most demos and games; it keeps your gameplay code focused on SwiftrixCore.
 - Drop down to the **manual GameLoop pattern** if:
   - you need custom rendering that doesn’t map well to the adapter, or
   - you’re targeting a non-SpriteKit renderer and want a very similar pattern.

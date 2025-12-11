@@ -8,7 +8,7 @@
 
 ## Decision 2: Display Link Scheduling Happens on Main Run Loop Only
 
-- **Decision**: The adapter owns a single `CADisplayLink` registered on the main run loop in `.common` modes. SpriteKitSceneAdapter steps Core updates within the display link callback, then runs the sync routine before SpriteKit draws.
+- **Decision**: `SpriteKitScene` owns a single `CADisplayLink` registered on the main run loop in `.common` modes. The scene steps Core updates within the display link callback, then runs the sync routine before SpriteKit draws.
 - **Rationale**: Apple documents SpriteKit as main-thread only; tying Core updates to the same run loop guarantees deterministic order (Core update, then SpriteKit render) and prevents race conditions with view lifecycle events.
 - **Alternatives considered**: (a) Using `SKScene.update(_:)` (would mix SpriteKit timing into Core and break determinism); (b) background queues + manual dispatch (SpriteKit APIs are not thread-safe and would deadlock).
 
@@ -26,7 +26,7 @@
 
 ## Decision 5: Public API Surface Resides Exclusively in New Host Module (MINOR bump)
 
-- **Decision**: Introduce public types (`SpriteKitSceneAdapter`, `SpriteView`, `LabelView`, `ShapeView`, `ContainerView`, debug overlays) inside a new SwiftPM target `SwiftrixSpriteKitRendering`. SwiftrixCore contracts remain unchanged, so semantic version impact is MINOR (new functionality, backward-compatible).
+- **Decision**: Introduce public types (`SpriteKitScene`, `SpriteView`, `LabelView`, `ShapeView`, `ContainerView`, debug overlays) inside a new SwiftPM target `SwiftrixSpriteKitRendering`. SwiftrixCore contracts remain unchanged, so semantic version impact is MINOR (new functionality, backward-compatible).
 - **Rationale**: Keeps core target clean while still delivering a supported adapter for Apple hosts. Declaring SemVer impact early satisfies Constitution requirements.
 - **Alternatives considered**: (a) Adding SpriteKit-specific hooks to SwiftrixCore (would violate core-only rule); (b) shipping adapter as example code only (would not meet “module” scope or testing mandates).
 

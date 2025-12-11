@@ -2,80 +2,106 @@ import Foundation
 import SpriteKit
 import SwiftrixCore
 
-/// Bridges a Swiftrix Core scene into a SpriteKit scene, driving the game loop
-/// with a display-linked clock and mirroring the object hierarchy into SKNodes.
-public final class SpriteKitSceneAdapter {
-    public let session: SceneAdapterSession
-    private let gameLoop: GameLoop
-    private let displayLinkDriver: DisplayLinkDriving
+public enum SceneAdapterState {
+    case idle
+    case running
+    case paused
+    case stopped
+}
+
+/// Performance budget configuration. When `maxSyncOpsPerFrame` is set,
+/// sync work is spread across multiple frames to avoid hitches.
+public struct PerformanceBudget {
+    public var maxSyncOpsPerFrame: Int?
+
+    public init(maxSyncOpsPerFrame: Int? = nil) {
+        self.maxSyncOpsPerFrame = maxSyncOpsPerFrame
+    }
+
+    public static let `default` = PerformanceBudget(maxSyncOpsPerFrame: nil)
+}
+
+/// SpriteKit-backed scene that subclasses the core `Scene` and mirrors the
+/// game object graph into an `SKScene`, driven by a display-linked clock.
+public final class SpriteKitScene: Scene {
+    public private(set) var state: SceneAdapterState = .idle
+    public let skScene: SKScene
+    public var performanceBudget: PerformanceBudget
     public var onDiagnostic: ((String) -> Void)?
+    public var debugOverlayConfig: DebugOverlayConfig?
+    public var cameraController: CameraController?
+
+    private let fixedDeltaTime: TimeInterval
+    private let registry: NodeBindingRegistry
+    private let dirtyQueue: DirtySyncQueue
     private let overlayRenderer = DebugOverlayRenderer()
     private let hitTestBridge = HitTestBridge()
+    private let displayLinkDriver: DisplayLinkDriving
+    private var gameLoop: GameLoop?
 
     public init(
-        scene: Scene,
         skScene: SKScene = SKScene(),
         displayLinkDriver: DisplayLinkDriving? = nil,
         fixedDeltaTime: TimeInterval = 1.0 / 60.0,
-        performanceBudget: PerformanceBudget = .default
+        performanceBudget: PerformanceBudget = .default,
+        eventBus: EventBus = DefaultEventBus(),
+        inputSystem: InputSystem? = nil,
+        physicsWorld: PhysicsWorld = DefaultPhysicsWorld()
     ) {
-        let registry = NodeBindingRegistry()
-        let dirtyQueue = DirtySyncQueue()
-        self.session = SceneAdapterSession(
-            coreScene: scene,
-            skScene: skScene,
-            performanceBudget: performanceBudget,
-            registry: registry,
-            dirtyQueue: dirtyQueue
-        )
-        self.gameLoop = GameLoop(scene: scene, fixedDeltaTime: fixedDeltaTime)
+        self.skScene = skScene
+        self.performanceBudget = performanceBudget
+        self.fixedDeltaTime = fixedDeltaTime
+        self.registry = NodeBindingRegistry()
+        self.dirtyQueue = DirtySyncQueue()
         self.displayLinkDriver = displayLinkDriver ?? CADisplayLinkDriver()
+        super.init(eventBus: eventBus, inputSystem: inputSystem, physicsWorld: physicsWorld)
+        self.gameLoop = GameLoop(scene: self, fixedDeltaTime: fixedDeltaTime)
         self.displayLinkDriver.onTick = { [weak self] delta in
             self?.tick(deltaTime: delta)
         }
-        self.session.skScene.scaleMode = .resizeFill
+        self.skScene.scaleMode = .resizeFill
     }
 
     // MARK: - Lifecycle
 
     public func start() {
-        guard session.state == .idle || session.state == .stopped else { return }
-        session.state = .running
+        guard state == .idle || state == .stopped else { return }
+        state = .running
         rebuildSceneGraph()
         processDirtyQueue()
         displayLinkDriver.start()
-        session.skScene.isPaused = false
+        skScene.isPaused = false
     }
 
     public func pause() {
-        guard session.state == .running else { return }
-        session.state = .paused
+        guard state == .running else { return }
+        state = .paused
         displayLinkDriver.pause()
-        session.skScene.isPaused = true
+        skScene.isPaused = true
     }
 
     public func resume() {
-        guard session.state == .paused else { return }
-        session.state = .running
-        session.skScene.isPaused = false
+        guard state == .paused else { return }
+        state = .running
+        skScene.isPaused = false
         displayLinkDriver.resume()
     }
 
     public func stop() {
-        guard session.state != .stopped else { return }
+        guard state != .stopped else { return }
         displayLinkDriver.stop()
         tearDownBindings()
-        session.state = .stopped
-        session.skScene.isPaused = true
+        state = .stopped
+        skScene.isPaused = true
     }
 
-    /// Fully clears node mappings and returns the adapter to the idle state.
+    /// Fully clears node mappings and returns the scene to the idle state.
     public func reset() {
         stop()
-        session.state = .idle
+        state = .idle
     }
 
-    /// Stops and immediately restarts the adapter, rebuilding node mappings.
+    /// Stops and immediately restarts, rebuilding node mappings.
     public func restart() {
         stop()
         start()
@@ -89,18 +115,18 @@ public final class SpriteKitSceneAdapter {
     // MARK: - Sync pipeline
 
     private func tick(deltaTime: TimeInterval) {
-        guard session.state == .running else { return }
-        gameLoop.tick(deltaTime: deltaTime)
+        guard state == .running else { return }
+        gameLoop?.tick(deltaTime: deltaTime)
         rebuildSceneGraph()
         processDirtyQueue()
     }
 
     private func rebuildSceneGraph() {
         var visited: Set<UUID> = []
-        for root in session.coreScene.rootObjects where !root.isDestroyed {
-            attach(object: root, parentObject: nil, to: session.skScene, visited: &visited)
+        for root in rootObjects where !root.isDestroyed {
+            attach(object: root, parentObject: nil, to: skScene, visited: &visited)
         }
-        let removed = session.registry.removeUnvisited(excluding: visited)
+        let removed = registry.removeUnvisited(excluding: visited)
         removed.forEach {
             overlayRenderer.removeOverlay(for: $0.objectID)
             $0.node.removeFromParent()
@@ -109,7 +135,7 @@ public final class SpriteKitSceneAdapter {
 
     private func attach(object: GameObject, parentObject: GameObject?, to parentNode: SKNode, visited: inout Set<UUID>) {
         let renderable = firstRenderable(from: object)
-        let binding = session.registry.binding(for: object, viewComponent: renderable)
+        let binding = registry.binding(for: object, viewComponent: renderable)
         visited.insert(binding.objectID)
 
         let desiredParentID = parentObject?.id
@@ -120,16 +146,16 @@ public final class SpriteKitSceneAdapter {
         }
         if binding.parentObjectID != desiredParentID {
             binding.parentObjectID = desiredParentID
-            session.dirtyQueue.markDirty(binding.objectID)
+            dirtyQueue.markDirty(binding.objectID)
         }
 
         let isVisible = object.isEnabled && (renderable?.isEnabled ?? true)
         if binding.lastVisibility != isVisible {
-            session.dirtyQueue.markDirty(binding.objectID)
+            dirtyQueue.markDirty(binding.objectID)
         }
 
         if binding.lastTransform != object.localTransform {
-            session.dirtyQueue.markDirty(binding.objectID)
+            dirtyQueue.markDirty(binding.objectID)
         }
 
         if let spriteView = renderable as? SpriteView {
@@ -141,12 +167,12 @@ public final class SpriteKitSceneAdapter {
                 zPosition: spriteView.zPosition
             )
             if binding.spriteSignature != signature {
-                session.dirtyQueue.markDirty(binding.objectID)
+                dirtyQueue.markDirty(binding.objectID)
             }
         }
 
         if binding.isNew {
-            session.dirtyQueue.markDirty(binding.objectID)
+            dirtyQueue.markDirty(binding.objectID)
             binding.isNew = false
         }
 
@@ -156,10 +182,10 @@ public final class SpriteKitSceneAdapter {
     }
 
     private func processDirtyQueue() {
-        let ids = session.dirtyQueue.drain(maxItems: session.performanceBudget.maxSyncOpsPerFrame)
+        let ids = dirtyQueue.drain(maxItems: performanceBudget.maxSyncOpsPerFrame)
         guard !ids.isEmpty else { return }
         for id in ids {
-            guard let binding = session.registry.binding(forID: id),
+            guard let binding = registry.binding(forID: id),
                   let object = binding.gameObject else { continue }
             binding.node.name = object.name
 
@@ -189,11 +215,11 @@ public final class SpriteKitSceneAdapter {
                 binding.viewComponent?.update(node: binding.node)
             }
 
-            if let config = session.debugOverlayConfig {
-                overlayRenderer.renderOverlay(for: binding, in: session.skScene, config: config)
+            if let config = debugOverlayConfig {
+                overlayRenderer.renderOverlay(for: binding, in: skScene, config: config)
             }
         }
-        session.cameraController?.update(using: session.registry, in: session.skScene)
+        cameraController?.update(using: registry, in: skScene)
     }
 
     private func applyTransform(_ transform: Transform2D, to node: SKNode) {
@@ -218,9 +244,9 @@ public final class SpriteKitSceneAdapter {
     }
 
     private func tearDownBindings() {
-        session.registry.allBindings().forEach { $0.node.removeFromParent() }
-        session.registry.clear()
-        session.dirtyQueue.clear()
+        registry.allBindings().forEach { $0.node.removeFromParent() }
+        registry.clear()
+        dirtyQueue.clear()
         overlayRenderer.clear()
     }
 
@@ -231,23 +257,23 @@ public final class SpriteKitSceneAdapter {
     // MARK: - Debug helpers
 
     public func node(for objectID: UUID) -> SKNode? {
-        session.registry.binding(forID: objectID)?.node
+        registry.binding(forID: objectID)?.node
     }
 
     public func setDebugOverlayConfig(_ config: DebugOverlayConfig?) {
-        session.debugOverlayConfig = config
+        debugOverlayConfig = config
         if config == nil || config?.isEnabled == false {
             overlayRenderer.clear()
         }
     }
 
     public func configureCamera(_ config: CameraConfig) {
-        let controller = session.cameraController ?? CameraController(config: config)
+        let controller = cameraController ?? CameraController(config: config)
         controller.config = config
-        session.cameraController = controller
+        cameraController = controller
     }
 
     public func hitTestObjectID(at point: CGPoint) -> UUID? {
-        hitTestBridge.objectID(at: point, in: session.skScene, registry: session.registry)
+        hitTestBridge.objectID(at: point, in: skScene, registry: registry)
     }
 }

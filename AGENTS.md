@@ -83,7 +83,7 @@ Scope: applies to work under `Sources/SwiftrixSpriteKitRendering`,
   display-linked clock (Timer on macOS, `CADisplayLink` where available).
 - **Dependencies**: may import SpriteKit and related Apple frameworks, but
   must not leak those dependencies back into `SwiftrixCore`.
-- **Key types**: `SpriteKitSceneAdapter`, `SpriteView`, `ContainerView`,
+- **Key types**: `SpriteKitScene`, `SpriteView`, `ContainerView`,
   `CameraController`, `DebugOverlayRenderer`, `HitTestBridge`.
 - **Behavioral constraints**:
   - keep adapter logic deterministic and driven by Core state
