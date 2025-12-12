@@ -98,6 +98,24 @@ final class SpriteKitSceneTests: XCTestCase {
         XCTAssertTrue(harness.scene.node(for: child.id)?.isHidden ?? false)
     }
 
+    func testDisablingParentHidesChildNodes() {
+        let harness = SpriteKitTestHarness()
+
+        let root = GameObject(name: "root")
+        let child = GameObject(name: "child")
+        child.addComponent(SpriteView(color: .blue, size: CGSize(width: 4, height: 4)))
+        root.addChild(child)
+        harness.scene.coreScene.addRootObject(root)
+
+        harness.scene.start()
+        harness.step()
+        XCTAssertFalse(harness.scene.node(for: child.id)?.isHidden ?? true)
+
+        root.isEnabled = false
+        harness.step()
+        XCTAssertTrue(harness.scene.node(for: child.id)?.isHidden ?? false)
+    }
+
     func testReparentMovesNode() {
         let harness = SpriteKitTestHarness()
 

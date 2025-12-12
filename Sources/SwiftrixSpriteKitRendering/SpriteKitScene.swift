@@ -177,7 +177,7 @@ open class SpriteKitScene: SKScene {
     private func rebuildSceneGraph() {
         var visited: Set<UUID> = []
         for root in coreScene.rootObjects where !root.isDestroyed {
-            attach(object: root, parentObject: nil, to: self, visited: &visited)
+            attach(object: root, parentObject: nil, to: self, visited: &visited, ancestorVisible: true)
         }
         let removed = registry.removeUnvisited(excluding: visited)
         removed.forEach {
@@ -186,7 +186,13 @@ open class SpriteKitScene: SKScene {
         }
     }
 
-    private func attach(object: GameObject, parentObject: GameObject?, to parentNode: SKNode, visited: inout Set<UUID>) {
+    private func attach(
+        object: GameObject,
+        parentObject: GameObject?,
+        to parentNode: SKNode,
+        visited: inout Set<UUID>,
+        ancestorVisible: Bool
+    ) {
         let renderable = firstRenderable(from: object)
         let binding = registry.binding(for: object, viewComponent: renderable)
         visited.insert(binding.objectID)
@@ -202,7 +208,7 @@ open class SpriteKitScene: SKScene {
             dirtyQueue.markDirty(binding.objectID)
         }
 
-        let isVisible = object.isEnabled && (renderable?.isEnabled ?? true)
+        let isVisible = ancestorVisible && object.isEnabled && (renderable?.isEnabled ?? true)
         if binding.lastVisibility != isVisible {
             dirtyQueue.markDirty(binding.objectID)
         }
@@ -229,8 +235,9 @@ open class SpriteKitScene: SKScene {
             binding.isNew = false
         }
 
+        let nextAncestorVisible = ancestorVisible && object.isEnabled
         for child in object.children where !child.isDestroyed {
-            attach(object: child, parentObject: object, to: binding.node, visited: &visited)
+            attach(object: child, parentObject: object, to: binding.node, visited: &visited, ancestorVisible: nextAncestorVisible)
         }
     }
 
@@ -242,7 +249,8 @@ open class SpriteKitScene: SKScene {
                   let object = binding.gameObject else { continue }
             binding.node.name = object.name
 
-            let isVisible = object.isEnabled && (binding.viewComponent?.isEnabled ?? true)
+            let ancestorVisible = ancestorsVisible(binding: binding)
+            let isVisible = ancestorVisible && object.isEnabled && (binding.viewComponent?.isEnabled ?? true)
             binding.node.isHidden = !isVisible
             binding.lastVisibility = isVisible
 
@@ -273,6 +281,17 @@ open class SpriteKitScene: SKScene {
             }
         }
         cameraController?.update(using: registry, in: self)
+    }
+
+    private func ancestorsVisible(binding: NodeBinding) -> Bool {
+        var currentParentID = binding.parentObjectID
+        while let parentID = currentParentID {
+            guard let parentBinding = registry.binding(forID: parentID),
+                  let parentObject = parentBinding.gameObject else { return false }
+            if !parentObject.isEnabled { return false }
+            currentParentID = parentBinding.parentObjectID
+        }
+        return true
     }
 
     private func applyTransform(_ transform: Transform2D, to node: SKNode) {

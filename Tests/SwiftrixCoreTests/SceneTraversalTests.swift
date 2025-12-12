@@ -68,4 +68,45 @@ final class SceneTraversalTests: XCTestCase {
 
         XCTAssertEqual(draws, ["root"])
     }
+
+    func testDisabledChildSkipsUpdateAndDraw() {
+        var updates: [String] = []
+        var draws: [String] = []
+
+        final class LoggingComponent: Component {
+            let name: String
+            let log: (String) -> Void
+            init(name: String, log: @escaping (String) -> Void) {
+                self.name = name
+                self.log = log
+            }
+            override func update(deltaTime: TimeInterval) { log(name) }
+        }
+
+        final class LoggingView: View {
+            let name: String
+            let log: (String) -> Void
+            init(name: String, log: @escaping (String) -> Void) {
+                self.name = name
+                self.log = log
+            }
+            override func draw() { log(name) }
+        }
+
+        let root = GameObject(name: "Root")
+        root.addComponent(LoggingComponent(name: "root", log: { updates.append($0) }))
+        root.addComponent(LoggingView(name: "rootView", log: { draws.append($0) }))
+
+        let child = GameObject(name: "Child")
+        child.isEnabled = false
+        child.addComponent(LoggingComponent(name: "child", log: { updates.append($0) }))
+        child.addComponent(LoggingView(name: "childView", log: { draws.append($0) }))
+        root.addChild(child)
+
+        SceneGraphTraversal.depthFirstUpdate(objects: [root], deltaTime: 1)
+        SceneGraphTraversal.depthFirstDraw(objects: [root])
+
+        XCTAssertEqual(updates, ["root"])
+        XCTAssertEqual(draws, ["rootView"])
+    }
 }
