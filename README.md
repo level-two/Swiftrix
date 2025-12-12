@@ -258,6 +258,7 @@ Additional documentation:
 - `docs/game-development-guidelines.md` — recommended patterns for structuring Swiftrix-based game code.
 - `docs/host-integration-spritekit.md` — detailed host integration examples with SpriteKit.
 - `docs/debugging-and-introspection.md` — practical tips for debugging and inspecting Swiftrix scenes and adapter state.
+- `docs/unit-test-coverage.md` — unit-test coverage plan and edge-case checklist (contributors).
 
 For more detailed architecture notes, see:
 
@@ -283,6 +284,8 @@ For more detailed architecture notes, see:
 - Contribution workflow and constraints:
   - `CONTRIBUTING.md` — overview of expectations and entry points.
   - `AGENTS.md` — detailed guidelines for humans and AI agents.
+- Testing strategy:
+  - `docs/unit-test-coverage.md`
 - Core engine design:
   - `specs/000-swiftrix-engine-core/spec.md`
   - `specs/000-swiftrix-engine-core/plan.md`

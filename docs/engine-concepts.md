@@ -4,6 +4,8 @@ This document summarizes the main concepts in SwiftrixCore and shows how they fi
 
 For project-agnostic gameplay organization patterns (prefabs, builders, scripts, collider registration), see `docs/game-development-guidelines.md`.
 
+For a contributor-focused checklist of engine behaviors to cover with unit tests (including hierarchy corner cases), see `docs/unit-test-coverage.md`.
+
 ---
 
 ## 1. Core Types

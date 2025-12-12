@@ -8,6 +8,8 @@ Goals:
 - Preserve clear boundaries between engine core, adapters, and game code.
 - Encourage deterministic, testable gameplay code.
 
+If you’re contributing to the engine itself (not just a game), see `docs/unit-test-coverage.md` for a checklist of unit tests to add/extend while implementing features.
+
 ---
 
 ## 1. Architectural Boundaries
@@ -200,4 +202,3 @@ When adding a new gameplay element:
 3. Integrate via builder/bootstrap or spawning scripts.
 4. If it needs collisions, ensure colliders are registered (see §5.1).
 5. Keep the host responsible for camera, input mapping, diagnostics, and UI.
-
