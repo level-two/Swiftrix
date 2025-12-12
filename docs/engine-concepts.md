@@ -28,6 +28,9 @@ Default implementation: `Scene` (see `Sources/SwiftrixCore/Scene/Scene.swift`).
 - has a `localTransform` and derived `globalTransform`
 - can have **children** (forming a tree)
 - owns a collection of **components**
+- lifecycle hooks:
+  - `onStart()` is called once, lazily, the first time the object (or any of its scripts) is updated
+  - `onDestroy()` is called once when `destroy()` is invoked; destroyed objects are skipped by traversal
 
 Default implementation: `GameObject`.
 
@@ -40,6 +43,9 @@ Components attach behavior and data to game objects:
 - `View` — rendering-related state; hosts interpret it (e.g., SpriteKit adapter)
 - `Collider` — collision shape used by `PhysicsWorld`
 - `ControlComponent` — translates input events into gameplay actions
+- lifecycle hooks on `Script`:
+  - `onStart()` mirrors the owning object’s start (called once when the object starts, including for scripts added at runtime after start)
+  - `onDestroy()` is invoked once when the owning object is destroyed
 
 Scripts inherit convenience bridges to their owning `GameObject`: hierarchy
 (`parent`, `children`), transforms (`localTransform`, `globalTransform`,

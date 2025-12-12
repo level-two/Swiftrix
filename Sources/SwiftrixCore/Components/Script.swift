@@ -4,6 +4,8 @@ import Foundation
 open class Script: Component {
     open func onCollision(with other: Collider) {}
     open func onControl(_ event: ControlEvent) {}
+    open func onStart() {}
+    open func onDestroy() {}
 
     // MARK: - GameObject bridges
     public var parent: GameObject? { gameObject.parent }
@@ -69,4 +71,20 @@ open class Script: Component {
     }
 
     public var globalTransform: Transform2D { gameObject.globalTransform }
+
+    // MARK: - Lifecycle
+    private var hasStarted: Bool = false
+    private var hasNotifiedDestroy: Bool = false
+
+    func startIfNeeded() {
+        guard !hasStarted else { return }
+        hasStarted = true
+        onStart()
+    }
+
+    func notifyDestroyIfNeeded() {
+        guard !hasNotifiedDestroy else { return }
+        hasNotifiedDestroy = true
+        onDestroy()
+    }
 }

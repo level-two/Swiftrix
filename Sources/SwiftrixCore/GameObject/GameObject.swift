@@ -20,6 +20,9 @@ open class GameObject: IdentifiableObject, Named, Updatable, Destroyable {
     public private(set) var isDestroyed: Bool = false
     public var isEnabled: Bool = true
 
+    private var hasStarted: Bool = false
+    private var hasNotifiedDestroy: Bool = false
+
     public init(name: String, transform: Transform2D = .identity) {
         self.name = name
         self.localTransform = transform
@@ -65,6 +68,10 @@ open class GameObject: IdentifiableObject, Named, Updatable, Destroyable {
     public func addComponent(_ component: Component) {
         components.append(component)
         component.gameObject = self
+
+        if let script = component as? Script, hasStarted, !isDestroyed {
+            script.startIfNeeded()
+        }
     }
 
     public func removeComponent(_ component: Component) {
@@ -86,6 +93,8 @@ open class GameObject: IdentifiableObject, Named, Updatable, Destroyable {
 
     public func update(deltaTime: TimeInterval) {
         guard !isDestroyed, isEnabled else { return }
+
+        startIfNeeded()
         for component in components where component.isEnabled {
             component.update(deltaTime: deltaTime)
         }
@@ -95,6 +104,27 @@ open class GameObject: IdentifiableObject, Named, Updatable, Destroyable {
     }
 
     public func destroy() {
+        guard !isDestroyed else { return }
         isDestroyed = true
+        notifyDestroyIfNeeded()
+    }
+
+    // MARK: - Hooks
+
+    open func onStart() {}
+    open func onDestroy() {}
+
+    private func startIfNeeded() {
+        guard !hasStarted else { return }
+        hasStarted = true
+        onStart()
+        components.compactMap { $0 as? Script }.forEach { $0.startIfNeeded() }
+    }
+
+    private func notifyDestroyIfNeeded() {
+        guard !hasNotifiedDestroy else { return }
+        hasNotifiedDestroy = true
+        onDestroy()
+        components.compactMap { $0 as? Script }.forEach { $0.notifyDestroyIfNeeded() }
     }
 }

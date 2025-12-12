@@ -51,4 +51,67 @@ final class GameObjectTests: XCTestCase {
         grandchild.addChild(root)
         XCTAssertFalse(grandchild.children.contains { $0 === root })
     }
+
+    func testOnStartAndOnDestroyAreCalledOncePerObject() {
+        final class HookedObject: GameObject {
+            var starts = 0
+            var destroys = 0
+            override func onStart() { starts += 1 }
+            override func onDestroy() { destroys += 1 }
+        }
+
+        let root = HookedObject(name: "root")
+        let child = HookedObject(name: "child")
+        root.addChild(child)
+
+        root.update(deltaTime: 1)
+        root.update(deltaTime: 1)
+
+        XCTAssertEqual(root.starts, 1)
+        XCTAssertEqual(child.starts, 1)
+
+        root.destroy()
+        root.destroy()
+
+        XCTAssertEqual(root.destroys, 1)
+        XCTAssertEqual(child.destroys, 0, "Destroy should not cascade automatically")
+    }
+
+    func testScriptStartAndDestroyFollowObjectLifecycle() {
+        final class HookedScript: Script {
+            var starts = 0
+            var destroys = 0
+            override func onStart() { starts += 1 }
+            override func onDestroy() { destroys += 1 }
+        }
+
+        let root = GameObject(name: "root")
+        let script = HookedScript()
+        root.addComponent(script)
+
+        root.update(deltaTime: 1)
+        root.update(deltaTime: 1)
+
+        XCTAssertEqual(script.starts, 1)
+
+        root.destroy()
+        root.destroy()
+
+        XCTAssertEqual(script.destroys, 1)
+    }
+
+    func testRuntimeAddedScriptStartsImmediatelyWhenObjectAlreadyStarted() {
+        final class HookedScript: Script {
+            var starts = 0
+            override func onStart() { starts += 1 }
+        }
+
+        let root = GameObject(name: "root")
+        root.update(deltaTime: 1)
+
+        let script = HookedScript()
+        root.addComponent(script)
+
+        XCTAssertEqual(script.starts, 1)
+    }
 }

@@ -46,4 +46,25 @@ final class ScriptTests: XCTestCase {
         XCTAssertEqual(go.position, Vector2(x: 2, y: 3))
         XCTAssertEqual(go.scale, Vector2(x: 4, y: 5))
     }
+
+    func testOnStartAndOnDestroyAreCalledOncePerScript() {
+        final class HookedScript: Script {
+            var starts = 0
+            var destroys = 0
+            override func onStart() { starts += 1 }
+            override func onDestroy() { destroys += 1 }
+        }
+
+        let go = GameObject(name: "player")
+        let script = HookedScript()
+        go.addComponent(script)
+
+        go.update(deltaTime: 1)
+        go.update(deltaTime: 1)
+        XCTAssertEqual(script.starts, 1)
+
+        go.destroy()
+        go.destroy()
+        XCTAssertEqual(script.destroys, 1)
+    }
 }
