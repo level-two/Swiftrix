@@ -22,4 +22,33 @@ final class ControlComponentTests: XCTestCase {
 
         XCTAssertEqual(control.received, [.buttonDown("Jump")])
     }
+
+    func testDispatchOrderIsDepthFirstAndSkipsDisabled() {
+        var log: [String] = []
+
+        final class NamedControl: ControlComponent {
+            let name: String
+            let log: (String) -> Void
+            init(name: String, log: @escaping (String) -> Void, isEnabled: Bool = true) {
+                self.name = name
+                self.log = log
+                super.init(isEnabled: isEnabled)
+            }
+            override func handle(event: ControlEvent) { log(name) }
+        }
+
+        let root = GameObject(name: "Root")
+        let child = GameObject(name: "Child")
+        let grandchild = GameObject(name: "Grandchild")
+        root.addChild(child)
+        child.addChild(grandchild)
+
+        root.addComponent(NamedControl(name: "root", log: { log.append($0) }))
+        child.addComponent(NamedControl(name: "child", log: { log.append($0) }, isEnabled: false))
+        grandchild.addComponent(NamedControl(name: "grandchild", log: { log.append($0) }))
+
+        SceneGraphTraversal.dispatchControlEvents([.buttonDown("Jump")], to: [root])
+
+        XCTAssertEqual(log, ["root", "grandchild"])
+    }
 }

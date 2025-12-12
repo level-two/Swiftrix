@@ -153,4 +153,38 @@ final class SceneTests: XCTestCase {
         // Current behavior: runtime-added colliders require explicit registration.
         XCTAssertTrue(physics.added.isEmpty)
     }
+
+    func testAddChildDuringUpdateDoesNotTraverseUntilNextFrame() {
+        final class Spawner: Component {
+            var didSpawn = false
+            let spawn: () -> Void
+            init(spawn: @escaping () -> Void) { self.spawn = spawn }
+            override func update(deltaTime: TimeInterval) {
+                guard !didSpawn else { return }
+                didSpawn = true
+                spawn()
+            }
+        }
+
+        var log: [String] = []
+        let root = GameObject(name: "Root")
+        root.addComponent(RecordingComponent { log.append($0) })
+
+        let scene = Scene()
+        scene.addRootObject(root)
+
+        // Spawn a child during the first update.
+        root.addComponent(Spawner {
+            let child = GameObject(name: "Child")
+            child.addComponent(RecordingComponent { log.append($0) })
+            root.addChild(child)
+        })
+
+        scene.update(deltaTime: 1)
+        // Current behavior: traversal picks up newly added child in the same frame.
+        XCTAssertEqual(log, ["Root", "Child"])
+
+        scene.update(deltaTime: 1)
+        XCTAssertEqual(log, ["Root", "Child", "Root", "Child"])
+    }
 }

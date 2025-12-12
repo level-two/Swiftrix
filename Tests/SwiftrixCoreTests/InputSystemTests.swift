@@ -22,4 +22,21 @@ final class InputSystemTests: XCTestCase {
         input.send(event: .axisChanged(name: "Horizontal", value: AxisValue(value: 0.5)))
         XCTAssertEqual(input.axis(named: "Horizontal"), AxisValue(value: 0.5))
     }
+
+    func testButtonPressedTrueOnlyOnFirstFrame() {
+        let input = DefaultInputSystem()
+        input.send(event: .buttonDown("Jump"))
+
+        XCTAssertTrue(input.isButtonPressed("Jump"))
+        XCTAssertTrue(input.isButtonDown("Jump"))
+
+        // After update, pressed should clear but down remains
+        input.update()
+        XCTAssertFalse(input.isButtonPressed("Jump"))
+        XCTAssertTrue(input.isButtonDown("Jump"))
+
+        // Button up clears down
+        input.send(event: .buttonUp("Jump"))
+        XCTAssertFalse(input.isButtonDown("Jump"))
+    }
 }

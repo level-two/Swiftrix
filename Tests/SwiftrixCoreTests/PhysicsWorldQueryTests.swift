@@ -13,4 +13,35 @@ final class PhysicsWorldQueryTests: XCTestCase {
         let results = world.query(overlap: CGRect(x: 0, y: 0, width: 2, height: 2), in: nil)
         XCTAssertEqual(results.count, 1)
     }
+
+    func testQueryRespectsCollisionGroup() {
+        let world = DefaultPhysicsWorld()
+
+        let a = GameObject(name: "A")
+        let colliderA = BoxCollider(size: Vector2(x: 1, y: 1), collisionGroup: .player)
+        a.addComponent(colliderA)
+        world.addCollider(colliderA)
+
+        let b = GameObject(name: "B")
+        let colliderB = BoxCollider(size: Vector2(x: 1, y: 1), collisionGroup: .enemy)
+        b.addComponent(colliderB)
+        world.addCollider(colliderB)
+
+        let rect = CGRect(x: -1, y: -1, width: 3, height: 3)
+        XCTAssertEqual(world.query(overlap: rect, in: .player).count, 1)
+        XCTAssertEqual(world.query(overlap: rect, in: .enemy).count, 1)
+        XCTAssertEqual(world.query(overlap: rect, in: nil).count, 2)
+    }
+
+    func testLocalOffsetAffectsQuery() {
+        let world = DefaultPhysicsWorld()
+
+        let go = GameObject(name: "Offset")
+        let collider = BoxCollider(size: Vector2(x: 1, y: 1), localOffset: Vector2(x: 5, y: 0))
+        go.addComponent(collider)
+        world.addCollider(collider)
+
+        XCTAssertEqual(world.query(overlap: CGRect(x: 0, y: 0, width: 2, height: 2), in: nil).count, 0)
+        XCTAssertEqual(world.query(overlap: CGRect(x: 5, y: 0, width: 1, height: 1), in: nil).count, 1)
+    }
 }

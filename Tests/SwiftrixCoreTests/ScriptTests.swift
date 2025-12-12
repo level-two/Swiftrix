@@ -28,4 +28,22 @@ final class ScriptTests: XCTestCase {
         go.update(deltaTime: 0.5)
         XCTAssertEqual(script.updates, 0)
     }
+
+    func testTransformHelpersMutateGameObject() {
+        final class MoveScript: Script {
+            override func update(deltaTime: TimeInterval) {
+                position = Vector2(x: 2, y: 3)
+                scale = Vector2(x: 4, y: 5)
+            }
+        }
+
+        let go = GameObject(name: "Mover")
+        let script = MoveScript()
+        go.addComponent(script)
+
+        go.update(deltaTime: 0.1)
+
+        XCTAssertEqual(go.position, Vector2(x: 2, y: 3))
+        XCTAssertEqual(go.scale, Vector2(x: 4, y: 5))
+    }
 }

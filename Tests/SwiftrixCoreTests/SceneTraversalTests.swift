@@ -38,4 +38,34 @@ final class SceneTraversalTests: XCTestCase {
 
         XCTAssertEqual(updates, ["Root", "ChildA", "ChildB"])
     }
+
+    func testDepthFirstDrawSkipsDisabledAndDestroyed() {
+        var draws: [String] = []
+
+        final class LoggingView: View {
+            let name: String
+            let log: (String) -> Void
+            init(name: String, log: @escaping (String) -> Void, isEnabled: Bool = true) {
+                self.name = name
+                self.log = log
+                super.init(isEnabled: isEnabled)
+            }
+            override func draw() { log(name) }
+        }
+
+        let root = GameObject(name: "Root")
+        let child = GameObject(name: "Child")
+        let destroyed = GameObject(name: "Destroyed")
+        root.addChild(child)
+        root.addChild(destroyed)
+
+        root.addComponent(LoggingView(name: "root", log: { draws.append($0) }))
+        child.addComponent(LoggingView(name: "child", log: { draws.append($0) }, isEnabled: false))
+        destroyed.addComponent(LoggingView(name: "destroyed", log: { draws.append($0) }))
+        destroyed.destroy()
+
+        SceneGraphTraversal.depthFirstDraw(objects: [root])
+
+        XCTAssertEqual(draws, ["root"])
+    }
 }
