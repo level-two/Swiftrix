@@ -34,4 +34,16 @@ final class GameLoopTests: XCTestCase {
         XCTAssertEqual(scene.updateCount, 1)
         XCTAssertEqual(scene.drawCount, 1)
     }
+
+    func testTickPreservesAccumulatorRemainderAcrossTicks() {
+        let scene = StubScene()
+        let loop = GameLoop(scene: scene, fixedDeltaTime: 0.1)
+
+        loop.tick(deltaTime: 0.15) // runs 1 fixed update, keeps ~0.05 in accumulator
+        loop.tick(deltaTime: 0.06) // pushes accumulator over the threshold for another fixed update
+
+        XCTAssertEqual(scene.fixedCount, 2)
+        XCTAssertEqual(scene.updateCount, 2)
+        XCTAssertEqual(scene.drawCount, 2)
+    }
 }
