@@ -46,4 +46,26 @@ final class GameLoopTests: XCTestCase {
         XCTAssertEqual(scene.updateCount, 2)
         XCTAssertEqual(scene.drawCount, 2)
     }
+
+    func testTickWithLargeDeltaRunsManyFixedSteps() {
+        let scene = StubScene()
+        let loop = GameLoop(scene: scene, fixedDeltaTime: 0.1)
+
+        loop.tick(deltaTime: 1.0) // expect 10 fixed updates
+
+        XCTAssertEqual(scene.fixedCount, 10)
+        XCTAssertEqual(scene.updateCount, 1)
+        XCTAssertEqual(scene.drawCount, 1)
+    }
+
+    func testTickWithZeroDeltaStillCallsUpdateAndDraw() {
+        let scene = StubScene()
+        let loop = GameLoop(scene: scene, fixedDeltaTime: 0.1)
+
+        loop.tick(deltaTime: 0.0)
+
+        XCTAssertEqual(scene.fixedCount, 0)
+        XCTAssertEqual(scene.updateCount, 1)
+        XCTAssertEqual(scene.drawCount, 1)
+    }
 }

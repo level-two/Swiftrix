@@ -39,6 +39,41 @@ final class LifecycleAndUtilityTests: XCTestCase {
         XCTAssertEqual(hit, root.id)
     }
 
+    func testHitTestReturnsNilWhenNoNode() {
+        let harness = SpriteKitTestHarness()
+        harness.scene.size = CGSize(width: 100, height: 100)
+
+        harness.scene.start()
+        harness.step()
+
+        let hit = harness.scene.hitTestObjectID(at: CGPoint(x: 0, y: 0))
+        XCTAssertNil(hit)
+    }
+
+    func testHitTestPrefersTopmostNode() {
+        let harness = SpriteKitTestHarness()
+        harness.scene.size = CGSize(width: 100, height: 100)
+
+        let back = GameObject(name: "back")
+        let backSprite = SpriteView(color: .red, size: CGSize(width: 20, height: 20))
+        backSprite.zPosition = 0
+        back.addComponent(backSprite)
+
+        let front = GameObject(name: "front")
+        let frontSprite = SpriteView(color: .blue, size: CGSize(width: 20, height: 20))
+        frontSprite.zPosition = 10
+        front.addComponent(frontSprite)
+
+        harness.scene.coreScene.addRootObject(back)
+        harness.scene.coreScene.addRootObject(front)
+
+        harness.scene.start()
+        harness.step()
+
+        let hit = harness.scene.hitTestObjectID(at: CGPoint(x: 0, y: 0))
+        XCTAssertEqual(hit, front.id)
+    }
+
     func testCameraFollowsObject() {
         let harness = SpriteKitTestHarness()
         harness.scene.size = CGSize(width: 200, height: 200)

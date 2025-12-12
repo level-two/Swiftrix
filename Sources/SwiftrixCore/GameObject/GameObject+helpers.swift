@@ -1,5 +1,5 @@
 public extension GameObject {
-    public var position: Vector2 {
+    var position: Vector2 {
         get { localTransform.position }
         set {
             var transform = localTransform
@@ -8,7 +8,7 @@ public extension GameObject {
         }
     }
 
-    public var rotation: Double {
+    var rotation: Double {
         get { localTransform.rotation }
         set {
             var transform = localTransform
@@ -17,7 +17,7 @@ public extension GameObject {
         }
     }
 
-    public var scale: Vector2 {
+    var scale: Vector2 {
         get { localTransform.scale }
         set {
             var transform = localTransform
@@ -26,7 +26,7 @@ public extension GameObject {
         }
     }
 
-    public var globalPosition: Vector2 { globalTransform.position }
-    public var globalRotation: Double { globalTransform.rotation }
-    public var globalScale: Vector2 { globalTransform.scale }
+    var globalPosition: Vector2 { globalTransform.position }
+    var globalRotation: Double { globalTransform.rotation }
+    var globalScale: Vector2 { globalTransform.scale }
 }
