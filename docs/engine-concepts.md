@@ -2,6 +2,8 @@
 
 This document summarizes the main concepts in SwiftrixCore and shows how they fit together when building a small game.
 
+For project-agnostic gameplay organization patterns (prefabs, builders, scripts, collider registration), see `docs/game-development-guidelines.md`.
+
 ---
 
 ## 1. Core Types

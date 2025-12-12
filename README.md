@@ -255,6 +255,7 @@ Relevant directories in this repository:
 Additional documentation:
 
 - `docs/engine-concepts.md` — overview of core engine concepts and patterns.
+- `docs/game-development-guidelines.md` — recommended patterns for structuring Swiftrix-based game code.
 - `docs/host-integration-spritekit.md` — detailed host integration examples with SpriteKit.
 - `docs/debugging-and-introspection.md` — practical tips for debugging and inspecting Swiftrix scenes and adapter state.
 
@@ -272,6 +273,7 @@ For more detailed architecture notes, see:
 
 - Start here: this `README.md` (installation, concepts, quickstart).
 - Learn the model: `docs/engine-concepts.md`.
+- Build a game on top: `docs/game-development-guidelines.md`.
 - Integrate with SpriteKit: `docs/host-integration-spritekit.md`.
 - Debug and inspect scenes/adapter state: `docs/debugging-and-introspection.md`.
 - Use the adapter’s feature quickstart: `specs/001-spritekit-renderer/quickstart.md`.
