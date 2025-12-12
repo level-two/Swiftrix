@@ -138,4 +138,19 @@ final class SceneTests: XCTestCase {
         XCTAssertEqual(input.log, ["update", "pending"])
         XCTAssertEqual(control.handled, [.buttonDown("Jump")])
     }
+
+    func testRuntimeAddedColliderIsNotAutoRegistered() {
+        let physics = RecordingPhysicsWorld()
+        let scene = Scene(physicsWorld: physics)
+
+        let root = GameObject(name: "Root")
+        scene.addRootObject(root)
+        XCTAssertTrue(physics.added.isEmpty)
+
+        let collider = BoxCollider(size: Vector2(x: 1, y: 1))
+        root.addComponent(collider)
+
+        // Current behavior: runtime-added colliders require explicit registration.
+        XCTAssertTrue(physics.added.isEmpty)
+    }
 }

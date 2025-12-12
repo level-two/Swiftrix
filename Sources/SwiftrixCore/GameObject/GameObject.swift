@@ -28,6 +28,18 @@ open class GameObject: IdentifiableObject, Named, Updatable, Destroyable {
     // MARK: - Hierarchy
 
     public func addChild(_ child: GameObject) {
+        // Prevent self-parenting
+        guard child !== self else { return }
+        // Prevent cycles (adding an ancestor as a child)
+        guard !self.isDescendant(of: child) else { return }
+        // Prevent duplicate entries
+        guard !children.contains(where: { $0 === child }) else { return }
+
+        // If the child already has a different parent, detach it first
+        if let currentParent = child.parent, currentParent !== self {
+            currentParent.removeChild(child)
+        }
+
         children.append(child)
         child.parent = self
     }
@@ -41,6 +53,11 @@ open class GameObject: IdentifiableObject, Named, Updatable, Destroyable {
 
     public func removeFromParent() {
         parent?.removeChild(self)
+    }
+
+    private func isDescendant(of possibleAncestor: GameObject) -> Bool {
+        if parent === possibleAncestor { return true }
+        return parent?.isDescendant(of: possibleAncestor) ?? false
     }
 
     // MARK: - Components
