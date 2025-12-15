@@ -70,7 +70,7 @@ spriteKitScene.setDebugOverlayConfig(DebugOverlayConfig(
 You’ll see:
 
 - bounds rectangles around mirrored nodes
-- optional anchor markers
+- optional anchor markers (node position / `SKSpriteNode.anchorPoint`)
 
 If you see overlays but no textures, you likely have an asset or view configuration issue.
 

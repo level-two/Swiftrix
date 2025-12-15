@@ -154,6 +154,11 @@ spriteKitScene.setDebugOverlayConfig(DebugOverlayConfig(
 ))
 ```
 
+Notes:
+
+- Bounds and anchor markers are drawn in scene space (so they stay correct under nested transforms).
+- Anchor markers indicate the mirrored node position (for sprites, this corresponds to `SKSpriteNode.anchorPoint`).
+
 ### Hit Testing
 
 ```swift
