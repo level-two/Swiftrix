@@ -179,4 +179,28 @@ final class SpriteKitSceneTests: XCTestCase {
         XCTAssertEqual(harness.scene.node(for: childA.id)?.position, CGPoint(x: 5, y: 0))
         XCTAssertEqual(harness.scene.node(for: childB.id)?.position, CGPoint(x: 9, y: 0))
     }
+
+    func testSpriteViewAnchorPointUpdatesFromAnchor() {
+        let harness = SpriteKitTestHarness()
+
+        let root = GameObject(name: "root")
+        let child = GameObject(name: "child")
+        let spriteView = SpriteView(color: .white, size: CGSize(width: 4, height: 4), anchor: Vector2(x: 0, y: 0))
+        child.addComponent(spriteView)
+        root.addChild(child)
+        harness.scene.coreScene.addRootObject(root)
+
+        harness.scene.start()
+        harness.step()
+
+        guard let node = harness.scene.node(for: child.id) as? SKSpriteNode else {
+            return XCTFail("Expected sprite node")
+        }
+        XCTAssertEqual(node.anchorPoint, CGPoint(x: 0, y: 0))
+
+        spriteView.anchor = Vector2(x: 1, y: 1)
+        harness.step()
+
+        XCTAssertEqual(node.anchorPoint, CGPoint(x: 1, y: 1))
+    }
 }

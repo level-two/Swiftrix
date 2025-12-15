@@ -8,23 +8,21 @@ public final class SpriteView: View, SpriteKitRenderable {
     public var textureName: String?
     public var color: SKColor
     public var size: CGSize?
-    public var anchorPoint: CGPoint
     public var zPosition: CGFloat
 
     public init(
         textureName: String? = nil,
         color: SKColor = .white,
         size: CGSize? = nil,
-        anchorPoint: CGPoint = CGPoint(x: 0.5, y: 0.5),
+        anchor: Vector2 = Vector2(x: 0.5, y: 0.5),
         zPosition: CGFloat = 0,
         isEnabled: Bool = true
     ) {
         self.textureName = textureName
         self.color = color
         self.size = size
-        self.anchorPoint = anchorPoint
         self.zPosition = zPosition
-        super.init(isEnabled: isEnabled)
+        super.init(anchor: anchor, isEnabled: isEnabled)
     }
 
     public override func update(deltaTime: TimeInterval) {}
@@ -49,6 +47,11 @@ public final class SpriteView: View, SpriteKitRenderable {
             sprite.size = size
         }
         sprite.zPosition = zPosition
+    }
+
+    public var anchorPoint: CGPoint {
+        get { CGPoint(x: anchor.x, y: anchor.y) }
+        set { anchor = Vector2(x: Double(newValue.x), y: Double(newValue.y)) }
     }
 
     func resolvedTexture() -> SKTexture? {

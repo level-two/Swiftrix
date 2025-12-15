@@ -40,8 +40,8 @@ Components attach behavior and data to game objects:
 
 - `Component` — base class; has `gameObject` and `isEnabled`
 - `Script` — custom gameplay logic (movement, AI, reactions)
-- `View` — rendering-related state; hosts interpret it (e.g., SpriteKit adapter)
-- `Collider` — collision shape used by `PhysicsWorld`
+- `View` — rendering-related state; hosts interpret it (e.g., SpriteKit adapter). Views include a normalized `anchor` (default `(0.5, 0.5)` center) so visuals can be aligned relative to their bounds.
+- `Collider` — collision shape used by `PhysicsWorld`; has `anchor` (default `(0.5, 0.5)`) and `localOffset` to position the AABB relative to the owning object.
 - `ControlComponent` — translates input events into gameplay actions
 - lifecycle hooks on `Script`:
   - `onStart()` mirrors the owning object’s start (called once when the object starts, including for scripts added at runtime after start)

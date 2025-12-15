@@ -179,3 +179,8 @@ override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 - Drop down to the **manual GameLoop pattern** if:
   - you need custom rendering that doesn’t map well to the bridge, or
   - you’re targeting a non-SpriteKit renderer and want a very similar pattern.
+
+### Anchors and bounds
+
+- `View.anchor` and `Collider.anchor` default to `(0.5, 0.5)` (center). `(0,0)` is top-left, `(1,1)` is bottom-right in local bounds.
+- `SpriteView.anchor` maps directly to `SKSpriteNode.anchorPoint`. Changing it at runtime will update the bound node on the next sync.

@@ -71,7 +71,11 @@ public final class DefaultPhysicsWorld: PhysicsWorld {
 
     private func colliderRect(collider: Collider, object: GameObject) -> CGRect {
         let position = object.globalTransform.position
-        let origin = CGPoint(x: position.x + collider.localOffset.x, y: position.y + collider.localOffset.y)
+        let center = CGPoint(x: position.x + collider.localOffset.x, y: position.y + collider.localOffset.y)
+        let origin = CGPoint(
+            x: center.x - CGFloat(collider.size.x * collider.anchor.x),
+            y: center.y - CGFloat(collider.size.y * collider.anchor.y)
+        )
         return CGRect(origin: origin, size: CGSize(width: collider.size.x, height: collider.size.y))
     }
 }

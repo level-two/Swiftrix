@@ -44,4 +44,33 @@ final class PhysicsWorldQueryTests: XCTestCase {
         XCTAssertEqual(world.query(overlap: CGRect(x: 0, y: 0, width: 2, height: 2), in: nil).count, 0)
         XCTAssertEqual(world.query(overlap: CGRect(x: 5, y: 0, width: 1, height: 1), in: nil).count, 1)
     }
+
+    func testDefaultAnchorCentersColliderOnObject() {
+        let world = DefaultPhysicsWorld()
+
+        let go = GameObject(name: "Centered")
+        let collider = BoxCollider(size: Vector2(x: 2, y: 2))
+        go.addComponent(collider)
+        world.addCollider(collider)
+
+        // With a centered anchor, the collider extends equally around the object's position.
+        XCTAssertEqual(world.query(overlap: CGRect(x: -1.1, y: -1.1, width: 0.2, height: 0.2), in: nil).count, 1)
+    }
+
+    func testCustomAnchorShiftsColliderOrigin() {
+        let world = DefaultPhysicsWorld()
+
+        let go = GameObject(name: "TopLeft")
+        let collider = BoxCollider(
+            size: Vector2(x: 2, y: 2),
+            anchor: Vector2(x: 0, y: 0),
+            localOffset: Vector2(x: 2, y: 0)
+        )
+        go.addComponent(collider)
+        world.addCollider(collider)
+
+        // Anchor (0,0) uses the game object's position + offset as the top-left corner.
+        XCTAssertEqual(world.query(overlap: CGRect(x: 0, y: 0, width: 1, height: 1), in: nil).count, 0)
+        XCTAssertEqual(world.query(overlap: CGRect(x: 2, y: 0, width: 1, height: 1), in: nil).count, 1)
+    }
 }

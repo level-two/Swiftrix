@@ -185,6 +185,8 @@ Collision semantics:
 Geometry:
 
 - `testLocalOffset_affectsColliderRect`
+- `testAnchor_affectsColliderRect_defaultCentersOnObject`
+- `testAnchor_withCustomValue_shiftsOrigin`
 - `testGlobalTransform_position_affectsColliderRect_inHierarchy`
 - `testQuery_groupFilter_returnsOnlyMatchingGroups`
 - `testQuery_excludesDisabledOrDestroyedObjects` (if intended; currently step does)
@@ -216,6 +218,7 @@ Transform fidelity:
 
 - `testRotationAndScale_syncCorrectly` (if adapter supports them)
 - `testAnchorPoint_orAlignment_rules_areDocumented_andTested` (if present)
+- `testSpriteView_anchor_updatesSKAnchorPoint` (anchor changes propagate)
 
 Hit testing:
 
@@ -226,4 +229,3 @@ Lifecycle:
 
 - `testReset_isIdempotent_andDoesNotLeakNodes`
 - `testPause_doesNotAdvanceCoreTime`
-

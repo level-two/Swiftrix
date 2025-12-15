@@ -5,8 +5,8 @@ import SwiftrixCore
 /// Transform-only view that renders as a plain `SKNode`.
 open class ContainerView: View, SpriteKitRenderable {
 
-    public override init(isEnabled: Bool = true) {
-        super.init(isEnabled: isEnabled)
+    public override init(anchor: Vector2 = Vector2(x: 0.5, y: 0.5), isEnabled: Bool = true) {
+        super.init(anchor: anchor, isEnabled: isEnabled)
     }
 
     open override func update(deltaTime: TimeInterval) {}

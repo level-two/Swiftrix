@@ -23,4 +23,10 @@ final class ComponentTests: XCTestCase {
         go.update(deltaTime: 1)
         XCTAssertEqual(component.count, 0)
     }
+
+    func testViewDefaultsToCenteredAnchor() {
+        final class TestView: View {}
+        let view = TestView()
+        XCTAssertEqual(view.anchor, Vector2(x: 0.5, y: 0.5))
+    }
 }
