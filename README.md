@@ -336,3 +336,6 @@ It deliberately does **not** include:
 
 Those responsibilities belong to host applications and tooling built on top of
 the engine.
+
+## License
+MIT © Yauheni Lychkouski
