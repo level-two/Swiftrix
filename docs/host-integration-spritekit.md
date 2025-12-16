@@ -189,3 +189,17 @@ override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 
 - `View.anchor` and `Collider.anchor` default to `(0.5, 0.5)` (center). `(0,0)` is top-left, `(1,1)` is bottom-right in local bounds.
 - `SpriteView.anchor` maps directly to `SKSpriteNode.anchorPoint`. Changing it at runtime will update the bound node on the next sync.
+- Bounds and anchor markers drawn by the debug overlay are computed in scene space to stay correct under nested transforms.
+
+### Sprite animations
+
+- `SpriteView.animate(with:timePerFrame:repeatForever:)` starts an `SKAction`-backed texture animation on the bound `SKSpriteNode`. Call it after configuring your texture array:
+
+```swift
+let walkFrames: [SKTexture] = loadWalkTextures()
+spriteView.animate(with: walkFrames, timePerFrame: 0.08) // defaults to repeatForever = true
+```
+
+- You can also call `spriteView.animate(textureNames:timePerFrame:repeatForever:)` to build textures by name on your behalf.
+- Call `spriteView.stopAnimation()` to remove the running animation.
+- Animation requests are applied on the next sync tick; they will also run when the node is (re)created.

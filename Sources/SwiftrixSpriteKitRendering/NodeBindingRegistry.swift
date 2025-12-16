@@ -15,6 +15,7 @@ public struct SpriteViewSignature: Equatable {
     public var size: CGSize?
     public var anchorPoint: CGPoint
     public var zPosition: CGFloat
+    public var animationNonce: Int
 
     public static func == (lhs: SpriteViewSignature, rhs: SpriteViewSignature) -> Bool {
         return lhs.textureName == rhs.textureName &&
@@ -24,7 +25,8 @@ public struct SpriteViewSignature: Equatable {
         lhs.colorComponents.3 == rhs.colorComponents.3 &&
         lhs.size == rhs.size &&
         lhs.anchorPoint == rhs.anchorPoint &&
-        lhs.zPosition == rhs.zPosition
+        lhs.zPosition == rhs.zPosition &&
+        lhs.animationNonce == rhs.animationNonce
     }
 }
 

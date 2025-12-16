@@ -223,7 +223,8 @@ open class SpriteKitScene: SKScene {
                 colorComponents: colorComponents(from: spriteView.color),
                 size: spriteView.size,
                 anchorPoint: spriteView.anchorPoint,
-                zPosition: spriteView.zPosition
+                zPosition: spriteView.zPosition,
+                animationNonce: spriteView.currentAnimationNonce
             )
             if binding.spriteSignature != signature {
                 dirtyQueue.markDirty(binding.objectID)
@@ -260,17 +261,18 @@ open class SpriteKitScene: SKScene {
             }
 
             if let spriteView = binding.viewComponent as? SpriteView {
-                let signature = SpriteViewSignature(
-                    textureName: spriteView.textureName,
-                    colorComponents: colorComponents(from: spriteView.color),
-                    size: spriteView.size,
-                    anchorPoint: spriteView.anchorPoint,
-                    zPosition: spriteView.zPosition
-                )
-                if spriteView.textureName != nil && spriteView.resolvedTexture() == nil {
-                    onDiagnostic?("Missing texture named \(spriteView.textureName ?? "")")
-                }
-                spriteView.update(node: binding.node)
+            let signature = SpriteViewSignature(
+                textureName: spriteView.textureName,
+                colorComponents: colorComponents(from: spriteView.color),
+                size: spriteView.size,
+                anchorPoint: spriteView.anchorPoint,
+                zPosition: spriteView.zPosition,
+                animationNonce: spriteView.currentAnimationNonce
+            )
+            if spriteView.textureName != nil && spriteView.resolvedTexture() == nil {
+                onDiagnostic?("Missing texture named \(spriteView.textureName ?? "")")
+            }
+            spriteView.update(node: binding.node)
                 binding.spriteSignature = signature
             } else {
                 binding.viewComponent?.update(node: binding.node)

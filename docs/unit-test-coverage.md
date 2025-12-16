@@ -219,6 +219,7 @@ Transform fidelity:
 - `testRotationAndScale_syncCorrectly` (if adapter supports them)
 - `testAnchorPoint_orAlignment_rules_areDocumented_andTested` (if present)
 - `testSpriteView_anchor_updatesSKAnchorPoint` (anchor changes propagate)
+- `testSpriteViewAnimateStartsActionOnNode` / `testSpriteViewStopAnimationRemovesAction` (texture animation wiring)
 
 Hit testing:
 

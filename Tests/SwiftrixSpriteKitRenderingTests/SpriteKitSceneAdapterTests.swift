@@ -203,4 +203,81 @@ final class SpriteKitSceneTests: XCTestCase {
 
         XCTAssertEqual(node.anchorPoint, CGPoint(x: 1, y: 1))
     }
+
+    func testSpriteViewAnimateStartsActionOnNode() {
+        let harness = SpriteKitTestHarness()
+
+        let root = GameObject(name: "root")
+        let child = GameObject(name: "child")
+        let spriteView = SpriteView(color: .white, size: CGSize(width: 4, height: 4))
+        child.addComponent(spriteView)
+        root.addChild(child)
+        harness.scene.coreScene.addRootObject(root)
+
+        let textures = [
+            SKTexture(noiseWithSmoothness: 0.2, size: CGSize(width: 2, height: 2), grayscale: true),
+            SKTexture(noiseWithSmoothness: 0.8, size: CGSize(width: 2, height: 2), grayscale: false)
+        ]
+        spriteView.animate(with: textures, timePerFrame: 0.05)
+
+        harness.scene.start()
+        harness.step()
+
+        guard let node = harness.scene.node(for: child.id) as? SKSpriteNode else {
+            return XCTFail("Expected sprite node")
+        }
+
+        XCTAssertNotNil(node.action(forKey: SpriteView.animationKey))
+    }
+
+    func testSpriteViewStopAnimationRemovesAction() {
+        let harness = SpriteKitTestHarness()
+
+        let root = GameObject(name: "root")
+        let child = GameObject(name: "child")
+        let spriteView = SpriteView(color: .white, size: CGSize(width: 4, height: 4))
+        child.addComponent(spriteView)
+        root.addChild(child)
+        harness.scene.coreScene.addRootObject(root)
+
+        let textures = [
+            SKTexture(noiseWithSmoothness: 0.2, size: CGSize(width: 2, height: 2), grayscale: true),
+            SKTexture(noiseWithSmoothness: 0.8, size: CGSize(width: 2, height: 2), grayscale: false)
+        ]
+        spriteView.animate(with: textures, timePerFrame: 0.05)
+
+        harness.scene.start()
+        harness.step()
+
+        spriteView.stopAnimation()
+        harness.step()
+
+        guard let node = harness.scene.node(for: child.id) as? SKSpriteNode else {
+            return XCTFail("Expected sprite node")
+        }
+
+        XCTAssertNil(node.action(forKey: SpriteView.animationKey))
+    }
+
+    func testSpriteViewAnimateByTextureNamesStartsAction() {
+        let harness = SpriteKitTestHarness()
+
+        let root = GameObject(name: "root")
+        let child = GameObject(name: "child")
+        let spriteView = SpriteView(color: .white, size: CGSize(width: 4, height: 4))
+        child.addComponent(spriteView)
+        root.addChild(child)
+        harness.scene.coreScene.addRootObject(root)
+
+        spriteView.animate(textureNames: ["frameA", "frameB"], timePerFrame: 0.05)
+
+        harness.scene.start()
+        harness.step()
+
+        guard let node = harness.scene.node(for: child.id) as? SKSpriteNode else {
+            return XCTFail("Expected sprite node")
+        }
+
+        XCTAssertNotNil(node.action(forKey: SpriteView.animationKey))
+    }
 }
