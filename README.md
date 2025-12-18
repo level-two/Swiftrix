@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="367" height="351" alt="logo" src="https://github.com/user-attachments/assets/661270c7-7fe4-44e2-becc-da5c6db5f25e" />
+</p>
+
 # SwiftrixCore — Lightweight Swift Game Engine
 
 SwiftrixCore is a small, focused game engine written in Swift 5.9.  
