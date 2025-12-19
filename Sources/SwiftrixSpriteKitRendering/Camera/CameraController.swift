@@ -1,6 +1,7 @@
 import Foundation
 import SpriteKit
 
+/// Camera configuration for `CameraController`.
 public struct CameraConfig {
     public enum Mode {
         case staticOffset(CGPoint)

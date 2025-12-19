@@ -277,6 +277,9 @@ For more detailed architecture notes, see:
 ### For game developers / engine users
 
 - Start here: this `README.md` (installation, concepts, quickstart).
+- Documentation index: `docs/index.md` (where to start + how to generate API docs).
+- Single-file API reference (Markdown): `docs/api-reference.md` (AI-friendly).
+- Public API tour: `docs/public-api.md` (walkthrough of exported types).
 - Learn the model: `docs/engine-concepts.md`.
 - Build a game on top: `docs/game-development-guidelines.md`.
 - Integrate with SpriteKit: `docs/host-integration-spritekit.md`.

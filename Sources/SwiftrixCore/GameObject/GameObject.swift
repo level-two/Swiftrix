@@ -1,6 +1,14 @@
 import Foundation
 
-/// Core game object type used by the engine.
+/// A node in the scene graph.
+///
+/// `GameObject` models:
+/// - hierarchy (parent/children)
+/// - transform composition (`localTransform` → `globalTransform`)
+/// - composition via attachable `Component`s
+/// - lifecycle (`onStart` and `onDestroy`)
+///
+/// Objects are updated depth-first by default traversal.
 open class GameObject: IdentifiableObject, Named, Updatable, Destroyable {
     public let id = UUID()
     public var name: String
@@ -23,6 +31,7 @@ open class GameObject: IdentifiableObject, Named, Updatable, Destroyable {
     private var hasStarted: Bool = false
     private var hasNotifiedDestroy: Bool = false
 
+    /// Creates a new game object.
     public init(name: String, transform: Transform2D = .identity) {
         self.name = name
         self.localTransform = transform
@@ -30,6 +39,7 @@ open class GameObject: IdentifiableObject, Named, Updatable, Destroyable {
 
     // MARK: - Hierarchy
 
+    /// Adds `child` as a direct child, preventing cycles and duplicates.
     public func addChild(_ child: GameObject) {
         // Prevent self-parenting
         guard child !== self else { return }
@@ -47,6 +57,7 @@ open class GameObject: IdentifiableObject, Named, Updatable, Destroyable {
         child.parent = self
     }
 
+    /// Removes `child` from the receiver’s children list.
     public func removeChild(_ child: GameObject) {
         children.removeAll { $0.id == child.id }
         if child.parent === self {
@@ -65,6 +76,7 @@ open class GameObject: IdentifiableObject, Named, Updatable, Destroyable {
 
     // MARK: - Components
 
+    /// Attaches a component to this object and sets `component.gameObject`.
     public func addComponent(_ component: Component) {
         components.append(component)
         component.gameObject = self
@@ -74,6 +86,7 @@ open class GameObject: IdentifiableObject, Named, Updatable, Destroyable {
         }
     }
 
+    /// Detaches a component from this object and clears `component.gameObject` if it matches.
     public func removeComponent(_ component: Component) {
         components.removeAll { $0 === component }
         if component.gameObject === self {
@@ -81,16 +94,19 @@ open class GameObject: IdentifiableObject, Named, Updatable, Destroyable {
         }
     }
 
+    /// Returns the first attached component of the requested type.
     public func getComponent<T: Component>(_ type: T.Type) -> T? {
         components.compactMap { $0 as? T }.first
     }
 
+    /// Returns all attached components of the requested type.
     public func getComponents<T: Component>(_ type: T.Type) -> [T] {
         components.compactMap { $0 as? T }
     }
 
     // MARK: - Lifecycle
 
+    /// Updates this object and its subtree if enabled and not destroyed.
     public func update(deltaTime: TimeInterval) {
         guard !isDestroyed, isEnabled else { return }
 
@@ -103,6 +119,7 @@ open class GameObject: IdentifiableObject, Named, Updatable, Destroyable {
         }
     }
 
+    /// Marks this object as destroyed and triggers destroy hooks once.
     public func destroy() {
         guard !isDestroyed else { return }
         isDestroyed = true
@@ -111,7 +128,9 @@ open class GameObject: IdentifiableObject, Named, Updatable, Destroyable {
 
     // MARK: - Hooks
 
+    /// Called once, lazily, before the first update of this object (or any attached script).
     open func onStart() {}
+    /// Called once when `destroy()` is invoked.
     open func onDestroy() {}
 
     private func startIfNeeded() {

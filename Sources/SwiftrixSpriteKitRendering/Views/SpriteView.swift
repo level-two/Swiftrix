@@ -5,9 +5,12 @@ import SwiftrixCore
 /// Sprite-based view that maps to `SKSpriteNode`.
 public final class SpriteView: View, SpriteKitRenderable {
 
+    /// Name passed to `SKTexture(imageNamed:)` when resolving the texture.
     public var textureName: String?
     public var color: SKColor
+    /// Optional explicit sprite size. If `nil`, SpriteKit uses the texture’s size.
     public var size: CGSize?
+    /// SpriteKit z-position.
     public var zPosition: CGFloat
     private var pendingAnimation: SKAction?
     private var stopAnimationRequested: Bool = false

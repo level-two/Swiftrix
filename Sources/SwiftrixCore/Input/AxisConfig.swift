@@ -1,6 +1,6 @@
 import Foundation
 
-/// Configuration describing how logical axes are constructed.
+/// Configuration describing how a logical axis is constructed from input keys.
 public struct AxisConfig: Equatable {
     public let name: String
     public let positiveKeys: [InputKey]

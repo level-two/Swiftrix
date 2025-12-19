@@ -1,6 +1,9 @@
 import Foundation
 
-/// Simple AsyncStream-backed event bus suitable for tests and tools.
+/// A small in-memory `EventBus` implementation.
+///
+/// This is intentionally minimal: it delivers events synchronously to current
+/// subscribers and does not buffer or persist events.
 public final class DefaultEventBus: EventBus {
     private struct AnyContinuation {
         let typeId: ObjectIdentifier

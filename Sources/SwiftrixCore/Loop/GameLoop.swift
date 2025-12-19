@@ -1,6 +1,9 @@
 import Foundation
 
-/// Drives a scene using a fixed timestep for deterministic systems and a variable update for scripts.
+/// Drives a `Scene` using a fixed timestep for deterministic systems (e.g., physics)
+/// and a variable timestep for per-frame updates.
+///
+/// Hosts typically call `tick(deltaTime:)` once per rendered frame.
 public final class GameLoop {
     private let scene: Scene
     private var lastFrameTime: TimeInterval?
@@ -12,7 +15,9 @@ public final class GameLoop {
         self.fixedDeltaTime = fixedDeltaTime
     }
 
-    /// Steps the game loop by the provided delta time. Intended for tests/tools.
+    /// Steps the loop by the provided delta time.
+    ///
+    /// This method is deterministic given the same input stream and tick deltas.
     public func tick(deltaTime: TimeInterval) {
         defer { lastFrameTime = (lastFrameTime ?? 0) + deltaTime }
         accumulator += deltaTime

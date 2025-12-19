@@ -1,7 +1,7 @@
 import Foundation
 import SpriteKit
 
-/// Renders lightweight overlays (bounds/anchor markers) for debug visibility.
+/// Renders opt-in overlays (bounds/anchor markers) for debug visibility.
 public final class DebugOverlayRenderer {
     private var overlayNodes: [UUID: SKNode] = [:]
 

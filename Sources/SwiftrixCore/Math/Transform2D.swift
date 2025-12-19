@@ -1,6 +1,8 @@
 import Foundation
 
 /// Represents a 2D transform with position, rotation (radians), and scale.
+///
+/// Rotation is expressed in radians to match SpriteKit’s conventions.
 public struct Transform2D: Equatable, Codable {
     public var position: Vector2
     public var rotation: Double

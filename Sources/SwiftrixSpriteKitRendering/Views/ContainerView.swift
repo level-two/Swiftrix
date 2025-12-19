@@ -3,6 +3,9 @@ import SpriteKit
 import SwiftrixCore
 
 /// Transform-only view that renders as a plain `SKNode`.
+///
+/// Use this when you want the adapter to create a node for a game object, but
+/// you don’t need a sprite (for example, as a parent container).
 open class ContainerView: View, SpriteKitRenderable {
 
     public override init(anchor: Vector2 = Vector2(x: 0.5, y: 0.5), isEnabled: Bool = true) {

@@ -1,6 +1,7 @@
 import Foundation
 import SpriteKit
 
+/// Configuration for opt-in debug overlays rendered on top of bound nodes.
 public struct DebugOverlayConfig {
     public var isEnabled: Bool
     public var showBounds: Bool

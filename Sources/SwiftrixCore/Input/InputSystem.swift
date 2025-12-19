@@ -1,12 +1,22 @@
 import Foundation
 
-/// Abstraction for logical input state; host implements physical input polling.
+/// Abstraction for logical input state; hosts implement physical input polling.
+///
+/// The engine core works with *logical* concepts: named axes and named buttons.
+/// Platform-specific input should be mapped in the host and surfaced through
+/// this protocol (or by using `DefaultInputSystem` for tests and prototypes).
 public protocol InputSystem {
+    /// Called once per frame before input is queried or events are dispatched.
     func update()
+    /// Returns the current value of a named axis.
     func axis(named name: String) -> AxisValue
+    /// Returns true while the named button is held down.
     func isButtonDown(_ name: String) -> Bool
+    /// Returns true when the named button is not held down.
     func isButtonUp(_ name: String) -> Bool
+    /// Returns true only on the first frame the button transitions to down.
     func isButtonPressed(_ name: String) -> Bool
+    /// Streams control events as they occur.
     func eventsStream() -> AsyncStream<ControlEvent>
     /// Returns and clears pending events since the last call.
     func pendingEvents() -> [ControlEvent]
@@ -16,7 +26,7 @@ public extension InputSystem {
     func pendingEvents() -> [ControlEvent] { [] }
 }
 
-/// Simple in-memory input system suitable for tests.
+/// Simple in-memory input system suitable for tests and prototypes.
 public final class DefaultInputSystem: InputSystem {
     private struct EventContinuation: Identifiable {
         let id = UUID()
@@ -73,6 +83,7 @@ public final class DefaultInputSystem: InputSystem {
     }
 
     // MARK: - Host/test helpers
+    /// Feeds an input event into the system and makes it observable via `pendingEvents` / `eventsStream`.
     public func send(event: ControlEvent) {
         switch event {
         case .axisChanged(let name, let value):

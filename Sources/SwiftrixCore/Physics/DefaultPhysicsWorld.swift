@@ -2,6 +2,12 @@ import Foundation
 import CoreGraphics
 
 /// Extremely simple 2D physics world that performs AABB overlap checks.
+///
+/// This implementation is intentionally basic:
+/// - colliders are axis-aligned rectangles (AABB)
+/// - rotation is ignored for collision shape
+/// - overlaps result in `CollisionEvent` posted to the `EventBus`
+/// - involved objects’ `Script` components receive `onCollision(with:)`
 public final class DefaultPhysicsWorld: PhysicsWorld {
     private struct Entry: Identifiable {
         let id = UUID()

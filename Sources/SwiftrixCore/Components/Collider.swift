@@ -9,6 +9,10 @@ public enum CollisionGroup: Hashable {
 }
 
 /// Collision component for the physics world.
+///
+/// The default physics world treats `size` as an axis-aligned box (AABB) in the
+/// Core coordinate system. `anchor` and `localOffset` control how the box is
+/// positioned relative to the owning object’s transform.
 open class Collider: Component {
     public var localOffset: Vector2
     public var anchor: Vector2

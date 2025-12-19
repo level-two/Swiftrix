@@ -4,6 +4,7 @@ import Foundation
 public final class HostLifecycleBridge {
     private weak var scene: SpriteKitScene?
 
+    /// Creates a lifecycle bridge for the given scene.
     public init(scene: SpriteKitScene) {
         self.scene = scene
     }

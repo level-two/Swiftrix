@@ -5,6 +5,7 @@ import SpriteKit
 public final class HitTestBridge {
     public init() {}
 
+    /// Returns the first Core object id whose bound node appears in the hit test results.
     public func objectID(at point: CGPoint, in scene: SKScene, registry: NodeBindingRegistry) -> UUID? {
         let nodes = scene.nodes(at: point)
         for node in nodes {

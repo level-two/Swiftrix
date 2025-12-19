@@ -2,6 +2,7 @@ import Foundation
 
 /// Utilities for inspecting scenes and game object trees.
 public enum DebugIntrospection {
+    /// Produces a human-readable summary of the scene graph.
     public static func describeScene(_ scene: Scene) -> String {
         var lines: [String] = []
         for object in scene.rootObjects {
@@ -13,6 +14,7 @@ public enum DebugIntrospection {
         return lines.joined(separator: "\n")
     }
 
+    /// Produces a list of lines describing an object subtree.
     public static func describeObject(_ object: GameObject, indent: Int) -> [String] {
         let prefix = String(repeating: "  ", count: indent)
         var lines = ["\(prefix)- \(object.name) [\(object.components.count) components]"]

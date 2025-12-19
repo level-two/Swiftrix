@@ -1,6 +1,14 @@
 import Foundation
 
-/// A script provides custom behavior for a game object.
+/// A component intended for gameplay logic.
+///
+/// Override `update(deltaTime:)` for per-frame behavior, or use:
+/// - `onStart()` / `onDestroy()` for lifecycle
+/// - `onControl(_:)` for input events (dispatched by the scene)
+/// - `onCollision(with:)` for physics callbacks (from the default physics world)
+///
+/// Scripts also expose convenience “bridges” to their owning `GameObject` for:
+/// hierarchy operations, transform access, and component lookup.
 open class Script: Component {
     open func onCollision(with other: Collider) {}
     open func onControl(_ event: ControlEvent) {}

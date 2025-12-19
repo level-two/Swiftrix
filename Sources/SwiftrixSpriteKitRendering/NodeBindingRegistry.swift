@@ -9,6 +9,7 @@ public protocol SpriteKitRenderable: AnyObject {
     func update(node: SKNode)
 }
 
+/// Captures the visual properties of `SpriteView` used for change detection.
 public struct SpriteViewSignature: Equatable {
     public var textureName: String?
     public var colorComponents: (CGFloat, CGFloat, CGFloat, CGFloat)

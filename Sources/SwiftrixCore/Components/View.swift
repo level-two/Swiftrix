@@ -1,6 +1,9 @@
 import Foundation
 
-/// Visual representation of a game object. Host apps provide rendering.
+/// Visual representation of a game object.
+///
+/// Core does not render; hosts interpret `View` components (or subclasses) and
+/// translate them into platform-specific visuals.
 open class View: Component {
     /// Normalized anchor within the view's bounds. (0,0) is top-left, (0.5,0.5) is center, (1,1) is bottom-right.
     public var anchor: Vector2
@@ -10,5 +13,6 @@ open class View: Component {
         super.init(isEnabled: isEnabled)
     }
 
+    /// Draw hook called during draw traversal.
     open func draw() {}
 }

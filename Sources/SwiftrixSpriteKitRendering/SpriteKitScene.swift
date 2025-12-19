@@ -2,16 +2,22 @@ import Foundation
 import SpriteKit
 import SwiftrixCore
 
+/// Lifecycle state of a `SpriteKitScene` adapter.
 public enum SceneAdapterState {
+    /// Constructed but not yet started (no bindings).
     case idle
+    /// Actively running and ticking the Core loop.
     case running
+    /// Paused (no ticks).
     case paused
+    /// Stopped (bindings cleared, no ticks).
     case stopped
 }
 
 /// Performance budget configuration. When `maxSyncOpsPerFrame` is set,
 /// sync work is spread across multiple frames to avoid hitches.
 public struct PerformanceBudget {
+    /// Limits how many bindings can be synchronized per frame. `nil` means “no limit”.
     public var maxSyncOpsPerFrame: Int?
 
     public init(maxSyncOpsPerFrame: Int? = nil) {
@@ -27,11 +33,17 @@ public struct PerformanceBudget {
 /// Subclass this type to create a concrete “scene asset” that wires up your
 /// prefabs and controllers inside `bootstrapScene()`.
 open class SpriteKitScene: SKScene {
+    /// The engine core scene. This holds your game state and logic.
     public let coreScene: Scene
+    /// Current lifecycle state for adapter control and diagnostics.
     public private(set) var state: SceneAdapterState = .idle
+    /// Controls how aggressively Core → SpriteKit synchronization is performed.
     public var performanceBudget: PerformanceBudget
+    /// Optional diagnostics callback (e.g., missing textures).
     public var onDiagnostic: ((String) -> Void)?
+    /// Debug overlay configuration. Use `setDebugOverlayConfig(_:)` to update.
     public var debugOverlayConfig: DebugOverlayConfig?
+    /// Optional camera controller driven after sync each frame.
     public var cameraController: CameraController?
 
     private let fixedDeltaTime: TimeInterval
@@ -97,6 +109,10 @@ open class SpriteKitScene: SKScene {
 
     // MARK: - Lifecycle
 
+    /// Starts the adapter:
+    /// - calls `bootstrapScene()` once (first start only)
+    /// - creates initial Core → SpriteKit bindings
+    /// - begins ticking via `displayLinkDriver` (if provided) or `SKScene.update(_:)`
     open func start() {
         guard state == .idle || state == .stopped else { return }
         if !didBootstrapScene {
@@ -111,6 +127,7 @@ open class SpriteKitScene: SKScene {
         lastUpdateTime = nil
     }
 
+    /// Pauses ticking and SpriteKit updates (bindings are retained).
     open func pause() {
         guard state == .running else { return }
         state = .paused
@@ -118,6 +135,7 @@ open class SpriteKitScene: SKScene {
         isPaused = true
     }
 
+    /// Resumes ticking after `pause()`.
     open func resume() {
         guard state == .paused else { return }
         state = .running
@@ -125,6 +143,7 @@ open class SpriteKitScene: SKScene {
         displayLinkDriver?.resume()
     }
 
+    /// Stops ticking and clears all bindings and overlays.
     open func stop() {
         guard state != .stopped else { return }
         displayLinkDriver?.stop()
@@ -330,10 +349,12 @@ open class SpriteKitScene: SKScene {
 
     // MARK: - Debug helpers
 
+    /// Returns the bound SpriteKit node for a Core object id, if currently mapped.
     public func node(for objectID: UUID) -> SKNode? {
         registry.binding(forID: objectID)?.node
     }
 
+    /// Enables/disables debug overlay rendering.
     public func setDebugOverlayConfig(_ config: DebugOverlayConfig?) {
         debugOverlayConfig = config
         if config == nil || config?.isEnabled == false {
@@ -341,12 +362,14 @@ open class SpriteKitScene: SKScene {
         }
     }
 
+    /// Creates or updates the camera controller configuration.
     public func configureCamera(_ config: CameraConfig) {
         let controller = cameraController ?? CameraController(config: config)
         controller.config = config
         cameraController = controller
     }
 
+    /// Returns the Core object id for the top-most hit-tested SpriteKit node, if any.
     public func hitTestObjectID(at point: CGPoint) -> UUID? {
         hitTestBridge.objectID(at: point, in: self, registry: registry)
     }
