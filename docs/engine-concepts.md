@@ -46,6 +46,8 @@ Components attach behavior and data to game objects:
 - lifecycle hooks on `Script`:
   - `onStart()` mirrors the owning object’s start (called once when the object starts, including for scripts added at runtime after start)
   - `onDestroy()` is invoked once when the owning object is destroyed
+  - `preUpdate(deltaTime:)` runs before any components update for the owning object (useful for input sampling / ordering)
+  - `postUpdate(deltaTime:)` runs after all components update for the owning object (useful for late binding / cleanup)
 
 Scripts inherit convenience bridges to their owning `GameObject`: hierarchy
 (`parent`, `children`), transforms (`localTransform`, `globalTransform`,

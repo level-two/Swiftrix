@@ -29,6 +29,160 @@ final class ScriptTests: XCTestCase {
         XCTAssertEqual(script.updates, 0)
     }
 
+    func testPreAndPostUpdateWrapComponentUpdate() {
+        final class EventLog {
+            var events: [String] = []
+        }
+
+        final class OrderedScript: Script {
+            let log: EventLog
+            init(log: EventLog) { self.log = log }
+            override func preUpdate(deltaTime: TimeInterval) { log.events.append("pre") }
+            override func update(deltaTime: TimeInterval) { log.events.append("update") }
+            override func postUpdate(deltaTime: TimeInterval) { log.events.append("post") }
+        }
+
+        final class MarkerComponent: Component {
+            let log: EventLog
+            init(log: EventLog) { self.log = log }
+            override func update(deltaTime: TimeInterval) { log.events.append("component") }
+        }
+
+        let log = EventLog()
+        let go = GameObject(name: "GO")
+        go.addComponent(OrderedScript(log: log))
+        go.addComponent(MarkerComponent(log: log))
+
+        go.update(deltaTime: 0.5)
+
+        XCTAssertEqual(log.events, ["pre", "update", "component", "post"])
+    }
+
+    func testPreUpdateRunsBeforeAnyComponentUpdateForObject() {
+        final class EventLog {
+            var events: [String] = []
+        }
+
+        final class RecordingScript: Script {
+            let label: String
+            let log: EventLog
+            init(label: String, log: EventLog) {
+                self.label = label
+                self.log = log
+            }
+            override func preUpdate(deltaTime: TimeInterval) { log.events.append("pre:\(label)") }
+            override func update(deltaTime: TimeInterval) { log.events.append("update:\(label)") }
+        }
+
+        final class MarkerComponent: Component {
+            let log: EventLog
+            init(log: EventLog) { self.log = log }
+            override func update(deltaTime: TimeInterval) { log.events.append("component") }
+        }
+
+        let log = EventLog()
+        let go = GameObject(name: "GO")
+        go.addComponent(RecordingScript(label: "A", log: log))
+        go.addComponent(MarkerComponent(log: log))
+        go.addComponent(RecordingScript(label: "B", log: log))
+
+        go.update(deltaTime: 0.5)
+
+        XCTAssertEqual(log.events.first, "pre:A")
+        XCTAssertEqual(log.events[1], "pre:B")
+        XCTAssertEqual(log.events.contains("component"), true)
+
+        let firstUpdateIndex = log.events.firstIndex(where: { $0.hasPrefix("update:") })!
+        let lastPreIndex = log.events.lastIndex(where: { $0.hasPrefix("pre:") })!
+        XCTAssertGreaterThan(firstUpdateIndex, lastPreIndex)
+    }
+
+    func testDestroyedObjectDoesNotReceiveAnyUpdateSignals() {
+        final class EventLog {
+            var events: [String] = []
+        }
+
+        final class RecordingScript: Script {
+            let log: EventLog
+            init(log: EventLog) { self.log = log }
+            override func preUpdate(deltaTime: TimeInterval) { log.events.append("pre") }
+            override func update(deltaTime: TimeInterval) { log.events.append("update") }
+            override func postUpdate(deltaTime: TimeInterval) { log.events.append("post") }
+        }
+
+        let log = EventLog()
+        let go = GameObject(name: "GO")
+        go.addComponent(RecordingScript(log: log))
+
+        go.destroy()
+        go.update(deltaTime: 0.5)
+
+        XCTAssertEqual(log.events, [])
+    }
+
+    func testDestroyDuringPreUpdateStopsFurtherSignals() {
+        final class EventLog {
+            var events: [String] = []
+        }
+
+        final class DestroyingScript: Script {
+            let log: EventLog
+            init(log: EventLog) { self.log = log }
+            override func preUpdate(deltaTime: TimeInterval) {
+                log.events.append("pre")
+                gameObject.destroy()
+            }
+            override func update(deltaTime: TimeInterval) { log.events.append("update") }
+            override func postUpdate(deltaTime: TimeInterval) { log.events.append("post") }
+        }
+
+        final class MarkerComponent: Component {
+            let log: EventLog
+            init(log: EventLog) { self.log = log }
+            override func update(deltaTime: TimeInterval) { log.events.append("component") }
+        }
+
+        let log = EventLog()
+        let go = GameObject(name: "GO")
+        go.addComponent(DestroyingScript(log: log))
+        go.addComponent(MarkerComponent(log: log))
+
+        go.update(deltaTime: 0.5)
+
+        XCTAssertEqual(log.events, ["pre"])
+    }
+
+    func testDestroyDuringUpdateStopsPostUpdateAndRemainingComponents() {
+        final class EventLog {
+            var events: [String] = []
+        }
+
+        final class DestroyingScript: Script {
+            let log: EventLog
+            init(log: EventLog) { self.log = log }
+            override func update(deltaTime: TimeInterval) {
+                log.events.append("script:update")
+                gameObject.destroy()
+            }
+            override func postUpdate(deltaTime: TimeInterval) { log.events.append("post") }
+        }
+
+        final class MarkerComponent: Component {
+            let log: EventLog
+            init(log: EventLog) { self.log = log }
+            override func update(deltaTime: TimeInterval) { log.events.append("component") }
+        }
+
+        let log = EventLog()
+        let go = GameObject(name: "GO")
+        go.addComponent(DestroyingScript(log: log))
+        go.addComponent(MarkerComponent(log: log))
+
+        go.update(deltaTime: 0.5)
+
+        XCTAssertEqual(log.events, ["script:update"])
+    }
+
     func testTransformHelpersMutateGameObject() {
         final class MoveScript: Script {
             override func update(deltaTime: TimeInterval) {

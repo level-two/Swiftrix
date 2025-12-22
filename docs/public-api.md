@@ -59,7 +59,9 @@ Defined in `Sources/SwiftrixCore/Components/*`:
 
 - `Component`: base class with `gameObject` (set automatically) and `isEnabled`.
 - `Script`: gameplay logic; override:
+  - `preUpdate(deltaTime:)` (runs before any components update for the owning object)
   - `update(deltaTime:)` (inherited from `Component`)
+  - `postUpdate(deltaTime:)` (runs after all components update for the owning object)
   - `onStart()` / `onDestroy()` (script lifecycle)
   - `onControl(_:)` (control events)
   - `onCollision(with:)` (physics callback)
@@ -149,4 +151,3 @@ Defined in `Sources/SwiftrixSpriteKitRendering/Views/*` and `Sources/SwiftrixSpr
 - `HitTestBridge` in `Sources/SwiftrixSpriteKitRendering/Input/HitTestBridge.swift`
 - `DisplayLinkDriving`, `CADisplayLinkDriver`, `ManualDisplayLinkDriver` in `Sources/SwiftrixSpriteKitRendering/DisplayLinkDriver.swift`
 - `HostLifecycleBridge` in `Sources/SwiftrixSpriteKitRendering/HostLifecycleBridge.swift`
-

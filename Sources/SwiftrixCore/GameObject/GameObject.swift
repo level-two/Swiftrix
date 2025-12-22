@@ -111,10 +111,46 @@ open class GameObject: IdentifiableObject, Named, Updatable, Destroyable {
         guard !isDestroyed, isEnabled else { return }
 
         startIfNeeded()
-        for component in components where component.isEnabled {
-            component.update(deltaTime: deltaTime)
+
+        // Use snapshots so component graphs can be mutated safely during callbacks.
+        let componentsSnapshot = components
+        let enabledScriptsSnapshot = componentsSnapshot
+            .compactMap { $0 as? Script }
+            .filter { $0.isEnabled }
+
+        for script in enabledScriptsSnapshot {
+            guard !isDestroyed else { return }
+            if let owner = script.gameObject, owner === self {
+                script.preUpdate(deltaTime: deltaTime)
+            }
         }
-        for child in children {
+
+        guard !isDestroyed else { return }
+
+        for component in componentsSnapshot {
+            guard !isDestroyed else { return }
+            guard component.isEnabled else { continue }
+            if let owner = component.gameObject, owner === self {
+                component.update(deltaTime: deltaTime)
+            }
+        }
+
+        guard !isDestroyed else { return }
+
+        for script in enabledScriptsSnapshot {
+            guard !isDestroyed else { return }
+            // Scripts can detach themselves (or be detached by others) during `update`.
+            // Skip post-update hooks if they are no longer attached to this object.
+            if let owner = script.gameObject, owner === self, script.isEnabled {
+                script.postUpdate(deltaTime: deltaTime)
+            }
+        }
+
+        guard !isDestroyed else { return }
+
+        let childrenSnapshot = children
+        for child in childrenSnapshot {
+            guard !isDestroyed else { return }
             child.update(deltaTime: deltaTime)
         }
     }

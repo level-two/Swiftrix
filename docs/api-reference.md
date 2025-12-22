@@ -136,11 +136,13 @@ Lifecycle:
 
 - `open class Script: Component`
 - Override points:
+  - `open func preUpdate(deltaTime:)`
   - `open func onStart()`
   - `open func onDestroy()`
   - `open func onControl(_ event: ControlEvent)`
   - `open func onCollision(with other: Collider)`
   - `open override func update(deltaTime:)` (inherited)
+  - `open func postUpdate(deltaTime:)`
 - Convenience bridges:
   - hierarchy: `parent`, `children`, `addChild`, `removeChild`, `removeFromParent`
   - components: `components`, `getComponent`, `getComponents`, `addComponent`, `removeComponent`
@@ -148,6 +150,9 @@ Lifecycle:
 
 Notes:
 
+- `preUpdate` is called once per frame before any `Component.update` runs for the owning `GameObject`.
+- `postUpdate` is called once per frame after all `Component.update` calls have completed for the owning `GameObject`.
+- If a `GameObject` is destroyed (via `destroy()`) before or during an update phase, the remaining phases for that object (and its child updates for that frame) are skipped.
 - Scripts receive `onControl` only when events are dispatched (via `Scene.update` + `InputSystem.pendingEvents` + traversal).
 - Scripts receive `onCollision` from the default physics world (`DefaultPhysicsWorld`) when overlaps are detected.
 
@@ -412,4 +417,3 @@ final class GameScene: SpriteKitScene {
 - **Determinism**: fixed stepping is driven by `GameLoop`’s `fixedDeltaTime`. If you need strict determinism, keep input event streams and tick deltas deterministic.
 - **Physics**: `DefaultPhysicsWorld` is AABB-only and minimal by design; implement `PhysicsWorld` to swap it out.
 - **Threading**: most engine types are not designed as thread-safe; treat engine state as main-thread/loop-thread owned unless you build explicit synchronization in your host.
-

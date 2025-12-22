@@ -7,13 +7,23 @@ import Foundation
 /// - `onControl(_:)` for input events (dispatched by the scene)
 /// - `onCollision(with:)` for physics callbacks (from the default physics world)
 ///
+/// If you need more control over update ordering, override:
+/// - `preUpdate(deltaTime:)` to run before any components update for this object
+/// - `postUpdate(deltaTime:)` to run after all components update for this object
+///
 /// Scripts also expose convenience “bridges” to their owning `GameObject` for:
 /// hierarchy operations, transform access, and component lookup.
 open class Script: Component {
+    /// Runs before any component updates for the owning `GameObject` during this frame.
+    open func preUpdate(deltaTime: TimeInterval) {}
+
     open func onCollision(with other: Collider) {}
     open func onControl(_ event: ControlEvent) {}
     open func onStart() {}
     open func onDestroy() {}
+
+    /// Runs after all component updates for the owning `GameObject` during this frame.
+    open func postUpdate(deltaTime: TimeInterval) {}
 
     // MARK: - GameObject bridges
     public var parent: GameObject? { gameObject.parent }
