@@ -31,12 +31,12 @@ Defined in `Sources/SwiftrixCore/Scene/Scene.swift`:
   - `eventBus: EventBus` (default `DefaultEventBus`)
   - `inputSystem: InputSystem?` (host-provided or `DefaultInputSystem` in tests)
   - `corePhysicsWorld: PhysicsWorld` (default `DefaultPhysicsWorld`)
-- `DefaultScene`: default `Scene` implementation.
 - Key entry points:
   - `addRootObject(_:)` / `removeRootObject(_:)`
   - `update(deltaTime:)`, `fixedUpdate(fixedDeltaTime:)`, `draw()`
+  - Use `SceneGraphTraversal` to perform the default traversals from your own `Scene` implementation.
 
-**Important behavior:** adding/removing root objects automatically registers/unregisters `Collider` components with the `PhysicsWorld`.
+**Important behavior (recommended default):** when implementing `Scene`, adding/removing root objects should register/unregister `Collider` components with the `PhysicsWorld`.
 
 ### GameObject (scene graph node)
 

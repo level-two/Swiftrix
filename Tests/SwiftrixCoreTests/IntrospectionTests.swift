@@ -3,7 +3,7 @@ import XCTest
 
 final class IntrospectionTests: XCTestCase {
     func testDescribeSceneListsHierarchy() {
-        let scene = DefaultScene()
+        let scene = TestScene()
         let root = GameObject(name: "Root")
         let child = GameObject(name: "Child")
         root.addChild(child)
@@ -19,7 +19,7 @@ final class IntrospectionTests: XCTestCase {
         input.send(event: .axisChanged(name: "Horizontal", value: AxisValue(value: 0.5)))
         input.send(event: .axisChanged(name: "Vertical", value: AxisValue(value: -0.25)))
 
-        let scene = DefaultScene(inputSystem: input)
+        let scene = TestScene(inputSystem: input)
         let description = DebugIntrospection.describeScene(scene)
 
         XCTAssertTrue(description.contains("Input axes"))

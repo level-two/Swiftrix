@@ -8,7 +8,7 @@ It intentionally does not include rendering, audio, or platform input. Hosts pro
 
 Typical usage looks like:
 
-1. Create a `DefaultScene` (or any type that conforms to `Scene`)
+1. Create a type that conforms to `Scene` for your host
 2. Build a tree of `GameObject`s
 3. Attach `Component`s (usually `Script`, plus optional `View`/`Collider`)
 4. Drive the scene with `GameLoop.tick(deltaTime:)` from your host
@@ -22,7 +22,6 @@ For a conceptual overview, see `docs/engine-concepts.md`. For a public API walkt
 ### Essentials
 
 - ``Scene``
-- ``DefaultScene``
 - ``GameObject``
 - ``GameLoop``
 

@@ -33,10 +33,13 @@ public struct PerformanceBudget {
 /// Subclass this type to create a concrete “scene asset” that wires up your
 /// prefabs and controllers inside `bootstrapScene()`.
 open class SpriteKitScene: SKScene, Scene {
-    public private(set) var rootObjects: [GameObject] = []
-    public let eventBus: EventBus
-    public var inputSystem: InputSystem?
-    public let corePhysicsWorld: PhysicsWorld
+    public var rootObjects: [GameObject] { sceneCore.rootObjects }
+    public var eventBus: EventBus { sceneCore.eventBus }
+    public var inputSystem: InputSystem? {
+        get { sceneCore.inputSystem }
+        set { sceneCore.inputSystem = newValue }
+    }
+    public var corePhysicsWorld: PhysicsWorld { sceneCore.corePhysicsWorld }
 
     /// Current lifecycle state for adapter control and diagnostics.
     public private(set) var state: SceneAdapterState = .idle
@@ -55,6 +58,7 @@ open class SpriteKitScene: SKScene, Scene {
     private let overlayRenderer = DebugOverlayRenderer()
     private let hitTestBridge = HitTestBridge()
     private let displayLinkDriver: DisplayLinkDriving?
+    private let sceneCore: SceneCore
     private var gameLoop: GameLoop?
     private var lastUpdateTime: TimeInterval?
     private var didBootstrapScene = false
@@ -68,9 +72,11 @@ open class SpriteKitScene: SKScene, Scene {
         inputSystem: InputSystem? = nil,
         physicsWorld: PhysicsWorld = DefaultPhysicsWorld()
     ) {
-        self.eventBus = eventBus
-        self.inputSystem = inputSystem
-        self.corePhysicsWorld = physicsWorld
+        self.sceneCore = SceneCore(
+            eventBus: eventBus,
+            inputSystem: inputSystem,
+            physicsWorld: physicsWorld
+        )
         self.performanceBudget = performanceBudget
         self.fixedDeltaTime = fixedDeltaTime
         self.registry = NodeBindingRegistry()
@@ -85,9 +91,7 @@ open class SpriteKitScene: SKScene, Scene {
     }
 
     required public init?(coder: NSCoder) {
-        self.eventBus = DefaultEventBus()
-        self.inputSystem = nil
-        self.corePhysicsWorld = DefaultPhysicsWorld()
+        self.sceneCore = SceneCore()
         self.performanceBudget = .default
         self.fixedDeltaTime = 1.0 / 60.0
         self.registry = NodeBindingRegistry()
@@ -101,30 +105,23 @@ open class SpriteKitScene: SKScene, Scene {
     // MARK: - Scene
 
     public func addRootObject(_ object: GameObject) {
-        rootObjects.append(object)
-        registerColliders(in: object)
+        sceneCore.addRootObject(object)
     }
 
     public func removeRootObject(_ object: GameObject) {
-        rootObjects.removeAll { $0.id == object.id }
-        unregisterColliders(in: object)
+        sceneCore.removeRootObject(object)
     }
 
     public func update(deltaTime: TimeInterval) {
-        inputSystem?.update()
-        if let events = inputSystem?.pendingEvents() {
-            SceneGraphTraversal.dispatchControlEvents(events, to: rootObjects)
-        }
-        SceneGraphTraversal.depthFirstUpdate(objects: rootObjects, deltaTime: deltaTime)
+        sceneCore.update(deltaTime: deltaTime)
     }
 
     public func fixedUpdate(fixedDeltaTime: TimeInterval) {
-        corePhysicsWorld.step(fixedDeltaTime: fixedDeltaTime, eventBus: eventBus)
-        SceneGraphTraversal.depthFirstFixedUpdate(objects: rootObjects, fixedDeltaTime: fixedDeltaTime)
+        sceneCore.fixedUpdate(fixedDeltaTime: fixedDeltaTime)
     }
 
     public func draw() {
-        SceneGraphTraversal.depthFirstDraw(objects: rootObjects)
+        sceneCore.draw()
     }
 
     // MARK: - Lifecycle
@@ -365,17 +362,6 @@ open class SpriteKitScene: SKScene, Scene {
 
     private func firstRenderable(from object: GameObject) -> SpriteKitRenderable? {
         object.components.compactMap { $0 as? SpriteKitRenderable }.first
-    }
-
-    // MARK: - Collider registration
-    private func registerColliders(in object: GameObject) {
-        object.components.compactMap { $0 as? Collider }.forEach { corePhysicsWorld.addCollider($0) }
-        object.children.forEach { registerColliders(in: $0) }
-    }
-
-    private func unregisterColliders(in object: GameObject) {
-        object.components.compactMap { $0 as? Collider }.forEach { corePhysicsWorld.removeCollider($0) }
-        object.children.forEach { unregisterColliders(in: $0) }
     }
 
     // MARK: - Debug helpers

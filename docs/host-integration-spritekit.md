@@ -38,6 +38,37 @@ In this pattern, SpriteKit owns all nodes. SwiftrixCore runs the game loop; you 
 import SpriteKit
 import SwiftrixCore
 
+final class ManualScene: Scene {
+    private var roots: [GameObject] = []
+    let eventBus = DefaultEventBus()
+    var inputSystem: InputSystem?
+    let corePhysicsWorld: PhysicsWorld = DefaultPhysicsWorld()
+
+    var rootObjects: [GameObject] { roots }
+
+    func addRootObject(_ object: GameObject) { roots.append(object) }
+    func removeRootObject(_ object: GameObject) {
+        roots.removeAll { $0.id == object.id }
+    }
+
+    func update(deltaTime: TimeInterval) {
+        inputSystem?.update()
+        if let events = inputSystem?.pendingEvents() {
+            SceneGraphTraversal.dispatchControlEvents(events, to: roots)
+        }
+        SceneGraphTraversal.depthFirstUpdate(objects: roots, deltaTime: deltaTime)
+    }
+
+    func fixedUpdate(fixedDeltaTime: TimeInterval) {
+        corePhysicsWorld.step(fixedDeltaTime: fixedDeltaTime, eventBus: eventBus)
+        SceneGraphTraversal.depthFirstFixedUpdate(objects: roots, fixedDeltaTime: fixedDeltaTime)
+    }
+
+    func draw() {
+        SceneGraphTraversal.depthFirstDraw(objects: roots)
+    }
+}
+
 final class GameScene: SKScene {
     private var swiftrixScene: Scene!
     private var loop: GameLoop!
@@ -45,7 +76,9 @@ final class GameScene: SKScene {
 
     override func didMove(to view: SKView) {
         let input = DefaultInputSystem()
-        swiftrixScene = DefaultScene(inputSystem: input)
+        let manualScene = ManualScene()
+        manualScene.inputSystem = input
+        swiftrixScene = manualScene
         loop = GameLoop(scene: swiftrixScene)
 
         let player = GameObject(name: "Player")

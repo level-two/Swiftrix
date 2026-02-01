@@ -101,7 +101,8 @@ final class PlayerScript: Script {
 ```
 
 ```swift
-let scene = DefaultScene()
+// Your host provides a Scene implementation.
+let scene: Scene = GameScene()
 
 let player = GameObject(name: "Player")
 player.addComponent(PlayerScript())

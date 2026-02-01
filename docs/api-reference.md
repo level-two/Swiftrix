@@ -29,7 +29,41 @@ final class MoveRight: Script {
     }
 }
 
-let scene = DefaultScene()
+final class SimpleScene: Scene {
+    private var roots: [GameObject] = []
+    let eventBus = DefaultEventBus()
+    var inputSystem: InputSystem?
+    let corePhysicsWorld: PhysicsWorld = DefaultPhysicsWorld()
+
+    var rootObjects: [GameObject] { roots }
+
+    func addRootObject(_ object: GameObject) {
+        roots.append(object)
+    }
+
+    func removeRootObject(_ object: GameObject) {
+        roots.removeAll { $0.id == object.id }
+    }
+
+    func update(deltaTime: TimeInterval) {
+        inputSystem?.update()
+        if let events = inputSystem?.pendingEvents() {
+            SceneGraphTraversal.dispatchControlEvents(events, to: roots)
+        }
+        SceneGraphTraversal.depthFirstUpdate(objects: roots, deltaTime: deltaTime)
+    }
+
+    func fixedUpdate(fixedDeltaTime: TimeInterval) {
+        corePhysicsWorld.step(fixedDeltaTime: fixedDeltaTime, eventBus: eventBus)
+        SceneGraphTraversal.depthFirstFixedUpdate(objects: roots, fixedDeltaTime: fixedDeltaTime)
+    }
+
+    func draw() {
+        SceneGraphTraversal.depthFirstDraw(objects: roots)
+    }
+}
+
+let scene = SimpleScene()
 let player = GameObject(name: "Player")
 player.addComponent(MoveRight())
 scene.addRootObject(player)
@@ -61,7 +95,6 @@ loop.tick(deltaTime: 1.0 / 60.0)
 Types:
 
 - `protocol Scene: Updatable, FixedUpdatable`
-- `open class DefaultScene: Scene`
 
 Scene state:
 
@@ -72,17 +105,17 @@ Scene state:
 
 Lifecycle/entry points:
 
-- `DefaultScene.init(eventBus:inputSystem:physicsWorld:)`
 - `addRootObject(_:)`
-  - Registers any `Collider` components found in the added subtree into `corePhysicsWorld`.
+  - Recommended default: register any `Collider` components found in the added subtree into `corePhysicsWorld`.
 - `removeRootObject(_:)`
-  - Unregisters colliders in that subtree from `corePhysicsWorld`.
+  - Recommended default: unregister colliders in that subtree from `corePhysicsWorld`.
 - `update(deltaTime:)`
   - Polls input (`inputSystem.update()`), dispatches pending `ControlEvent`s to `ControlComponent`s, then runs update traversal.
 - `fixedUpdate(fixedDeltaTime:)`
   - Steps physics (`corePhysicsWorld.step`) then runs fixed update traversal.
 - `draw()`
   - Runs draw traversal (Core does not render; it only calls `View.draw()`).
+  - Use `SceneGraphTraversal` to perform default traversals from your own `Scene` implementation.
 
 ### GameObject (`Sources/SwiftrixCore/GameObject/GameObject.swift`)
 
@@ -377,7 +410,7 @@ player.addComponent(PlayerCollision())
 ```swift
 import SwiftrixCore
 
-let scene = DefaultScene()
+let scene = SimpleScene()
 let stream = scene.eventBus.subscribe(CollisionEvent.self)
 
 Task {
@@ -393,7 +426,8 @@ Task {
 import SwiftrixCore
 
 let input = DefaultInputSystem()
-let scene = DefaultScene(inputSystem: input)
+let scene = SimpleScene()
+scene.inputSystem = input
 
 input.send(event: .buttonDown("jump"))
 scene.update(deltaTime: 1.0 / 60.0)

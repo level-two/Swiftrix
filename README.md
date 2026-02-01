@@ -228,7 +228,7 @@ final class GameScene: SpriteKitScene {
     override func bootstrapScene() {
         let player = GameObject(name: "Player")
         player.addComponent(SpriteView(textureName: "player", size: CGSize(width: 24, height: 24)))
-        coreScene.addRootObject(player)
+        addRootObject(player)
     }
 }
 
