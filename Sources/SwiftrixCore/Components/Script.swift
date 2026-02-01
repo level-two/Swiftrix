@@ -6,6 +6,7 @@ import Foundation
 /// - `onStart()` / `onDestroy()` for lifecycle
 /// - `onControl(_:)` for input events (dispatched by the scene)
 /// - `onCollision(with:)` for physics callbacks (from the default physics world)
+/// - `fixedUpdate(fixedDeltaTime:)` for fixed-step simulation behavior
 ///
 /// If you need more control over update ordering, override:
 /// - `preUpdate(deltaTime:)` to run before any components update for this object
@@ -13,9 +14,12 @@ import Foundation
 ///
 /// Scripts also expose convenience “bridges” to their owning `GameObject` for:
 /// hierarchy operations, transform access, and component lookup.
-open class Script: Component {
+open class Script: Component, FixedUpdatable {
     /// Runs before any component updates for the owning `GameObject` during this frame.
     open func preUpdate(deltaTime: TimeInterval) {}
+
+    /// Runs during fixed-step updates for the owning `GameObject`.
+    open func fixedUpdate(fixedDeltaTime: TimeInterval) {}
 
     open func onCollision(with other: Collider) {}
     open func onControl(_ event: ControlEvent) {}

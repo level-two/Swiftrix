@@ -87,7 +87,7 @@ Lifecycle/entry points:
 
 Type:
 
-- `open class GameObject: IdentifiableObject, Named, Updatable, Destroyable`
+- `open class GameObject: IdentifiableObject, Named, Updatable, FixedUpdatable, Destroyable`
 
 Identity + hierarchy:
 
@@ -119,6 +119,7 @@ Lifecycle:
 - `isEnabled: Bool`
 - `isDestroyed: Bool` (read-only)
 - `destroy()`
+- `fixedUpdate(fixedDeltaTime:)` (fixed-step hook; traverses components + children)
 - Hooks:
   - `open func onStart()`
   - `open func onDestroy()`
@@ -137,6 +138,7 @@ Lifecycle:
 - `open class Script: Component`
 - Override points:
   - `open func preUpdate(deltaTime:)`
+  - `open func fixedUpdate(fixedDeltaTime:)`
   - `open func onStart()`
   - `open func onDestroy()`
   - `open func onControl(_ event: ControlEvent)`

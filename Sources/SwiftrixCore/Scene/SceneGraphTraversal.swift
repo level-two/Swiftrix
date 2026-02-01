@@ -10,12 +10,7 @@ public enum SceneGraphTraversal {
 
     public static func depthFirstFixedUpdate(objects: [GameObject], fixedDeltaTime: TimeInterval) {
         for object in objects where object.isEnabled && !object.isDestroyed {
-            if let fixed = object as? FixedUpdatable {
-                fixed.fixedUpdate(fixedDeltaTime: fixedDeltaTime)
-            }
-            for child in object.children {
-                depthFirstFixedUpdate(objects: [child], fixedDeltaTime: fixedDeltaTime)
-            }
+            object.fixedUpdate(fixedDeltaTime: fixedDeltaTime)
         }
     }
 

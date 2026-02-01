@@ -13,6 +13,8 @@ Typical usage looks like:
 3. Attach `Component`s (usually `Script`, plus optional `View`/`Collider`)
 4. Drive the scene with `GameLoop.tick(deltaTime:)` from your host
 
+Scripts and game objects can also implement `fixedUpdate(fixedDeltaTime:)` for deterministic fixed-step logic (e.g., physics and simulation).
+
 For a conceptual overview, see `docs/engine-concepts.md`. For a public API walkthrough, see `docs/public-api.md`.
 
 ## Topics
@@ -59,4 +61,3 @@ For a conceptual overview, see `docs/engine-concepts.md`. For a public API walkt
 - ``Vector2``
 - ``Transform2D``
 - ``DebugIntrospection``
-

@@ -46,6 +46,7 @@ Defined in `Sources/SwiftrixCore/GameObject/GameObject.swift` and `Sources/Swift
   - `localTransform: Transform2D` and derived `globalTransform`
   - `components: [Component]`
   - lifecycle hooks `onStart()` and `onDestroy()`
+  - fixed-step hook `fixedUpdate(fixedDeltaTime:)` (deterministic systems)
 - Convenience transform accessors:
   - `position`, `rotation`, `scale`
   - `globalPosition`, `globalRotation`, `globalScale`
@@ -60,6 +61,7 @@ Defined in `Sources/SwiftrixCore/Components/*`:
 - `Component`: base class with `gameObject` (set automatically) and `isEnabled`.
 - `Script`: gameplay logic; override:
   - `preUpdate(deltaTime:)` (runs before any components update for the owning object)
+  - `fixedUpdate(fixedDeltaTime:)` (runs during fixed-step traversal)
   - `update(deltaTime:)` (inherited from `Component`)
   - `postUpdate(deltaTime:)` (runs after all components update for the owning object)
   - `onStart()` / `onDestroy()` (script lifecycle)

@@ -9,7 +9,7 @@ import Foundation
 /// - lifecycle (`onStart` and `onDestroy`)
 ///
 /// Objects are updated depth-first by default traversal.
-open class GameObject: IdentifiableObject, Named, Updatable, Destroyable {
+open class GameObject: IdentifiableObject, Named, Updatable, FixedUpdatable, Destroyable {
     public let id = UUID()
     public var name: String
 
@@ -152,6 +152,31 @@ open class GameObject: IdentifiableObject, Named, Updatable, Destroyable {
         for child in childrenSnapshot {
             guard !isDestroyed else { return }
             child.update(deltaTime: deltaTime)
+        }
+    }
+
+    /// Performs a fixed-step update for this object and its subtree.
+    public func fixedUpdate(fixedDeltaTime: TimeInterval) {
+        guard !isDestroyed, isEnabled else { return }
+
+        startIfNeeded()
+
+        let componentsSnapshot = components
+        for component in componentsSnapshot {
+            guard !isDestroyed else { return }
+            guard component.isEnabled else { continue }
+            guard let fixed = component as? FixedUpdatable else { continue }
+            if let owner = component.gameObject, owner === self {
+                fixed.fixedUpdate(fixedDeltaTime: fixedDeltaTime)
+            }
+        }
+
+        guard !isDestroyed else { return }
+
+        let childrenSnapshot = children
+        for child in childrenSnapshot {
+            guard !isDestroyed else { return }
+            child.fixedUpdate(fixedDeltaTime: fixedDeltaTime)
         }
     }
 

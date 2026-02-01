@@ -31,6 +31,8 @@ Default implementation: `Scene` (see `Sources/SwiftrixCore/Scene/Scene.swift`).
 - lifecycle hooks:
   - `onStart()` is called once, lazily, the first time the object (or any of its scripts) is updated
   - `onDestroy()` is called once when `destroy()` is invoked; destroyed objects are skipped by traversal
+- fixed-step hook:
+  - `fixedUpdate(fixedDeltaTime:)` runs during fixed traversal (deterministic systems)
 
 Default implementation: `GameObject`.
 
@@ -46,6 +48,7 @@ Components attach behavior and data to game objects:
 - lifecycle hooks on `Script`:
   - `onStart()` mirrors the owning object’s start (called once when the object starts, including for scripts added at runtime after start)
   - `onDestroy()` is invoked once when the owning object is destroyed
+  - `fixedUpdate(fixedDeltaTime:)` runs during fixed traversal
   - `preUpdate(deltaTime:)` runs before any components update for the owning object (useful for input sampling / ordering)
   - `postUpdate(deltaTime:)` runs after all components update for the owning object (useful for late binding / cleanup)
 
