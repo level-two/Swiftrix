@@ -2,9 +2,10 @@
 
 ## Entity: SpriteKitScene
 
-- **Purpose**: An `SKScene` subclass that owns a Core `Scene`, drives its `GameLoop`, and mirrors the game object graph into the SpriteKit node tree.
+- **Purpose**: An `SKScene` subclass that conforms to Core `Scene`, drives its `GameLoop`, and mirrors the game object graph into the SpriteKit node tree.
 - **Key Fields**:
-  - `coreScene` — the wrapped Core scene instance.
+  - `rootObjects` — Core scene root objects (read-only).
+  - `eventBus`, `inputSystem`, `corePhysicsWorld` — Core systems that back the `Scene` protocol.
   - `state` — enum { idle, running, paused, stopped } plus timestamps.
   - `performanceBudget` — struct { maxSyncOpsPerFrame }.
   - `registry` — manages `NodeBinding` instances.

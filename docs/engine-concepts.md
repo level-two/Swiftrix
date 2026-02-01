@@ -101,7 +101,7 @@ final class PlayerScript: Script {
 ```
 
 ```swift
-let scene = Scene()
+let scene = DefaultScene()
 
 let player = GameObject(name: "Player")
 player.addComponent(PlayerScript())

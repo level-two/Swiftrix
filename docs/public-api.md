@@ -27,10 +27,11 @@ You rarely conform to these directly; they mostly define the engine’s internal
 
 Defined in `Sources/SwiftrixCore/Scene/Scene.swift`:
 
-- `Scene`: owns `rootObjects`, and wires together:
+- `Scene` (protocol): owns `rootObjects`, and wires together:
   - `eventBus: EventBus` (default `DefaultEventBus`)
   - `inputSystem: InputSystem?` (host-provided or `DefaultInputSystem` in tests)
-  - `physicsWorld: PhysicsWorld` (default `DefaultPhysicsWorld`)
+  - `corePhysicsWorld: PhysicsWorld` (default `DefaultPhysicsWorld`)
+- `DefaultScene`: default `Scene` implementation.
 - Key entry points:
   - `addRootObject(_:)` / `removeRootObject(_:)`
   - `update(deltaTime:)`, `fixedUpdate(fixedDeltaTime:)`, `draw()`
@@ -130,8 +131,7 @@ This module is a host-side adapter: it mirrors Core’s scene graph into a Sprit
 
 Defined in `Sources/SwiftrixSpriteKitRendering/SpriteKitScene.swift`:
 
-- `SpriteKitScene`: an `SKScene` subclass with:
-  - `coreScene: Scene` (your real game state)
+- `SpriteKitScene`: an `SKScene` subclass that also conforms to `Scene`, with:
   - lifecycle: `start()`, `pause()`, `resume()`, `stop()`, `reset()`, `restart()`
   - `bootstrapScene()` override point for constructing your Core objects
   - `configureCamera(_:)`, `setDebugOverlayConfig(_:)`, `hitTestObjectID(at:)`

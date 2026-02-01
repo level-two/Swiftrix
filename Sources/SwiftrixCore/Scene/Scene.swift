@@ -7,13 +7,23 @@ import CoreGraphics
 /// - host code drives it (typically via `GameLoop`)
 /// - host code supplies an `InputSystem` (or uses `DefaultInputSystem` for tests)
 /// - the scene steps physics via `PhysicsWorld` and publishes events via `EventBus`
-///
-/// The default implementation is intentionally small and deterministic.
-open class Scene: Updatable {
+public protocol Scene: AnyObject, Updatable, FixedUpdatable {
+    var rootObjects: [GameObject] { get }
+    var eventBus: EventBus { get }
+    var inputSystem: InputSystem? { get }
+    var corePhysicsWorld: PhysicsWorld { get }
+
+    func addRootObject(_ object: GameObject)
+    func removeRootObject(_ object: GameObject)
+    func draw()
+}
+
+/// Default, deterministic scene implementation.
+open class DefaultScene: Scene {
     public private(set) var rootObjects: [GameObject] = []
     public let eventBus: EventBus
     public var inputSystem: InputSystem?
-    public let physicsWorld: PhysicsWorld
+    public let corePhysicsWorld: PhysicsWorld
 
     /// Creates a scene with pluggable input/physics/event implementations.
     public init(
@@ -23,12 +33,12 @@ open class Scene: Updatable {
     ) {
         self.eventBus = eventBus
         self.inputSystem = inputSystem
-        self.physicsWorld = physicsWorld
+        self.corePhysicsWorld = physicsWorld
     }
 
     /// Adds a root object to the scene graph.
     ///
-    /// Any `Collider` components found in this subtree are registered into `physicsWorld`.
+    /// Any `Collider` components found in this subtree are registered into `corePhysicsWorld`.
     open func addRootObject(_ object: GameObject) {
         rootObjects.append(object)
         registerColliders(in: object)
@@ -36,7 +46,7 @@ open class Scene: Updatable {
 
     /// Removes a root object from the scene graph.
     ///
-    /// Any `Collider` components found in this subtree are unregistered from `physicsWorld`.
+    /// Any `Collider` components found in this subtree are unregistered from `corePhysicsWorld`.
     open func removeRootObject(_ object: GameObject) {
         rootObjects.removeAll { $0.id == object.id }
         unregisterColliders(in: object)
@@ -55,10 +65,10 @@ open class Scene: Updatable {
     }
 
     /// Performs a fixed step update:
-    /// - advances physics (`physicsWorld.step`)
+    /// - advances physics (`corePhysicsWorld.step`)
     /// - traverses the scene graph and calls `fixedUpdate` hooks
     open func fixedUpdate(fixedDeltaTime: TimeInterval) {
-        physicsWorld.step(fixedDeltaTime: fixedDeltaTime, eventBus: eventBus)
+        corePhysicsWorld.step(fixedDeltaTime: fixedDeltaTime, eventBus: eventBus)
         SceneGraphTraversal.depthFirstFixedUpdate(objects: rootObjects, fixedDeltaTime: fixedDeltaTime)
     }
 
@@ -69,12 +79,12 @@ open class Scene: Updatable {
 
     // MARK: - Collider registration
     private func registerColliders(in object: GameObject) {
-        object.components.compactMap { $0 as? Collider }.forEach { physicsWorld.addCollider($0) }
+        object.components.compactMap { $0 as? Collider }.forEach { corePhysicsWorld.addCollider($0) }
         object.children.forEach { registerColliders(in: $0) }
     }
 
     private func unregisterColliders(in object: GameObject) {
-        object.components.compactMap { $0 as? Collider }.forEach { physicsWorld.removeCollider($0) }
+        object.components.compactMap { $0 as? Collider }.forEach { corePhysicsWorld.removeCollider($0) }
         object.children.forEach { unregisterColliders(in: $0) }
     }
 }

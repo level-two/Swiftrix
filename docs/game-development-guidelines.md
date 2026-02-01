@@ -117,7 +117,7 @@ final class GameScene: SpriteKitScene {
         player.position = Vector2(x: 0, y: 0)
         worldRoot.addChild(player)
 
-        coreScene.addRootObject(worldRoot)
+        addRootObject(worldRoot)
     }
 }
 ```
@@ -137,12 +137,12 @@ See `docs/host-integration-spritekit.md` for both patterns.
 `Scene.addRootObject(_:)` registers existing colliders for the entire subtree at the time you add the root.
 
 - If your prefab has colliders, attach them **before** adding the object tree to the scene.
-- If you spawn objects at runtime and attach colliders after the scene is already running, register them with `scene.physicsWorld`:
+- If you spawn objects at runtime and attach colliders after the scene is already running, register them with `scene.corePhysicsWorld`:
 
 ```swift
 let collider = BoxCollider(size: Vector2(x: 32, y: 32), isTrigger: true)
 spawn.addComponent(collider)
-scene.physicsWorld.addCollider(collider)
+scene.corePhysicsWorld.addCollider(collider)
 ```
 
 ### 5.2 Defaults

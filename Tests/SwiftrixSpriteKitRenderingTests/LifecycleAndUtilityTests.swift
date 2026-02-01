@@ -8,7 +8,7 @@ final class LifecycleAndUtilityTests: XCTestCase {
         let harness = SpriteKitTestHarness()
         let root = GameObject(name: "root")
         root.addComponent(SpriteView(color: .red, size: CGSize(width: 8, height: 8)))
-        harness.scene.coreScene.addRootObject(root)
+        harness.scene.addRootObject(root)
 
         harness.scene.start()
         harness.step()
@@ -30,7 +30,7 @@ final class LifecycleAndUtilityTests: XCTestCase {
         let root = GameObject(name: "root")
         let sprite = SpriteView(color: .cyan, size: CGSize(width: 20, height: 20))
         root.addComponent(sprite)
-        harness.scene.coreScene.addRootObject(root)
+        harness.scene.addRootObject(root)
 
         harness.scene.start()
         harness.step()
@@ -64,8 +64,8 @@ final class LifecycleAndUtilityTests: XCTestCase {
         frontSprite.zPosition = 10
         front.addComponent(frontSprite)
 
-        harness.scene.coreScene.addRootObject(back)
-        harness.scene.coreScene.addRootObject(front)
+        harness.scene.addRootObject(back)
+        harness.scene.addRootObject(front)
 
         harness.scene.start()
         harness.step()
@@ -80,7 +80,7 @@ final class LifecycleAndUtilityTests: XCTestCase {
 
         let root = GameObject(name: "root", transform: Transform2D(position: Vector2(x: 50, y: 20)))
         root.addComponent(ContainerView())
-        harness.scene.coreScene.addRootObject(root)
+        harness.scene.addRootObject(root)
 
         harness.scene.configureCamera(CameraConfig(mode: .followObject(root.id, offset: CGPoint(x: 10, y: 0))))
         harness.scene.start()

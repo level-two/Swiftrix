@@ -53,7 +53,7 @@ private final class RecordingInputSystem: InputSystem {
 
 final class SceneTests: XCTestCase {
     func testAddAndRemoveRoot() {
-        let scene = Scene()
+        let scene = DefaultScene()
         let go = GameObject(name: "Root")
         scene.addRootObject(go)
         XCTAssertEqual(scene.rootObjects.count, 1)
@@ -70,7 +70,7 @@ final class SceneTests: XCTestCase {
         child.addComponent(RecordingComponent { log.append($0) })
         root.addChild(child)
 
-        let scene = Scene()
+        let scene = DefaultScene()
         scene.addRootObject(root)
         scene.update(deltaTime: 1)
 
@@ -79,7 +79,7 @@ final class SceneTests: XCTestCase {
 
     func testAddRootRegistersCollidersInSubtree() {
         let physics = RecordingPhysicsWorld()
-        let scene = Scene(physicsWorld: physics)
+        let scene = DefaultScene(physicsWorld: physics)
 
         let rootCollider = BoxCollider(size: Vector2(x: 1, y: 1))
         let childCollider = BoxCollider(size: Vector2(x: 1, y: 1))
@@ -111,7 +111,7 @@ final class SceneTests: XCTestCase {
         child.addComponent(RecordingComponent { log.append($0) })
         root.addChild(child)
 
-        let scene = Scene()
+        let scene = DefaultScene()
         scene.addRootObject(root)
 
         root.isEnabled = false
@@ -126,7 +126,7 @@ final class SceneTests: XCTestCase {
 
     func testSceneUpdateDispatchesInputBeforeTraversal() {
         let input = RecordingInputSystem(events: [.buttonDown("Jump")])
-        let scene = Scene(inputSystem: input)
+        let scene = DefaultScene(inputSystem: input)
 
         let root = GameObject(name: "Root")
         let control = RecordingControlComponent()
@@ -141,7 +141,7 @@ final class SceneTests: XCTestCase {
 
     func testRuntimeAddedColliderIsNotAutoRegistered() {
         let physics = RecordingPhysicsWorld()
-        let scene = Scene(physicsWorld: physics)
+        let scene = DefaultScene(physicsWorld: physics)
 
         let root = GameObject(name: "Root")
         scene.addRootObject(root)
@@ -170,7 +170,7 @@ final class SceneTests: XCTestCase {
         let root = GameObject(name: "Root")
         root.addComponent(RecordingComponent { log.append($0) })
 
-        let scene = Scene()
+        let scene = DefaultScene()
         scene.addRootObject(root)
 
         // Spawn a child during the first update.

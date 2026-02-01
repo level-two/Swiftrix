@@ -29,7 +29,7 @@ final class MoveRight: Script {
     }
 }
 
-let scene = Scene()
+let scene = DefaultScene()
 let player = GameObject(name: "Player")
 player.addComponent(MoveRight())
 scene.addRootObject(player)
@@ -58,28 +58,29 @@ loop.tick(deltaTime: 1.0 / 60.0)
 
 ### Scene (`Sources/SwiftrixCore/Scene/Scene.swift`)
 
-Type:
+Types:
 
-- `open class Scene: Updatable`
+- `protocol Scene: Updatable, FixedUpdatable`
+- `open class DefaultScene: Scene`
 
-State:
+Scene state:
 
 - `rootObjects: [GameObject]` (read-only)
 - `eventBus: EventBus`
 - `inputSystem: InputSystem?`
-- `physicsWorld: PhysicsWorld`
+- `corePhysicsWorld: PhysicsWorld`
 
 Lifecycle/entry points:
 
-- `init(eventBus:inputSystem:physicsWorld:)`
+- `DefaultScene.init(eventBus:inputSystem:physicsWorld:)`
 - `addRootObject(_:)`
-  - Registers any `Collider` components found in the added subtree into `physicsWorld`.
+  - Registers any `Collider` components found in the added subtree into `corePhysicsWorld`.
 - `removeRootObject(_:)`
-  - Unregisters colliders in that subtree from `physicsWorld`.
+  - Unregisters colliders in that subtree from `corePhysicsWorld`.
 - `update(deltaTime:)`
   - Polls input (`inputSystem.update()`), dispatches pending `ControlEvent`s to `ControlComponent`s, then runs update traversal.
 - `fixedUpdate(fixedDeltaTime:)`
-  - Steps physics (`physicsWorld.step`) then runs fixed update traversal.
+  - Steps physics (`corePhysicsWorld.step`) then runs fixed update traversal.
 - `draw()`
   - Runs draw traversal (Core does not render; it only calls `View.draw()`).
 
@@ -135,7 +136,7 @@ Lifecycle:
 
 #### Script
 
-- `open class Script: Component`
+- `open class Script: Component, FixedUpdatable`
 - Override points:
   - `open func preUpdate(deltaTime:)`
   - `open func fixedUpdate(fixedDeltaTime:)`
@@ -259,11 +260,14 @@ Key types:
 
 - `public enum SceneAdapterState { idle, running, paused, stopped }`
 - `public struct PerformanceBudget { maxSyncOpsPerFrame: Int? }`
-- `open class SpriteKitScene: SKScene`
+- `open class SpriteKitScene: SKScene, Scene`
 
 Core state and configuration:
 
-- `coreScene: Scene`
+- `rootObjects: [GameObject]` (read-only)
+- `eventBus: EventBus`
+- `inputSystem: InputSystem?`
+- `corePhysicsWorld: PhysicsWorld`
 - `state: SceneAdapterState` (read-only)
 - `performanceBudget: PerformanceBudget`
 - `onDiagnostic: ((String) -> Void)?` (e.g. missing textures)
@@ -373,7 +377,7 @@ player.addComponent(PlayerCollision())
 ```swift
 import SwiftrixCore
 
-let scene = Scene()
+let scene = DefaultScene()
 let stream = scene.eventBus.subscribe(CollisionEvent.self)
 
 Task {
@@ -389,7 +393,7 @@ Task {
 import SwiftrixCore
 
 let input = DefaultInputSystem()
-let scene = Scene(inputSystem: input)
+let scene = DefaultScene(inputSystem: input)
 
 input.send(event: .buttonDown("jump"))
 scene.update(deltaTime: 1.0 / 60.0)
@@ -406,7 +410,7 @@ final class GameScene: SpriteKitScene {
     override func bootstrapScene() {
         let player = GameObject(name: "Player")
         player.addComponent(SpriteView(textureName: "player", size: CGSize(width: 24, height: 24)))
-        coreScene.addRootObject(player)
+        addRootObject(player)
     }
 }
 ```

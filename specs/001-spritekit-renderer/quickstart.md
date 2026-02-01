@@ -24,7 +24,7 @@ final class GameScene: SpriteKitScene {
   override func bootstrapScene() {
     let player = GameObject(name: "Player")
     player.addComponent(SpriteView(textureName: "player", size: CGSize(width: 24, height: 24)))
-    coreScene.addRootObject(player)
+    addRootObject(player)
   }
 }
 
@@ -43,7 +43,7 @@ skView.presentScene(spriteKitScene)
 // Build GameObjects + View components
 let player = GameObject(name: "Player")
 player.addComponent(SpriteView(textureName: "player", size: CGSize(width: 24, height: 24)))
-spriteKitScene.coreScene.addRootObject(player)
+spriteKitScene.addRootObject(player)
 
 spriteKitScene.start() // begins the display-linked loop and syncs nodes
 ```
@@ -98,7 +98,7 @@ if let objectID = spriteKitScene.hitTestObjectID(at: location) {
 let harness = SpriteKitTestHarness()
 let root = GameObject(name: "root")
 root.addComponent(ContainerView())
-harness.scene.coreScene.addRootObject(root)
+harness.scene.addRootObject(root)
 harness.scene.start()
 harness.step(deltaTime: 1.0 / 60.0) // deterministic tick
 

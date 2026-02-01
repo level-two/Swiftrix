@@ -45,7 +45,7 @@ final class GameScene: SKScene {
 
     override func didMove(to view: SKView) {
         let input = DefaultInputSystem()
-        swiftrixScene = Scene(inputSystem: input)
+        swiftrixScene = DefaultScene(inputSystem: input)
         loop = GameLoop(scene: swiftrixScene)
 
         let player = GameObject(name: "Player")
@@ -88,7 +88,7 @@ final class GameScene: SpriteKitScene {
     override func bootstrapScene() {
         let player = GameObject(name: "Player")
         player.addComponent(SpriteView(textureName: "player", size: CGSize(width: 24, height: 24)))
-        coreScene.addRootObject(player)
+        addRootObject(player)
     }
 }
 

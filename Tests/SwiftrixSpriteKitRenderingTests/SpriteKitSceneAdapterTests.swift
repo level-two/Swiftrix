@@ -15,7 +15,7 @@ final class SpriteKitSceneTests: XCTestCase {
         child.addComponent(SpriteView(color: .red, size: CGSize(width: 8, height: 8)))
         root.addChild(child)
 
-        harness.scene.coreScene.addRootObject(root)
+        harness.scene.addRootObject(root)
         harness.scene.start()
         harness.step()
 
@@ -46,7 +46,7 @@ final class SpriteKitSceneTests: XCTestCase {
         let root = GameObject(name: "root")
         let script = CountingScript()
         root.addComponent(script)
-        harness.scene.coreScene.addRootObject(root)
+        harness.scene.addRootObject(root)
 
         harness.scene.start()
         harness.step(deltaTime: 0.016)
@@ -68,7 +68,7 @@ final class SpriteKitSceneTests: XCTestCase {
         let child = GameObject(name: "child")
         child.addComponent(ContainerView())
         root.addChild(child)
-        harness.scene.coreScene.addRootObject(root)
+        harness.scene.addRootObject(root)
 
         harness.scene.start()
         harness.step()
@@ -87,7 +87,7 @@ final class SpriteKitSceneTests: XCTestCase {
         let child = GameObject(name: "child")
         child.addComponent(SpriteView(color: .blue, size: CGSize(width: 4, height: 4)))
         root.addChild(child)
-        harness.scene.coreScene.addRootObject(root)
+        harness.scene.addRootObject(root)
 
         harness.scene.start()
         harness.step()
@@ -105,7 +105,7 @@ final class SpriteKitSceneTests: XCTestCase {
         let child = GameObject(name: "child")
         child.addComponent(SpriteView(color: .blue, size: CGSize(width: 4, height: 4)))
         root.addChild(child)
-        harness.scene.coreScene.addRootObject(root)
+        harness.scene.addRootObject(root)
 
         harness.scene.start()
         harness.step()
@@ -127,8 +127,8 @@ final class SpriteKitSceneTests: XCTestCase {
         child.addComponent(SpriteView(color: .green))
 
         rootA.addChild(child)
-        harness.scene.coreScene.addRootObject(rootA)
-        harness.scene.coreScene.addRootObject(rootB)
+        harness.scene.addRootObject(rootA)
+        harness.scene.addRootObject(rootB)
 
         harness.scene.start()
         harness.step()
@@ -160,7 +160,7 @@ final class SpriteKitSceneTests: XCTestCase {
 
         root.addChild(childA)
         root.addChild(childB)
-        harness.scene.coreScene.addRootObject(root)
+        harness.scene.addRootObject(root)
 
         harness.scene.start()
         harness.step()
@@ -188,7 +188,7 @@ final class SpriteKitSceneTests: XCTestCase {
         let spriteView = SpriteView(color: .white, size: CGSize(width: 4, height: 4), anchor: Vector2(x: 0, y: 0))
         child.addComponent(spriteView)
         root.addChild(child)
-        harness.scene.coreScene.addRootObject(root)
+        harness.scene.addRootObject(root)
 
         harness.scene.start()
         harness.step()
@@ -212,7 +212,7 @@ final class SpriteKitSceneTests: XCTestCase {
         let spriteView = SpriteView(color: .white, size: CGSize(width: 4, height: 4))
         child.addComponent(spriteView)
         root.addChild(child)
-        harness.scene.coreScene.addRootObject(root)
+        harness.scene.addRootObject(root)
 
         let textures = [
             SKTexture(noiseWithSmoothness: 0.2, size: CGSize(width: 2, height: 2), grayscale: true),
@@ -238,7 +238,7 @@ final class SpriteKitSceneTests: XCTestCase {
         let spriteView = SpriteView(color: .white, size: CGSize(width: 4, height: 4))
         child.addComponent(spriteView)
         root.addChild(child)
-        harness.scene.coreScene.addRootObject(root)
+        harness.scene.addRootObject(root)
 
         let textures = [
             SKTexture(noiseWithSmoothness: 0.2, size: CGSize(width: 2, height: 2), grayscale: true),
@@ -267,7 +267,7 @@ final class SpriteKitSceneTests: XCTestCase {
         let spriteView = SpriteView(color: .white, size: CGSize(width: 4, height: 4))
         child.addComponent(spriteView)
         root.addChild(child)
-        harness.scene.coreScene.addRootObject(root)
+        harness.scene.addRootObject(root)
 
         spriteView.animate(textureNames: ["frameA", "frameB"], timePerFrame: 0.05)
 

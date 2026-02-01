@@ -123,7 +123,7 @@ You can mirror these patterns in your own tests:
 let harness = SpriteKitTestHarness()
 let root = GameObject(name: "root")
 root.addComponent(ContainerView())
-harness.scene.coreScene.addRootObject(root)
+harness.scene.addRootObject(root)
 
 harness.scene.start()
 harness.step(deltaTime: 1.0 / 60.0)

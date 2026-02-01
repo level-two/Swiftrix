@@ -6,14 +6,28 @@ private final class StubScene: Scene {
     var updateCount = 0
     var fixedCount = 0
     var drawCount = 0
+    private(set) var rootObjects: [GameObject] = []
+    let eventBus: EventBus
+    var inputSystem: InputSystem?
+    let corePhysicsWorld: PhysicsWorld
 
     init() {
-        super.init(eventBus: DefaultEventBus(), inputSystem: nil, physicsWorld: NoopPhysicsWorld())
+        self.eventBus = DefaultEventBus()
+        self.inputSystem = nil
+        self.corePhysicsWorld = NoopPhysicsWorld()
     }
 
-    override func update(deltaTime: TimeInterval) { updateCount += 1 }
-    override func fixedUpdate(fixedDeltaTime: TimeInterval) { fixedCount += 1 }
-    override func draw() { drawCount += 1 }
+    func addRootObject(_ object: GameObject) {
+        rootObjects.append(object)
+    }
+
+    func removeRootObject(_ object: GameObject) {
+        rootObjects.removeAll { $0.id == object.id }
+    }
+
+    func update(deltaTime: TimeInterval) { updateCount += 1 }
+    func fixedUpdate(fixedDeltaTime: TimeInterval) { fixedCount += 1 }
+    func draw() { drawCount += 1 }
 }
 
 private final class NoopPhysicsWorld: PhysicsWorld {

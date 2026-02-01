@@ -13,7 +13,7 @@ private final class CountingPhysicsWorld: PhysicsWorld {
 final class PhysicsWorldIntegrationTests: XCTestCase {
     func testSceneFixedUpdateCallsPhysicsWorld() {
         let physics = CountingPhysicsWorld()
-        let scene = Scene(physicsWorld: physics)
+        let scene = DefaultScene(physicsWorld: physics)
         scene.fixedUpdate(fixedDeltaTime: 0.016)
         XCTAssertEqual(physics.stepCount, 1)
     }

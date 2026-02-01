@@ -27,14 +27,17 @@ public struct PerformanceBudget {
     public static let `default` = PerformanceBudget(maxSyncOpsPerFrame: nil)
 }
 
-/// SpriteKit-backed `SKScene` that owns a core `Scene` instance and mirrors
-/// its game object graph into the SpriteKit node tree.
+/// SpriteKit-backed `SKScene` that implements `Scene` and mirrors its game
+/// object graph into the SpriteKit node tree.
 ///
 /// Subclass this type to create a concrete “scene asset” that wires up your
 /// prefabs and controllers inside `bootstrapScene()`.
-open class SpriteKitScene: SKScene {
-    /// The engine core scene. This holds your game state and logic.
-    public let coreScene: Scene
+open class SpriteKitScene: SKScene, Scene {
+    public private(set) var rootObjects: [GameObject] = []
+    public let eventBus: EventBus
+    public var inputSystem: InputSystem?
+    public let corePhysicsWorld: PhysicsWorld
+
     /// Current lifecycle state for adapter control and diagnostics.
     public private(set) var state: SceneAdapterState = .idle
     /// Controls how aggressively Core → SpriteKit synchronization is performed.
@@ -57,27 +60,6 @@ open class SpriteKitScene: SKScene {
     private var didBootstrapScene = false
 
     public init(
-        coreScene: Scene,
-        size: CGSize = CGSize(width: 640, height: 480),
-        displayLinkDriver: DisplayLinkDriving? = nil,
-        fixedDeltaTime: TimeInterval = 1.0 / 60.0,
-        performanceBudget: PerformanceBudget = .default
-    ) {
-        self.coreScene = coreScene
-        self.performanceBudget = performanceBudget
-        self.fixedDeltaTime = fixedDeltaTime
-        self.registry = NodeBindingRegistry()
-        self.dirtyQueue = DirtySyncQueue()
-        self.displayLinkDriver = displayLinkDriver
-        super.init(size: size)
-        self.gameLoop = GameLoop(scene: coreScene, fixedDeltaTime: fixedDeltaTime)
-        self.displayLinkDriver?.onTick = { [weak self] delta in
-            self?.tick(deltaTime: delta)
-        }
-        self.scaleMode = .resizeFill
-    }
-
-    public convenience init(
         size: CGSize = CGSize(width: 640, height: 480),
         displayLinkDriver: DisplayLinkDriving? = nil,
         fixedDeltaTime: TimeInterval = 1.0 / 60.0,
@@ -86,25 +68,63 @@ open class SpriteKitScene: SKScene {
         inputSystem: InputSystem? = nil,
         physicsWorld: PhysicsWorld = DefaultPhysicsWorld()
     ) {
-        let coreScene = Scene(eventBus: eventBus, inputSystem: inputSystem, physicsWorld: physicsWorld)
-        self.init(
-            coreScene: coreScene,
-            size: size,
-            displayLinkDriver: displayLinkDriver,
-            fixedDeltaTime: fixedDeltaTime,
-            performanceBudget: performanceBudget
-        )
+        self.eventBus = eventBus
+        self.inputSystem = inputSystem
+        self.corePhysicsWorld = physicsWorld
+        self.performanceBudget = performanceBudget
+        self.fixedDeltaTime = fixedDeltaTime
+        self.registry = NodeBindingRegistry()
+        self.dirtyQueue = DirtySyncQueue()
+        self.displayLinkDriver = displayLinkDriver
+        super.init(size: size)
+        self.gameLoop = GameLoop(scene: self, fixedDeltaTime: fixedDeltaTime)
+        self.displayLinkDriver?.onTick = { [weak self] delta in
+            self?.tick(deltaTime: delta)
+        }
+        self.scaleMode = .resizeFill
     }
 
     required public init?(coder: NSCoder) {
-        self.coreScene = Scene()
+        self.eventBus = DefaultEventBus()
+        self.inputSystem = nil
+        self.corePhysicsWorld = DefaultPhysicsWorld()
         self.performanceBudget = .default
         self.fixedDeltaTime = 1.0 / 60.0
         self.registry = NodeBindingRegistry()
         self.dirtyQueue = DirtySyncQueue()
         self.displayLinkDriver = nil
         super.init(coder: coder)
-        self.gameLoop = GameLoop(scene: coreScene, fixedDeltaTime: fixedDeltaTime)
+        self.gameLoop = GameLoop(scene: self, fixedDeltaTime: fixedDeltaTime)
+        self.scaleMode = .resizeFill
+    }
+
+    // MARK: - Scene
+
+    public func addRootObject(_ object: GameObject) {
+        rootObjects.append(object)
+        registerColliders(in: object)
+    }
+
+    public func removeRootObject(_ object: GameObject) {
+        rootObjects.removeAll { $0.id == object.id }
+        unregisterColliders(in: object)
+    }
+
+    public func update(deltaTime: TimeInterval) {
+        inputSystem?.update()
+        if let events = inputSystem?.pendingEvents() {
+            SceneGraphTraversal.dispatchControlEvents(events, to: rootObjects)
+        }
+        SceneGraphTraversal.depthFirstUpdate(objects: rootObjects, deltaTime: deltaTime)
+    }
+
+    public func fixedUpdate(fixedDeltaTime: TimeInterval) {
+        corePhysicsWorld.step(fixedDeltaTime: fixedDeltaTime, eventBus: eventBus)
+        SceneGraphTraversal.depthFirstFixedUpdate(objects: rootObjects, fixedDeltaTime: fixedDeltaTime)
+    }
+
+    public func draw() {
+        SceneGraphTraversal.depthFirstDraw(objects: rootObjects)
     }
 
     // MARK: - Lifecycle
@@ -195,7 +215,7 @@ open class SpriteKitScene: SKScene {
 
     private func rebuildSceneGraph() {
         var visited: Set<UUID> = []
-        for root in coreScene.rootObjects where !root.isDestroyed {
+        for root in rootObjects where !root.isDestroyed {
             attach(object: root, parentObject: nil, to: self, visited: &visited, ancestorVisible: true)
         }
         let removed = registry.removeUnvisited(excluding: visited)
@@ -345,6 +365,17 @@ open class SpriteKitScene: SKScene {
 
     private func firstRenderable(from object: GameObject) -> SpriteKitRenderable? {
         object.components.compactMap { $0 as? SpriteKitRenderable }.first
+    }
+
+    // MARK: - Collider registration
+    private func registerColliders(in object: GameObject) {
+        object.components.compactMap { $0 as? Collider }.forEach { corePhysicsWorld.addCollider($0) }
+        object.children.forEach { registerColliders(in: $0) }
+    }
+
+    private func unregisterColliders(in object: GameObject) {
+        object.components.compactMap { $0 as? Collider }.forEach { corePhysicsWorld.removeCollider($0) }
+        object.children.forEach { unregisterColliders(in: $0) }
     }
 
     // MARK: - Debug helpers
