@@ -61,7 +61,7 @@ public final class SpriteKitTouchInputSystem: InputSystem {
         touches.forEach { touch in
             let position = touch.location(in: scene)
             let id = id(for: touch)
-            setTouch(id: id, position: position, phase: .began)
+            setTouch(id: id, position: vector(from: position), phase: .began)
         }
     }
 
@@ -69,7 +69,7 @@ public final class SpriteKitTouchInputSystem: InputSystem {
         touches.forEach { touch in
             let position = touch.location(in: scene)
             let id = id(for: touch)
-            setTouch(id: id, position: position, phase: .moved)
+            setTouch(id: id, position: vector(from: position), phase: .moved)
         }
     }
 
@@ -77,7 +77,7 @@ public final class SpriteKitTouchInputSystem: InputSystem {
         touches.forEach { touch in
             let position = touch.location(in: scene)
             let id = id(for: touch)
-            setTouch(id: id, position: position, phase: .ended)
+            setTouch(id: id, position: vector(from: position), phase: .ended)
         }
     }
 
@@ -85,7 +85,7 @@ public final class SpriteKitTouchInputSystem: InputSystem {
         touches.forEach { touch in
             let position = touch.location(in: scene)
             let id = id(for: touch)
-            setTouch(id: id, position: position, phase: .cancelled)
+            setTouch(id: id, position: vector(from: position), phase: .cancelled)
         }
     }
     #endif
@@ -141,6 +141,10 @@ public final class SpriteKitTouchInputSystem: InputSystem {
         record.phase = phase
         record.updatedThisFrame = true
         records[id] = record
+    }
+
+    private func vector(from point: CGPoint) -> Vector2 {
+        Vector2(x: Double(point.x), y: Double(point.y))
     }
 
     #if canImport(UIKit)
