@@ -41,6 +41,6 @@
 
 ## Decision 7: Camera & Debug Observability Strategy
 
-- **Decision**: Provide a minimal `CameraController` inside the adapter that either follows a designated `GameObject` (using Core transform) or remains static. Debug overlays (bounds, anchors, names) are rendered via optional `SKShapeNode` children toggled by adapter configuration, and mapping inspection is serviced through a `NodeInspector` utility that dumps node/object relationships.
+- **Decision**: Use a Core `Camera` component to drive the adapter’s `SKCameraNode`. The adapter selects the active camera deterministically (highest depth, stable traversal order). Debug overlays (bounds, anchors, names) are rendered via optional `SKShapeNode` children toggled by adapter configuration, and mapping inspection is serviced through a `NodeInspector` utility that dumps node/object relationships.
 - **Rationale**: Meets observability principle without burdening Core. Using SpriteKit-native nodes keeps overlays cheap and accessible from the host debug UI.
 - **Alternatives considered**: (a) Building a custom debug UI layer (too heavy for v1); (b) using console logging only (insufficient for visual debugging).

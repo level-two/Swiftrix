@@ -49,9 +49,6 @@ open class SpriteKitScene: SKScene, Scene {
     public var onDiagnostic: ((String) -> Void)?
     /// Debug overlay configuration. Use `setDebugOverlayConfig(_:)` to update.
     public var debugOverlayConfig: DebugOverlayConfig?
-    /// Optional camera controller driven after sync each frame.
-    public var cameraController: CameraController?
-
     private let fixedDeltaTime: TimeInterval
     private let registry: NodeBindingRegistry
     private let dirtyQueue: DirtySyncQueue
@@ -62,6 +59,7 @@ open class SpriteKitScene: SKScene, Scene {
     private var gameLoop: GameLoop?
     private var lastUpdateTime: TimeInterval?
     private var didBootstrapScene = false
+    private var cameraNode: SKCameraNode?
 
     public init(
         size: CGSize = CGSize(width: 640, height: 480),
@@ -201,6 +199,11 @@ open class SpriteKitScene: SKScene, Scene {
         tick(deltaTime: delta)
     }
 
+    open override func didChangeSize(_ oldSize: CGSize) {
+        super.didChangeSize(oldSize)
+        updateActiveCamera()
+    }
+
     // MARK: - Sync pipeline
 
     private func tick(deltaTime: TimeInterval) {
@@ -280,7 +283,10 @@ open class SpriteKitScene: SKScene, Scene {
 
     private func processDirtyQueue() {
         let ids = dirtyQueue.drain(maxItems: performanceBudget.maxSyncOpsPerFrame)
-        guard !ids.isEmpty else { return }
+        guard !ids.isEmpty else {
+            updateActiveCamera()
+            return
+        }
         for id in ids {
             guard let binding = registry.binding(forID: id),
                   let object = binding.gameObject else { continue }
@@ -318,7 +324,7 @@ open class SpriteKitScene: SKScene, Scene {
                 overlayRenderer.renderOverlay(for: binding, in: self, config: config)
             }
         }
-        cameraController?.update(using: registry, in: self)
+        updateActiveCamera()
     }
 
     private func ancestorsVisible(binding: NodeBinding) -> Bool {
@@ -358,6 +364,7 @@ open class SpriteKitScene: SKScene, Scene {
         registry.clear()
         dirtyQueue.clear()
         overlayRenderer.clear()
+        detachCameraNode()
     }
 
     private func firstRenderable(from object: GameObject) -> SpriteKitRenderable? {
@@ -379,15 +386,88 @@ open class SpriteKitScene: SKScene, Scene {
         }
     }
 
-    /// Creates or updates the camera controller configuration.
-    public func configureCamera(_ config: CameraConfig) {
-        let controller = cameraController ?? CameraController(config: config)
-        controller.config = config
-        cameraController = controller
-    }
-
     /// Returns the Core object id for the top-most hit-tested SpriteKit node, if any.
     public func hitTestObjectID(at point: CGPoint) -> UUID? {
         hitTestBridge.objectID(at: point, in: self, registry: registry)
+    }
+
+    // MARK: - Camera
+
+    private func updateActiveCamera() {
+        guard let selection = findActiveCamera() else {
+            detachCameraNode()
+            return
+        }
+
+        let (owner, camera) = selection
+        let node = ensureCameraNode()
+        let transform = owner.globalTransform
+        node.position = CGPoint(x: transform.position.x, y: transform.position.y)
+        node.zRotation = CGFloat(transform.rotation)
+        node.setScale(CGFloat(CameraCore.sanitizeZoomScale(camera.zoomScale)))
+
+        if self.camera !== node {
+            self.camera = node
+        }
+        if node.parent !== self {
+            addChild(node)
+        }
+
+        let aspectRatio = currentAspectRatio()
+        if let updatable = camera as? CameraAspectRatioUpdatable {
+            updatable.updateAspectRatio(aspectRatio)
+        }
+    }
+
+    private func ensureCameraNode() -> SKCameraNode {
+        if let existing = cameraNode {
+            return existing
+        }
+        let node = SKCameraNode()
+        cameraNode = node
+        return node
+    }
+
+    private func detachCameraNode() {
+        if let node = cameraNode {
+            if camera === node {
+                camera = nil
+            }
+            node.removeFromParent()
+        }
+        cameraNode = nil
+    }
+
+    private func currentAspectRatio() -> Double {
+        guard size.height != 0 else { return 1.0 }
+        return Double(size.width / size.height)
+    }
+
+    private func findActiveCamera() -> (GameObject, CameraComponent)? {
+        var best: (GameObject, CameraComponent)?
+
+        func visit(_ object: GameObject) {
+            guard !object.isDestroyed, object.isEnabled else { return }
+            for component in object.components {
+                guard let camera = component as? CameraComponent else { continue }
+                guard camera.isEnabled else { continue }
+                if let current = best {
+                    if camera.depth > current.1.depth {
+                        best = (object, camera)
+                    }
+                } else {
+                    best = (object, camera)
+                }
+            }
+            for child in object.children {
+                visit(child)
+            }
+        }
+
+        for root in rootObjects {
+            visit(root)
+        }
+
+        return best
     }
 }

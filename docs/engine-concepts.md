@@ -187,9 +187,9 @@ High-level boundaries between SwiftrixCore and a SpriteKit host using the Sprite
  | - Scene                |       | - SKView / SKScene          |
  | - GameObject / GameObject |       | - SpriteKitScene (SKScene subclass) |
  | - Components:          |       | - SpriteView / ContainerView|
- |   Script / View /      |       | - CameraController          |
- |   Collider / Control   |       | - DebugOverlayRenderer      |
- | - GameLoop             |       | - HitTestBridge             |
+ |   Script / View /      |       | - DebugOverlayRenderer      |
+ |   Camera / Collider /  |       | - HitTestBridge             |
+ | - GameLoop             |       | - DisplayLinkDriver         |
  | - PhysicsWorld         |       | - Host input + lifecycle    |
  | - EventBus / InputSystem|      |   (AppDelegate, UIKit, etc.)|
  +------------------------+       +-----------------------------+

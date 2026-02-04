@@ -72,11 +72,11 @@ spriteKitScene.setDebugOverlayConfig(DebugOverlayConfig(
 ## 6. Configure the camera
 
 ```swift
-// Follow a specific GameObject
-spriteKitScene.configureCamera(CameraConfig(mode: .followObject(player.id, offset: .zero), zoom: 1.0))
-
-// Or pin the camera
-spriteKitScene.configureCamera(CameraConfig(mode: .staticOffset(CGPoint(x: 0, y: 0))))
+// Attach a Camera component to a GameObject
+let cameraObject = GameObject(name: "Camera")
+cameraObject.addComponent(Camera(zoomScale: 1.0))
+cameraObject.localTransform.position = Vector2(x: 0, y: 0)
+spriteKitScene.addRootObject(cameraObject)
 ```
 
 ## 7. Touch / hit testing (optional)

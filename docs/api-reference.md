@@ -305,7 +305,6 @@ Core state and configuration:
 - `performanceBudget: PerformanceBudget`
 - `onDiagnostic: ((String) -> Void)?` (e.g. missing textures)
 - `debugOverlayConfig: DebugOverlayConfig?`
-- `cameraController: CameraController?`
 
 Lifecycle:
 
@@ -317,7 +316,6 @@ Debug/host helpers:
 
 - `node(for objectID: UUID) -> SKNode?`
 - `setDebugOverlayConfig(_:)`
-- `configureCamera(_:)`
 - `hitTestObjectID(at:) -> UUID?`
 
 ### Rendering components (`Sources/SwiftrixSpriteKitRendering/Views/*`)
@@ -346,14 +344,12 @@ Debug/host helpers:
   - `allBindings() -> [NodeBinding]`
   - `clear()`
 
-### Camera (`Sources/SwiftrixSpriteKitRendering/Camera/CameraController.swift`)
+### Camera (`Sources/SwiftrixCore/Components/Camera.swift`)
 
-- `public struct CameraConfig`
-  - `mode: .staticOffset(CGPoint)` or `.followObject(UUID, offset: CGPoint)`
-  - `zoom: CGFloat`
-- `public final class CameraController`
-  - `cameraNode: SKCameraNode`
-  - `update(using:in:)`
+- `public final class Camera: Component, CameraComponent`
+  - `zoomScale: Double`
+  - `depth: Double`
+  - `aspectRatio: Double` (read-only, updated by host adapter)
 
 ### Debug overlays (`Sources/SwiftrixSpriteKitRendering/Debug/*`)
 

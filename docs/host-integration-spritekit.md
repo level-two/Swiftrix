@@ -174,10 +174,11 @@ func applicationWillEnterForeground(_ application: UIApplication) {
 ### Camera and Debug Overlays
 
 ```swift
-// Camera follow
-spriteKitScene.configureCamera(
-    CameraConfig(mode: .followObject(player.id, offset: .zero), zoom: 1.0)
-)
+// Camera (attach to a GameObject; adapter picks active camera by depth)
+let cameraObject = GameObject(name: "Camera")
+cameraObject.addComponent(Camera(zoomScale: 1.0))
+cameraObject.localTransform.position = Vector2(x: 0, y: 0)
+spriteKitScene.addRootObject(cameraObject)
 
 // Debug overlays
 spriteKitScene.setDebugOverlayConfig(DebugOverlayConfig(

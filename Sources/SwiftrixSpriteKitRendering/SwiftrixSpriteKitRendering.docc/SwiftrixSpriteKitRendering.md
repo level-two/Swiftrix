@@ -25,8 +25,6 @@ For a guide-level walkthrough, see `docs/host-integration-spritekit.md`.
 
 ### Host Utilities
 
-- ``CameraController``
-- ``CameraConfig``
 - ``DebugOverlayConfig``
 - ``DebugOverlayRenderer``
 - ``HitTestBridge``
@@ -37,4 +35,3 @@ For a guide-level walkthrough, see `docs/host-integration-spritekit.md`.
 - ``DisplayLinkDriving``
 - ``CADisplayLinkDriver``
 - ``ManualDisplayLinkDriver``
-

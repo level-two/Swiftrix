@@ -57,22 +57,20 @@
   - Queue flush occurs during sync step; processed items clear their flags.
   - Remaining items carry over to next frame if budget exhausted.
 
-## Entity: CameraController
+## Entity: Camera (Core Component)
 
-- **Purpose**: Minimal camera representation that translates Core camera intent into SpriteKit coordinates.
+- **Purpose**: A Core component that marks a `GameObject` as a camera source for the adapter.
 - **Key Fields**:
-  - `mode` — enum { staticOffset, followObject }.
-  - `targetObjectID` — optional when `mode == followObject`.
-  - `worldToScreen` — matrix or struct storing scale/offset.
-  - `cameraNodeRef` — reference to `SKCameraNode`.
-  - `constraints` — optional bounds, damping factors.
+  - `zoomScale` — scalar applied to the SpriteKit `SKCameraNode`.
+  - `depth` — selection priority (highest wins).
+  - `aspectRatio` — read-only value updated by the host.
 - **Relationships**:
-  - Associated with a single `SpriteKitScene`.
-  - Reads transforms from `NodeBinding` when following an object.
+  - Attached to a `GameObject` in the Core graph.
+  - Selected by `SpriteKitScene` each frame via deterministic traversal.
+  - Drives a single `SKCameraNode` instance in the SpriteKit adapter.
 - **State Transitions**:
-  - `inactive → active` when host sets camera mode.
-  - `active → inactive` on teardown.
-  - `followObject` revalidates when target binding is destroyed.
+  - `inactive → active` when it becomes the selected camera.
+  - `active → inactive` when another camera with higher depth appears or when disabled.
 
 ## Entity: DebugOverlayConfig
 

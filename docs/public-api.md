@@ -134,7 +134,7 @@ Defined in `Sources/SwiftrixSpriteKitRendering/SpriteKitScene.swift`:
 - `SpriteKitScene`: an `SKScene` subclass that also conforms to `Scene`, with:
   - lifecycle: `start()`, `pause()`, `resume()`, `stop()`, `reset()`, `restart()`
   - `bootstrapScene()` override point for constructing your Core objects
-  - `configureCamera(_:)`, `setDebugOverlayConfig(_:)`, `hitTestObjectID(at:)`
+  - `setDebugOverlayConfig(_:)`, `hitTestObjectID(at:)`
   - `performanceBudget` to spread sync work across frames
 
 ### Views and node binding
@@ -148,7 +148,7 @@ Defined in `Sources/SwiftrixSpriteKitRendering/Views/*` and `Sources/SwiftrixSpr
 
 ### Camera, debug overlays, hit testing, and clocks
 
-- `CameraController` / `CameraConfig` in `Sources/SwiftrixSpriteKitRendering/Camera/CameraController.swift`
+- `Camera` component in `Sources/SwiftrixCore/Components/Camera.swift` (attach to a `GameObject`; SpriteKit adapter auto-selects the active camera)
 - `DebugOverlayConfig` + `DebugOverlayRenderer` in `Sources/SwiftrixSpriteKitRendering/Debug/*`
 - `HitTestBridge` in `Sources/SwiftrixSpriteKitRendering/Input/HitTestBridge.swift`
 - `DisplayLinkDriving`, `CADisplayLinkDriver`, `ManualDisplayLinkDriver` in `Sources/SwiftrixSpriteKitRendering/DisplayLinkDriver.swift`

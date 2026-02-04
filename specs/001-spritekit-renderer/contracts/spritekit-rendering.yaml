@@ -128,8 +128,6 @@ components:
         createdAt:
           type: string
           format: date-time
-        cameraMode:
-          $ref: '#/components/schemas/CameraConfig'
     CreateSessionRequest:
       type: object
       required: [sceneId, rootObjectId, performanceBudget]
@@ -309,15 +307,3 @@ components:
           items:
             type: string
             format: uuid
-    CameraConfig:
-      type: object
-      properties:
-        mode:
-          type: string
-          enum: [staticOffset, followObject]
-        targetObjectId:
-          type: string
-          format: uuid
-          nullable: true
-        offset:
-          $ref: '#/components/schemas/Vector2'

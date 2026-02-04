@@ -111,7 +111,7 @@
 
 **Purpose**: Observability, camera behavior, hit-testing, documentation, and performance tuning that benefit all stories.
 
-- [ ] T035 [P] Implement minimal camera controller with static and follow-object modes mapped to `SKCameraNode` (Sources/SwiftrixSpriteKitRendering/Camera/CameraController.swift)
+- [ ] T035 [P] Implement adapter camera selection from Core `Camera` components and map to `SKCameraNode` (Sources/SwiftrixSpriteKitRendering/SpriteKitScene.swift)
 - [ ] T036 [P] Implement debug overlay rendering (bounds, anchors, names, selection highlight) using `SKShapeNode` (Sources/SwiftrixSpriteKitRendering/Debug/DebugOverlayRenderer.swift)
 - [ ] T037 Implement node inspector utility that can dump Core object ↔ SKNode mappings for tooling (Sources/SwiftrixSpriteKitRendering/Debug/NodeInspector.swift)
 - [ ] T038 [P] Implement optional hit-testing bridge from SpriteKit touches back to Core `GameObject` IDs (Sources/SwiftrixSpriteKitRendering/Input/HitTestBridge.swift)

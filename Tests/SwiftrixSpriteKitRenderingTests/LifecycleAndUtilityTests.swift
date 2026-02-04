@@ -80,13 +80,13 @@ final class LifecycleAndUtilityTests: XCTestCase {
 
         let root = GameObject(name: "root", transform: Transform2D(position: Vector2(x: 50, y: 20)))
         root.addComponent(ContainerView())
+        root.addComponent(Camera())
         harness.scene.addRootObject(root)
 
-        harness.scene.configureCamera(CameraConfig(mode: .followObject(root.id, offset: CGPoint(x: 10, y: 0))))
         harness.scene.start()
         harness.step()
 
         let cameraPosition = harness.scene.camera?.position
-        XCTAssertEqual(cameraPosition, CGPoint(x: 60, y: 20))
+        XCTAssertEqual(cameraPosition, CGPoint(x: 50, y: 20))
     }
 }
