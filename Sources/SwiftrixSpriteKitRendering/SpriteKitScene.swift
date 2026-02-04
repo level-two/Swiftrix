@@ -404,7 +404,7 @@ open class SpriteKitScene: SKScene, Scene {
         let transform = owner.globalTransform
         node.position = CGPoint(x: transform.position.x, y: transform.position.y)
         node.zRotation = CGFloat(transform.rotation)
-        node.setScale(CGFloat(CameraCore.sanitizeZoomScale(camera.zoomScale)))
+        node.setScale(CGFloat(camera.zoomScale))
 
         if self.camera !== node {
             self.camera = node

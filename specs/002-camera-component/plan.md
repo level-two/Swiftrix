@@ -24,9 +24,7 @@ Add a renderer-agnostic `Camera` component in `SwiftrixCore` with `zoomScale`, `
   - `var aspectRatio: Double { get }` (read-only)
 - `public final class Camera: Component, CameraComponent`
   - Default: `zoomScale == 1.0`, `depth == 0`, `aspectRatio == 1.0`
-- `package final class CameraCore`
   - Holds backing storage and validation helpers (e.g., sanitize zoomScale, store aspectRatio).
-  - Must be accessible from other targets within this SwiftPM package (adapter target).
 
 ### SwiftrixSpriteKitRendering (public surface)
 
@@ -126,6 +124,5 @@ Add a renderer-agnostic `Camera` component in `SwiftrixCore` with `zoomScale`, `
 
 - Keep changes small and staged: implement core types + tests first, then adapter changes + tests, then docs cleanup.
 - Avoid “smart” abstractions. One traversal + simple selection rules.
-- Use `package` access for `CameraCore` and any adapter hooks needed to set `aspectRatio`.
+- Use `package` access for adapter hooks needed to set `aspectRatio`.
 - Do not import SpriteKit in core; do not add `SK*` types in core APIs.
-

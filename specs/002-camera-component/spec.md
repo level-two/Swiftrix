@@ -16,7 +16,7 @@ This replaces and **removes** the existing SpriteKit-only camera API (`CameraCon
 - **Zoom model**: `zoomScale` (Unity-like, mapped to SpriteKit `SKCameraNode.setScale` semantics).
 - **Viewport**: not modeled at protocol/core level (SpriteKit cannot implement Unity viewport cleanly in v1).
 - **Camera properties**: expose **read-only `aspectRatio`** (computed by host/adapter).
-- **Core default camera**: `SwiftrixCore` provides a default `Camera` component plus a package-scoped `CameraCore` backing type (usable by adapter targets within this Swift package).
+- **Core default camera**: `SwiftrixCore` provides a default `Camera` component with package-level update hooks used by adapters.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -79,4 +79,3 @@ Gameplay code needs access to the current camera aspect ratio for UI layout and 
 
 - Unity-like viewport splitting is out of scope for v1.
 - SpriteKit camera updates must occur on main thread (consistent with current adapter constraints).
-

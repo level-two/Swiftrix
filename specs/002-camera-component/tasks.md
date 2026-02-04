@@ -15,7 +15,7 @@ description: "Task list for introducing a dedicated Camera component (Unity-like
 ## Phase 1: SwiftrixCore (Camera API + backing)
 
 - [ ] T001 [US1] Add `CameraComponent` protocol and `Camera` component (Sources/SwiftrixCore/Components/Camera.swift)
-- [ ] T002 [US1] Add package-scoped backing `CameraCore` with validation and aspect ratio storage (Sources/SwiftrixCore/Components/CameraCore.swift)
+- [ ] T002 [US1] Add validation + aspect ratio storage directly in `Camera` (Sources/SwiftrixCore/Components/Camera.swift)
 - [ ] T003 [P] [US1] Add unit tests for Camera defaults + zoomScale validation (Tests/SwiftrixCoreTests/CameraTests.swift)
 - [ ] T004 [P] [US3] Add unit tests for `aspectRatio` read-only behavior + package update hook usage (Tests/SwiftrixCoreTests/CameraAspectRatioTests.swift)
 
@@ -44,4 +44,3 @@ description: "Task list for introducing a dedicated Camera component (Unity-like
 ## Validation
 
 - [ ] T018 Run `swift test` from repo root and keep all tests green
-

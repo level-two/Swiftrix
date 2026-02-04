@@ -13,27 +13,34 @@ package protocol CameraAspectRatioUpdatable: CameraComponent {
 
 /// Default camera component. Attach to a `GameObject` to mark it as a render camera.
 public final class Camera: Component, CameraComponent, CameraAspectRatioUpdatable {
-    private let core: CameraCore
-
     public var zoomScale: Double {
-        get { core.zoomScale }
-        set { core.zoomScale = newValue }
+        get { storedZoomScale }
+        set { storedZoomScale = Camera.sanitizeZoomScale(newValue) }
     }
+    public var depth: Double
+    private var storedZoomScale: Double
+    private var storedAspectRatio: Double
 
-    public var depth: Double {
-        get { core.depth }
-        set { core.depth = newValue }
-    }
-
-    public var aspectRatio: Double { core.aspectRatio }
+    public var aspectRatio: Double { storedAspectRatio }
 
     public init(zoomScale: Double = 1.0, depth: Double = 0.0, isEnabled: Bool = true) {
-        self.core = CameraCore(zoomScale: zoomScale, depth: depth)
+        self.storedZoomScale = Camera.sanitizeZoomScale(zoomScale)
+        self.depth = depth
+        self.storedAspectRatio = Camera.sanitizeAspectRatio(1.0)
         super.init(isEnabled: isEnabled)
     }
 
     package func updateAspectRatio(_ value: Double) {
-        core.aspectRatio = value
+        storedAspectRatio = Camera.sanitizeAspectRatio(value)
+    }
+
+    private static func sanitizeZoomScale(_ value: Double) -> Double {
+        guard value.isFinite, value > 0 else { return 1.0 }
+        return value
+    }
+
+    private static func sanitizeAspectRatio(_ value: Double) -> Double {
+        guard value.isFinite, value > 0 else { return 1.0 }
+        return value
     }
 }
-

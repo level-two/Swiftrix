@@ -13,8 +13,8 @@ This file is intentionally procedural and explicit.
 
 1. **Core first (red → green)**  
    - Add tests for `Camera` defaults and `zoomScale` validation.
-   - Implement `CameraComponent`, `Camera`, `CameraCore`.
-   - Add a package-level method on `Camera` (or `CameraCore`) that the adapter can call to update `aspectRatio` without exposing a public setter.
+   - Implement `CameraComponent` and `Camera` (with validation + aspect ratio storage inside `Camera`).
+   - Add a package-level method on `Camera` that the adapter can call to update `aspectRatio` without exposing a public setter.
 
 2. **Adapter selection + application (red → green)**  
    - Add tests in `SwiftrixSpriteKitRenderingTests` for camera selection and transform mapping.
