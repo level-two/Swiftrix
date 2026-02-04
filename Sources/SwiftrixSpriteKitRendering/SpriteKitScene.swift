@@ -81,6 +81,7 @@ open class SpriteKitScene: SKScene, Scene {
         self.dirtyQueue = DirtySyncQueue()
         self.displayLinkDriver = displayLinkDriver
         super.init(size: size)
+        self.sceneCore.bind(scene: self)
         self.gameLoop = GameLoop(scene: self, fixedDeltaTime: fixedDeltaTime)
         self.displayLinkDriver?.onTick = { [weak self] delta in
             self?.tick(deltaTime: delta)
@@ -96,6 +97,7 @@ open class SpriteKitScene: SKScene, Scene {
         self.dirtyQueue = DirtySyncQueue()
         self.displayLinkDriver = nil
         super.init(coder: coder)
+        self.sceneCore.bind(scene: self)
         self.gameLoop = GameLoop(scene: self, fixedDeltaTime: fixedDeltaTime)
         self.scaleMode = .resizeFill
     }

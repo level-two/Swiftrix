@@ -22,6 +22,7 @@ final class TestScene: Scene {
             inputSystem: inputSystem,
             physicsWorld: physicsWorld
         )
+        self.core.bind(scene: self)
     }
 
     func addRootObject(_ object: GameObject) {

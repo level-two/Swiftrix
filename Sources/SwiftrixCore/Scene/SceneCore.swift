@@ -6,6 +6,7 @@ package final class SceneCore {
     package let eventBus: EventBus
     package var inputSystem: InputSystem?
     package let corePhysicsWorld: PhysicsWorld
+    package weak var ownerScene: (any Scene)?
 
     package init(
         eventBus: EventBus = DefaultEventBus(),
@@ -19,11 +20,15 @@ package final class SceneCore {
 
     package func addRootObject(_ object: GameObject) {
         rootObjects.append(object)
+        if let ownerScene {
+            object.setScene(ownerScene)
+        }
         registerColliders(in: object)
     }
 
     package func removeRootObject(_ object: GameObject) {
         rootObjects.removeAll { $0.id == object.id }
+        object.setScene(nil)
         unregisterColliders(in: object)
     }
 
@@ -42,6 +47,11 @@ package final class SceneCore {
 
     package func draw() {
         SceneGraphTraversal.depthFirstDraw(objects: rootObjects)
+    }
+
+    package func bind(scene: any Scene) {
+        ownerScene = scene
+        rootObjects.forEach { $0.setScene(scene) }
     }
 
     // MARK: - Collider registration

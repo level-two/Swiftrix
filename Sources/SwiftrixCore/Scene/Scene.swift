@@ -14,3 +14,9 @@ public protocol Scene: AnyObject, Updatable, FixedUpdatable {
     func removeRootObject(_ object: GameObject)
     func draw()
 }
+
+public extension Scene {
+    var input: InputProxy {
+        InputProxy(inputSystem)
+    }
+}

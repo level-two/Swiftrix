@@ -32,6 +32,8 @@ open class Script: Component, FixedUpdatable {
     // MARK: - GameObject bridges
     public var parent: GameObject? { gameObject.parent }
     public var children: [GameObject] { gameObject.children }
+    public var scene: (any Scene)? { gameObject.scene }
+    public var input: InputProxy { scene?.input ?? InputProxy(nil) }
 
     public func addChild(_ child: GameObject) {
         gameObject.addChild(child)

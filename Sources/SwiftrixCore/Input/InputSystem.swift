@@ -16,6 +16,8 @@ public protocol InputSystem {
     func isButtonUp(_ name: String) -> Bool
     /// Returns true only on the first frame the button transitions to down.
     func isButtonPressed(_ name: String) -> Bool
+    /// Returns the current frame's touch snapshot.
+    func touches() -> [Touch]
     /// Streams control events as they occur.
     func eventsStream() -> AsyncStream<ControlEvent>
     /// Returns and clears pending events since the last call.
@@ -23,6 +25,7 @@ public protocol InputSystem {
 }
 
 public extension InputSystem {
+    func touches() -> [Touch] { [] }
     func pendingEvents() -> [ControlEvent] { [] }
 }
 

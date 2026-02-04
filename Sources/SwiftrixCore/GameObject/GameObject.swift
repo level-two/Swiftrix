@@ -15,6 +15,7 @@ open class GameObject: IdentifiableObject, Named, Updatable, FixedUpdatable, Des
 
     public private(set) weak var parent: GameObject?
     public private(set) var children: [GameObject] = []
+    public private(set) weak var scene: (any Scene)?
 
     public var localTransform: Transform2D
     public var globalTransform: Transform2D {
@@ -55,6 +56,9 @@ open class GameObject: IdentifiableObject, Named, Updatable, FixedUpdatable, Des
 
         children.append(child)
         child.parent = self
+        if let scene {
+            child.setScene(scene)
+        }
     }
 
     /// Removes `child` from the receiver’s children list.
@@ -62,6 +66,7 @@ open class GameObject: IdentifiableObject, Named, Updatable, FixedUpdatable, Des
         children.removeAll { $0.id == child.id }
         if child.parent === self {
             child.parent = nil
+            child.setScene(nil)
         }
     }
 
@@ -72,6 +77,11 @@ open class GameObject: IdentifiableObject, Named, Updatable, FixedUpdatable, Des
     private func isDescendant(of possibleAncestor: GameObject) -> Bool {
         if parent === possibleAncestor { return true }
         return parent?.isDescendant(of: possibleAncestor) ?? false
+    }
+
+    package func setScene(_ scene: (any Scene)?) {
+        self.scene = scene
+        children.forEach { $0.setScene(scene) }
     }
 
     // MARK: - Components
