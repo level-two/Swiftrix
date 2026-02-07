@@ -444,6 +444,10 @@ open class SpriteKitScene: SKScene, Scene {
         if let updatable = camera as? CameraAspectRatioUpdatable {
             updatable.updateAspectRatio(aspectRatio)
         }
+
+        if let updatable = camera as? CameraViewportSizeUpdatable {
+            updatable.updateViewportSize(Vector2(x: Double(size.width), y: Double(size.height)))
+        }
     }
 
     private func ensureCameraNode() -> SKCameraNode {

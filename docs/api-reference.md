@@ -350,6 +350,7 @@ Debug/host helpers:
   - `zoomScale: Double`
   - `depth: Double`
   - `aspectRatio: Double` (read-only, updated by host adapter)
+  - `viewportSize: Vector2` (read-only, updated by host adapter; in v1 this matches the Scene size)
 
 ### Debug overlays (`Sources/SwiftrixSpriteKitRendering/Debug/*`)
 

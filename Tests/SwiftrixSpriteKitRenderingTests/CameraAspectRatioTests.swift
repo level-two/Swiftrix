@@ -14,11 +14,12 @@ final class CameraAspectRatioTests: XCTestCase {
         harness.step()
 
         XCTAssertEqual(camera.aspectRatio, 2.0, accuracy: 0.0001)
+        XCTAssertEqual(camera.viewportSize, Vector2(x: 200, y: 100))
 
         harness.scene.size = CGSize(width: 300, height: 200)
         harness.step()
 
         XCTAssertEqual(camera.aspectRatio, 1.5, accuracy: 0.0001)
+        XCTAssertEqual(camera.viewportSize, Vector2(x: 300, y: 200))
     }
 }
-

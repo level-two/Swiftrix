@@ -7,6 +7,7 @@ final class CameraTests: XCTestCase {
         XCTAssertEqual(camera.zoomScale, 1.0)
         XCTAssertEqual(camera.depth, 0.0)
         XCTAssertEqual(camera.aspectRatio, 1.0)
+        XCTAssertEqual(camera.viewportSize, .zero)
         XCTAssertTrue(camera.isEnabled)
     }
 
@@ -35,5 +36,16 @@ final class CameraTests: XCTestCase {
         camera.updateAspectRatio(.nan)
         XCTAssertEqual(camera.aspectRatio, 1.0)
     }
-}
 
+    func testViewportSizeUpdateIsSanitized() {
+        let camera = Camera()
+        camera.updateViewportSize(Vector2(x: 200, y: 100))
+        XCTAssertEqual(camera.viewportSize, Vector2(x: 200, y: 100))
+
+        camera.updateViewportSize(Vector2(x: -1, y: 100))
+        XCTAssertEqual(camera.viewportSize, Vector2(x: 0, y: 100))
+
+        camera.updateViewportSize(Vector2(x: .nan, y: .infinity))
+        XCTAssertEqual(camera.viewportSize, .zero)
+    }
+}

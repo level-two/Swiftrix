@@ -15,7 +15,7 @@ This replaces and **removes** the existing SpriteKit-only camera API (`CameraCon
 
 - **Zoom model**: `zoomScale` (Unity-like, mapped to SpriteKit `SKCameraNode.setScale` semantics).
 - **Viewport**: not modeled at protocol/core level (SpriteKit cannot implement Unity viewport cleanly in v1).
-- **Camera properties**: expose **read-only `aspectRatio`** (computed by host/adapter).
+- **Camera properties**: expose **read-only `aspectRatio`** and **`viewportSize`** (computed by host/adapter).
 - **Core default camera**: `SwiftrixCore` provides a default `Camera` component with package-level update hooks used by adapters.
 
 ## User Scenarios & Testing *(mandatory)*
@@ -31,7 +31,7 @@ Engine users attach a `Camera` component to any `GameObject` and expect the rend
 
 **Independent Tests**
 
-- Core unit tests verify component shape, defaults, and access control behavior for `aspectRatio`.
+- Core unit tests verify component shape, defaults, and access control behavior for `aspectRatio` / `viewportSize`.
 - SpriteKit adapter tests verify camera selection and transform mapping to `SKCameraNode`.
 
 ### User Story 2 — Camera selection is deterministic (P1)
@@ -52,6 +52,15 @@ Gameplay code needs access to the current camera aspect ratio for UI layout and 
 1. **Given** the host view size changes, **When** the adapter updates, **Then** `camera.aspectRatio` reflects the new value.
 2. **Given** there is no host camera update yet, **Then** `camera.aspectRatio` remains a safe default (e.g., `1.0`).
 
+### User Story 4 — Camera exposes viewport size (P2)
+
+Gameplay code needs access to the current camera viewport size for UI layout and behavior.
+
+**Acceptance Scenarios**
+
+1. **Given** the host view size changes, **When** the adapter updates, **Then** `camera.viewportSize` reflects the new value.
+2. **Given** there is no host camera update yet, **Then** `camera.viewportSize` remains a safe default (e.g., `Vector2.zero`).
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
@@ -64,6 +73,7 @@ Gameplay code needs access to the current camera aspect ratio for UI layout and 
   - the owning `GameObject` is destroyed.
 - **FR-004**: The camera MUST expose a `zoomScale` property. Default MUST be `1.0`.
 - **FR-005**: The camera MUST expose a read-only `aspectRatio` property. Its value MUST be provided/updated by the host adapter (SpriteKit) at runtime.
+- **FR-005a**: The camera MUST expose a read-only `viewportSize` property. Its value MUST be provided/updated by the host adapter (SpriteKit) at runtime, and in v1 matches the host scene size.
 - **FR-006**: The renderer MUST select the active camera deterministically:
   - highest `depth` among enabled cameras wins
   - tie-breaker is stable traversal order (depth-first, first encountered)
